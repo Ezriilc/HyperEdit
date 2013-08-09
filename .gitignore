@@ -14,6 +14,8 @@ TestResults
 *.suo
 *.user
 *.sln.docstates
+*.sln
+*.suo
 *.csproj
 
 # Build results
