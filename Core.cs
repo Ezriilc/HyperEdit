@@ -4,6 +4,8 @@
 // Currently supported by Team HyperEdit, and Ezriilc.
 // Original HyperEdit concept and code by khyperia (no longer involved).
 //
+// Thanks to Payo for inventing, writing and contributing the PlanetEditor component.
+//
 
 using System;
 using System.Collections.Generic;
@@ -68,11 +70,12 @@ namespace HyperEdit
             WindowRect = new Rect(50, 50, 100, 100);
             Contents = new List<IWindowContent>
                 {
-                    new Button("Close all windows", CloseAll),
-                    new Button("Help", new HelpWindow().OpenWindow),
-                    new Button("Edit an orbit", new OrbitEditor().OpenWindow),
-                    new Button("Land your ship", new Lander().OpenWindow),
-                    new Button("Misc tools", new MiscTools().OpenWindow)
+                    new Button("Ship Lander", new Lander().OpenWindow),
+                    new Button("Orbit Editor", new OrbitEditor().OpenWindow),
+                    new Button("Planet Editor", new PlanetEditor().OpenWindow),
+                    new Button("Misc Tools", new MiscTools().OpenWindow),
+                    new Button("HyperEdit Help", new HelpWindow().OpenWindow),
+                    new Button("Close All", CloseAll)
                 };
         }
     }
@@ -94,7 +97,8 @@ namespace HyperEdit
         }
     }
 
-    public static class Si
+/*
+public static class Si_DISABLED // Not currently used.  Si suffixes are unnecessary and confusing.  Possibly useful with modification for clarity and practicality.
     {
         private static readonly Dictionary<string, double> Suffixes = new Dictionary<string, double>
             {
@@ -139,7 +143,7 @@ namespace HyperEdit
             return true;
         }
 
-        public static string ToSiString(this double value)
+        public static string ToString(this double value)
         {
             var log = Math.Log10(Math.Abs(value));
             var minDiff = double.MaxValue;
@@ -157,7 +161,7 @@ namespace HyperEdit
             return value.ToString("F") + minSuffix.Key;
         }
     }
-
+*/
     public static class Extentions
     {
         public static bool ActiveVesselNullcheck(this Window window)

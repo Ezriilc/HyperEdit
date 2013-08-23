@@ -19,7 +19,7 @@ namespace HyperEdit
         public Lander()
         {
             EnsureSingleton(this);
-            Title = "Lander";
+            Title = "Ship Lander";
             WindowRect = new Rect(100, 200, 150, 5);
             Contents = new List<IWindowContent>
                 {
@@ -27,11 +27,11 @@ namespace HyperEdit
                     new TextBox("Latitude", "0"),
                     new TextBox("Longitude", "0"),
                     new TextBox("Altitude", "50"),
-                    new Button("Land", LandAtTarget),
-                    new Button("Save coordanates", SaveCoords),
-                    new Button("Load coordanates", LoadCoords),
-                    new Button("Delete coordanates", DeleteCoords),
-                    new Button("Set to current position", SetCurrent)
+                    new Button("Land/Drop", LandAtTarget),
+                    new Button("Save", SaveCoords),
+                    new Button("Load", LoadCoords),
+                    new Button("Delete", DeleteCoords),
+                    new Button("Set to current (sorta)", SetCurrent)
                 };
         }
 
@@ -39,13 +39,13 @@ namespace HyperEdit
         {
             if (this.ActiveVesselNullcheck())
                 return;
-            SetField<TextBox, string>("Latitude", FlightGlobals.ActiveVessel.latitude.ToSiString());
-            SetField<TextBox, string>("Longitude", FlightGlobals.ActiveVessel.longitude.ToSiString());
+            SetField<TextBox, string>("Latitude", FlightGlobals.ActiveVessel.latitude.ToString());
+            SetField<TextBox, string>("Longitude", FlightGlobals.ActiveVessel.longitude.ToString());
         }
 
         private static void DeleteCoords()
         {
-            new Selector<string[]>("Select coordanates", LandingCoords, l => l[0], OnDeleteCoords).OpenWindow();
+            new Selector<string[]>("Delete Location", LandingCoords, l => l[0], OnDeleteCoords).OpenWindow();
         }
 
         private static void OnDeleteCoords(string[] line)
@@ -57,18 +57,18 @@ namespace HyperEdit
 
         private void LoadCoords()
         {
-            new Selector<string[]>("Select coordanates", LandingCoords, l => l[0], OnLoadCoords).OpenWindow();
+            new Selector<string[]>("Load Location", LandingCoords, l => l[0], OnLoadCoords).OpenWindow();
         }
 
         private void OnLoadCoords(string[] line)
         {
-            SetField<TextBox, string>("Latitude", line[1]);
-            SetField<TextBox, string>("Longitude", line[2]);
+            SetField<TextBox, string>("Lat", line[1]);
+            SetField<TextBox, string>("Lon", line[2]);
         }
 
         private void SaveCoords()
         {
-            new Prompt("Save as...", SaveCoordsNamed).OpenWindow();
+            new Prompt("Save location as...", SaveCoordsNamed).OpenWindow();
         }
 
         private void SaveCoordsNamed(string s)
@@ -103,9 +103,9 @@ namespace HyperEdit
             if (this.ActiveVesselNullcheck())
                 return;
             double latitude, longitude, altitude;
-            if (Si.TryParse(FindField<TextBox, string>("Latitude"), out latitude) == false ||
-                Si.TryParse(FindField<TextBox, string>("Longitude"), out longitude) == false ||
-                Si.TryParse(FindField<TextBox, string>("Altitude"), out altitude) == false)
+            if (double.TryParse(FindField<TextBox, string>("Latitude"), out latitude) == false ||
+                double.TryParse(FindField<TextBox, string>("Longitude"), out longitude) == false ||
+                double.TryParse(FindField<TextBox, string>("Altitude"), out altitude) == false)
             {
                 ErrorPopup.Error("Landing parameter was not a number");
                 return;

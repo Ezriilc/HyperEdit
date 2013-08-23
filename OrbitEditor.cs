@@ -72,19 +72,19 @@ namespace HyperEdit
                 switch (mode)
                 {
                     case EditMode.Simple:
-                        Contents.Add(new TextBox("altitude", orbit.altitude.ToSiString()));
+                        Contents.Add(new TextBox("altitude", orbit.altitude.ToString()));
                         Contents.Add(new TextBox("body", orbit.referenceBody.bodyName));
                         Contents.Add(new Button("Select body", SelectBody));
                         Contents.Add(new Button("Set", SetSimple));
                         break;
                     case EditMode.Complex:
-                        Contents.Add(new TextBox("inc", orbit.inclination.ToSiString()));
-                        Contents.Add(new TextBox("e", orbit.eccentricity.ToSiString()));
-                        Contents.Add(new TextBox("sma", orbit.semiMajorAxis.ToSiString()));
-                        Contents.Add(new TextBox("lan", orbit.LAN.ToSiString()));
-                        Contents.Add(new TextBox("w", orbit.argumentOfPeriapsis.ToSiString()));
-                        Contents.Add(new TextBox("mEp", orbit.meanAnomalyAtEpoch.ToSiString()));
-                        Contents.Add(new TextBox("epoch", orbit.epoch.ToSiString()));
+                        Contents.Add(new TextBox("inc", orbit.inclination.ToString()));
+                        Contents.Add(new TextBox("e", orbit.eccentricity.ToString()));
+                        Contents.Add(new TextBox("sma", orbit.semiMajorAxis.ToString()));
+                        Contents.Add(new TextBox("lan", orbit.LAN.ToString()));
+                        Contents.Add(new TextBox("w", orbit.argumentOfPeriapsis.ToString()));
+                        Contents.Add(new TextBox("mEp", orbit.meanAnomalyAtEpoch.ToString()));
+                        Contents.Add(new TextBox("epoch", orbit.epoch.ToString()));
                         Contents.Add(new TextBox("body", orbit.referenceBody.bodyName));
                         Contents.Add(new Button("Set", SetComplex));
                         break;
@@ -120,7 +120,7 @@ namespace HyperEdit
         private void OnVelChangeSet(string s)
         {
             double speed;
-            if (Si.TryParse(s, out speed) == false)
+            if (double.TryParse(s, out speed) == false)
             {
                 ErrorPopup.Error("Speed was not a number");
                 return;
@@ -218,7 +218,7 @@ namespace HyperEdit
         private void RendezvousWith(Vessel vessel)
         {
             double leadTime;
-            if (Si.TryParse(FindField<TextBox, string>("Lead time"), out leadTime) == false)
+            if (double.TryParse(FindField<TextBox, string>("Lead time"), out leadTime) == false)
             {
                 ErrorPopup.Error("Lead time was not a number");
                 return;
@@ -302,17 +302,17 @@ namespace HyperEdit
                 epoch = Planetarium.GetUniversalTime();
             else if (string.IsNullOrEmpty(epochText))
                 epoch = _orbit.orbit.epoch;
-            else if (Si.TryParse(epochText, out epoch) == false)
+            else if (double.TryParse(epochText, out epoch) == false)
             {
                 ErrorPopup.Error("An orbital parameter was not a number");
                 return;
             }
-            if (Si.TryParse(FindField<TextBox, string>("inc"), out inc) == false ||
-                Si.TryParse(FindField<TextBox, string>("e"), out e) == false ||
-                Si.TryParse(FindField<TextBox, string>("sma"), out sma) == false ||
-                Si.TryParse(FindField<TextBox, string>("lan"), out lan) == false ||
-                Si.TryParse(FindField<TextBox, string>("w"), out w) == false ||
-                Si.TryParse(FindField<TextBox, string>("mEp"), out mEp) == false)
+            if (double.TryParse(FindField<TextBox, string>("inc"), out inc) == false ||
+                double.TryParse(FindField<TextBox, string>("e"), out e) == false ||
+                double.TryParse(FindField<TextBox, string>("sma"), out sma) == false ||
+                double.TryParse(FindField<TextBox, string>("lan"), out lan) == false ||
+                double.TryParse(FindField<TextBox, string>("w"), out w) == false ||
+                double.TryParse(FindField<TextBox, string>("mEp"), out mEp) == false)
             {
                 ErrorPopup.Error("An orbital parameter was not a number");
                 return;
@@ -330,7 +330,7 @@ namespace HyperEdit
         private void SetSimple()
         {
             double altitude;
-            if (Si.TryParse(FindField<TextBox, string>("altitude"), out altitude) == false)
+            if (double.TryParse(FindField<TextBox, string>("altitude"), out altitude) == false)
             {
                 ErrorPopup.Error("Altitude was not a number");
                 return;

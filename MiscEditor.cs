@@ -22,7 +22,7 @@ namespace HyperEdit
                 {
                     new Button("Close", CloseWindow),
                     new Button("Refill ship resources", RefillResources),
-                    new TextBox("Time", Planetarium.fetch == null ? "" : Planetarium.GetUniversalTime().ToSiString(), SetUniversalTime),
+                    new TextBox("Time", Planetarium.fetch == null ? "" : Planetarium.GetUniversalTime().ToString(), SetUniversalTime),
                     new Button("Align SMA", new SmaAligner().OpenWindow),
                     new Button("Destroy a vessel", DestroyVessel)
                 };
@@ -51,7 +51,7 @@ namespace HyperEdit
                 return;
             }
             double time;
-            if (Si.TryParse(s, out time) == false)
+            if (double.TryParse(s, out time) == false)
             {
                 ErrorPopup.Error("Time was not a number");
                 return;

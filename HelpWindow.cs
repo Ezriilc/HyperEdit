@@ -25,11 +25,14 @@ namespace HyperEdit
         }
 
         private const string HelpContents = @"Main window:
-Edit an orbit: Changes the orbit of any ship or planet in the Kerbin system.
-Land your ship: Teleports the current ship to a set of coordinates, and gently sets it down on the surface.
-Misc tools: Random functions The Creator has found useful to include, like refilling ship resources, setting the time, and more.
+Lander:
+'Land/Drop': teleports you to latitude/longitude at altitude above the terrain and slowly lowers you to the ground.  As the ship slowly descends, you have full attitude control, and pressing 'Land/Drop' again drops the ship, releasing it to gravity (DANGER!).
+'Save Location': saves the currently displayed coordinates to: './GameData/Kerbaltek/PluginData/HyperEdit/landcoords.txt', prompting you to name the location.
+'Load Location': loads a coordinate set from the list of saves.
+'Delete Location': permanently (!) deletes a coordinate set from the saves.
+'Set to current location (sorta) LOOSELY sets lat/lon to the vessel's current position.  This is rather inexact, and we plan to fix that.
 
-Orbit editor window:
+Orbit Editor:
 Select orbit: Chooses the orbit to edit. This is not the destination, as might be suggested by planetary names - if you select a planet, you are actually editing that planet's orbit
 Simple: Teleports yourself to a circular, equatorial orbit at the specified altitude
 Complex: Edit raw Keplarian orbital components (see Wikipedia)
@@ -37,59 +40,20 @@ Graphical: Use sliders to edit Keplarian orbital components and see results imme
 Velocity: Edit instantaneous velocity of the orbit
 Rendezvous (only when editing a vessel's orbit): Teleport to (nearly) the same orbit as another ship, at 'lead time' seconds before the other ship
 
-Lander window:
-Pressing land teleports you to latitude/longitude at altitude above the terrain and slowly lowers you to the ground.
-Pressing land again cancels the landing (you'll probably fall and explode, so it's advised to do something to prevent that right after canceling)
-Save coordinates saves the currently entered coordinates to disk, prompting you to name it
-Load coordinates loads a coordinate pair from disk by name
-Delete coordinates deletes a coordinate pair off the disk
-Set to current position sets lat/lon to the current vessel's position (useful for saving a spot you're at)
+Planet Editor:
+Coming soon...
 
-Misc editor:
-Refill ship resources sets all resources on your ship to their maximum capacity.
-Time sets the Universal Time of your save game, in seconds.
-Destroy a vessel kills the vessel you select. (Killing the active vessel has... interesting results)
-Align SMA sets many orbits' semi major axis to be equal, which makes their period be exactly the same - useful for satellite constellations
+Misc Tools:
+'Refill ship resources': sets all resources, e.g. fuel, power, etc., to their maximum capacity.  Watch out for that sudden change in mass!
+'Time': sets the Universal Time of your save game, in seconds.  WARNING: Changing the time this way may cause your MET clock to begin counting BACKWARDS.  If so, you won't be able to control your ship until you correct it, or start another flight.  Messing with it enough has been known to correct it, and yes, we're planning to fix that.
+'Destroy a vessel': kills the vessel you select. (Killing the active vessel has... interesting results)
+'Align SMA': sets many orbits' semi major axis to be equal, which makes their period be exactly the same - useful for satellite constellations
 (note: if the active vessel is one of the satellites you are setting, it is advised to go into non-physical warp, since if the ship runs physics for even one frame, the alignment messes up)
 (also, Bad Things(tm) will happen if you choose satellites on different planets or ones that are landed)
 
-Input Fields:
-All input numbers can be followed by a Metric SI multiplier.  These suffixes move the decimal point right (multiply) or left (divide), anywhere from 1 to 24 places, according to this chart.
-Examples:
-da means *10
-so...
-199da = 1990
-And:
-d means /10
-so...
-199d = 19.9
+Input Field Si unit suffixes have been REMOVED from HyperEdit as of version 1.2.4, for KSP 0.21.1.  The numbers shown are the numbers used, more or less.
 
-Multiply:
-Y = 24
-Z = 21
-E = 18
-P = 15
-T = 12
-G = 9
-M = 6
-k = 3
-h = 2
-da = 1
-
-Divide:
-d = 1
-c = 2
-m = 3
-u = 6
-n = 9
-p = 12
-f = 15
-a = 18
-z = 21
-y = 24
-
-More information on Metric SI multipliers here: http://en.wikipedia.org/wiki/Metric_prefix
-
-For more help, support and contact information, please visit: http://www.KerbaltekAerospace.com .  This is a highly eccentric plugin, so there may be lots of bugs and explosions - please tell us if you find any.";
+For more help, support and contact information, please visit: http://www.KerbaltekAerospace.com .  This is a highly eccentric plugin, so there may be lots of bugs and explosions - please tell us if you find any.
+";
     }
 }
