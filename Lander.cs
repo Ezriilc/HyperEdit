@@ -24,14 +24,14 @@ namespace HyperEdit
             Contents = new List<IWindowContent>
                 {
                     new Button("Close", CloseWindow),
-                    new TextBox("Latitude", "0"),
-                    new TextBox("Longitude", "0"),
-                    new TextBox("Altitude", "50"),
+                    new TextBox("Lat", "0"),
+                    new TextBox("Lon", "0"),
+                    new TextBox("Alt", "50"),
                     new Button("Land/Drop", LandAtTarget),
                     new Button("Save", SaveCoords),
                     new Button("Load", LoadCoords),
                     new Button("Delete", DeleteCoords),
-                    new Button("Set to current (sorta)", SetCurrent)
+                    new Button("Set To Current", SetCurrent)
                 };
         }
 
@@ -39,8 +39,8 @@ namespace HyperEdit
         {
             if (this.ActiveVesselNullcheck())
                 return;
-            SetField<TextBox, string>("Latitude", FlightGlobals.ActiveVessel.latitude.ToString());
-            SetField<TextBox, string>("Longitude", FlightGlobals.ActiveVessel.longitude.ToString());
+            SetField<TextBox, string>("Lat", FlightGlobals.ActiveVessel.latitude.ToString());
+            SetField<TextBox, string>("Lon", FlightGlobals.ActiveVessel.longitude.ToString());
         }
 
         private static void DeleteCoords()
@@ -68,12 +68,12 @@ namespace HyperEdit
 
         private void SaveCoords()
         {
-            new Prompt("Save location as...", SaveCoordsNamed).OpenWindow();
+            new Prompt("Save Location as...", SaveCoordsNamed).OpenWindow();
         }
 
         private void SaveCoordsNamed(string s)
         {
-            var line = new[] {s, FindField<TextBox, string>("Latitude"), FindField<TextBox, string>("Longitude")};
+            var line = new[] { s, FindField<TextBox, string>("Lat"), FindField<TextBox, string>("Lon") };
             var presaved = LandingCoords;
             var preexist = presaved.FirstOrDefault(l => l.Length > 0 && l[0].ToLower() == s.ToLower());
             if (preexist == null)
@@ -103,9 +103,9 @@ namespace HyperEdit
             if (this.ActiveVesselNullcheck())
                 return;
             double latitude, longitude, altitude;
-            if (double.TryParse(FindField<TextBox, string>("Latitude"), out latitude) == false ||
-                double.TryParse(FindField<TextBox, string>("Longitude"), out longitude) == false ||
-                double.TryParse(FindField<TextBox, string>("Altitude"), out altitude) == false)
+            if (double.TryParse(FindField<TextBox, string>("Lat"), out latitude) == false ||
+                double.TryParse(FindField<TextBox, string>("Lon"), out longitude) == false ||
+                double.TryParse(FindField<TextBox, string>("Alt"), out altitude) == false)
             {
                 ErrorPopup.Error("Landing parameter was not a number");
                 return;

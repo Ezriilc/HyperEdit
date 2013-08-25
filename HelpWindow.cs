@@ -41,7 +41,7 @@ Velocity: Edit instantaneous velocity of the orbit
 Rendezvous (only when editing a vessel's orbit): Teleport to (nearly) the same orbit as another ship, at 'lead time' seconds before the other ship
 
 Planet Editor:
-Coming soon...
+Mostly self-explanatory.  Gravitation values are automatically adjusted for the radius of the planet.  More info coming soon (right Payo?).
 
 Misc Tools:
 'Refill ship resources': sets all resources, e.g. fuel, power, etc., to their maximum capacity.  Watch out for that sudden change in mass!
