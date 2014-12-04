@@ -99,8 +99,8 @@ namespace HyperEdit
                         RefreshSlider();
                         break;
                     case EditMode.Velocity:
-                        Contents.Add(new ListSelect<VelChangeDir>((VelChangeDir[])Enum.GetValues(typeof(VelChangeDir)), v => v.ToString(), OnVelChangeDirChange) { Selected = VelChangeDir.Prograde });
                         _velChangeDir = VelChangeDir.Prograde;
+                        Contents.Add(new ListSelect<VelChangeDir>((VelChangeDir[])Enum.GetValues(typeof(VelChangeDir)), v => v.ToString(), x => _velChangeDir = x) { Selected = _velChangeDir });
                         Contents.Add(new TextBox("speed", "0", OnVelChangeSet));
                         break;
                     case EditMode.Rendezvous:
@@ -155,11 +155,6 @@ namespace HyperEdit
             var tempOrbit = _orbit.orbit.Clone();
             tempOrbit.UpdateFromStateVectors(_orbit.orbit.pos, _orbit.orbit.vel + velocity, _orbit.referenceBody, Planetarium.GetUniversalTime());
             _orbit.orbit.Set(tempOrbit);
-        }
-
-        private void OnVelChangeDirChange(VelChangeDir velChangeDir)
-        {
-            _velChangeDir = velChangeDir;
         }
 
         private static string GetName(OrbitDriver orbit)

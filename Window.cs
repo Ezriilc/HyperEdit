@@ -248,6 +248,29 @@ namespace HyperEdit
         }
     }
 
+    // onClick returns the new text of the button
+    public class DynamicButton : IWindowContent
+    {
+        public string Text { get; set; }
+        public Func<string> OnClick { get; set; }
+
+        public DynamicButton(string text, Func<string> onClick)
+        {
+            Text = text;
+            OnClick = onClick;
+        }
+
+        public void Draw()
+        {
+            if (GUILayout.Button(Text))
+            {
+                string newText = OnClick();
+                if (newText != null)
+                    Text = newText;
+            }
+        }
+    }
+
     public class Toggle : IWindowContent, IValueHolder<bool>
     {
         public string Name { get; private set; }

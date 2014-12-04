@@ -27,7 +27,7 @@ namespace HyperEdit
                     new TextBox("Lat", "0"),
                     new TextBox("Lon", "0"),
                     new TextBox("Alt", "50"),
-                    new Button("Land/Drop", LandAtTarget),
+                    new DynamicButton("Land", LandAtTarget),
                     new Button("Save", SaveCoords),
                     new Button("Load", LoadCoords),
                     new Button("Delete", DeleteCoords),
@@ -98,22 +98,22 @@ namespace HyperEdit
             }
         }
 
-        private void LandAtTarget()
+        private string LandAtTarget()
         {
             if (this.ActiveVesselNullcheck())
-                return;
+                return "Land";
             double latitude, longitude, altitude;
             if (double.TryParse(FindField<TextBox, string>("Lat"), out latitude) == false ||
                 double.TryParse(FindField<TextBox, string>("Lon"), out longitude) == false ||
                 double.TryParse(FindField<TextBox, string>("Alt"), out altitude) == false)
             {
                 ErrorPopup.Error("Landing parameter was not a number");
-                return;
+                return "Land";
             }
             if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null)
             {
                 ErrorPopup.Error("Could not find active vessel");
-                return;
+                return "Land";
             }
             var lander = FlightGlobals.ActiveVessel.GetComponent<LanderAttachment>();
             if (lander == null)
@@ -122,9 +122,13 @@ namespace HyperEdit
                 lander.Latitude = latitude;
                 lander.Longitude = longitude;
                 lander.Altitude = altitude;
+                return "Release";
             }
             else
+            {
                 UnityEngine.Object.Destroy(lander);
+                return "Land";
+            }
         }
     }
 
