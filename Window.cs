@@ -222,9 +222,9 @@ namespace HyperEdit
         {
             GUILayout.BeginHorizontal();
             if (string.IsNullOrEmpty(Name) == false)
-                GUILayout.Label(Name);
-            Value = GUILayout.TextField(Value);
-            if (OnPress != null && GUILayout.Button("Set"))
+                GUILayout.Label(Name, GUILayout.ExpandWidth(false));
+            Value = GUILayout.TextField(Value, GUILayout.ExpandWidth(true));
+            if (OnPress != null && GUILayout.Button("Set", GUILayout.ExpandWidth(false)))
                 OnPress(Value);
             GUILayout.EndHorizontal();
         }
@@ -277,10 +277,11 @@ namespace HyperEdit
         public Action<bool> OnChange { get; set; }
         public bool Value { get; set; }
 
-        public Toggle(string text, Action<bool> onChange)
+        public Toggle(string text, bool value, Action<bool> onChange)
         {
             Name = text;
             OnChange = onChange;
+            Value = value;
         }
 
         public void Draw()

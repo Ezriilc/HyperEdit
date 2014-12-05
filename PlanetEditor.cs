@@ -78,38 +78,22 @@ namespace HyperEdit
 
         private CelestialBody _body;
         private Dictionary<string, PlanetSettings> _defaults;
-        private FieldProxy[] _fields;
 
         public PlanetEditor()
         {
             EnsureSingleton(this);
             Title = "Planet editor";
-            WindowRect = new Rect(100, 200, 200, 5);
+            WindowRect = new Rect(100, 200, 250, 5);
             Initialize();
             Refresh();
         }
 
         private void Initialize()
         {
-            _fields = new FieldProxy[0];
             _defaults = new Dictionary<string, PlanetSettings>();
 
             if (FlightGlobals.fetch == null || FlightGlobals.Bodies.FirstOrDefault() == null)
                 return;
-
-            _fields = new FieldProxy[]
-            {
-                FieldProxy.Create("gravitation", () => DensityToGrav(_body.Radius, _body.GeeASL), v => _body.GeeASL = GravToDensity(_body.Radius, v) ),
-                FieldProxy.Create("temperature", () => _body.atmoshpereTemperatureMultiplier, v => _body.atmoshpereTemperatureMultiplier = v),
-                FieldProxy.Create("has atmosphere", () => _body.atmosphere, v => _body.atmosphere = v),
-                FieldProxy.Create("has O2", () => _body.atmosphereContainsOxygen, v => _body.atmosphereContainsOxygen = v),
-                FieldProxy.Create("atmospheric pressure", () => _body.atmosphereMultiplier, v => _body.atmosphereMultiplier = v),
-                FieldProxy.Create("atmosphere height", () => _body.atmosphereScaleHeight, v => _body.atmosphereScaleHeight = v),
-                FieldProxy.Create("atmosphere color", () => _body.atmosphericAmbientColor, v => _body.atmosphericAmbientColor = v),
-                FieldProxy.Create("sphere of influence", () => _body.sphereOfInfluence, v => _body.sphereOfInfluence = v),
-                FieldProxy.Create("rotation period", () => _body.rotationPeriod, v => _body.rotationPeriod = v),
-                FieldProxy.Create("tidally locked", () => _body.tidallyLocked, v => _body.tidallyLocked = v),
-            };
         }
 
         private PlanetSettings SafeGetDefaults(CelestialBody body)
@@ -147,12 +131,23 @@ namespace HyperEdit
                 };
             if (_body != null)
             {
-                foreach (var field in _fields)
+                var windowContents = new IWindowContent[]
                 {
-                    Contents.Add(field.NewTextBox());
+                    FieldProxy.Create("gravitation", () => DensityToGrav(_body.Radius, _body.GeeASL), v => { _body.GeeASL = GravToDensity(_body.Radius, v); _body.CBUpdate(); Refresh(); } ),
+                    FieldProxy.Create("temperature", () => _body.atmoshpereTemperatureMultiplier, v => { _body.atmoshpereTemperatureMultiplier = v; _body.CBUpdate(); Refresh(); }),
+                    FieldProxy.Create("has atmosphere", () => _body.atmosphere, v => { _body.atmosphere = v; _body.CBUpdate(); Refresh(); }),
+                    FieldProxy.Create("has O2", () => _body.atmosphereContainsOxygen, v => { _body.atmosphereContainsOxygen = v; _body.CBUpdate(); Refresh(); }),
+                    FieldProxy.Create("atmospheric pressure", () => _body.atmosphereMultiplier, v => { _body.atmosphereMultiplier = v; _body.CBUpdate(); Refresh(); }),
+                    FieldProxy.Create("atmosphere height", () => _body.atmosphereScaleHeight, v => { _body.atmosphereScaleHeight = v; _body.CBUpdate(); Refresh(); }),
+                    FieldProxy.Create("atmosphere color", () => _body.atmosphericAmbientColor, v => { _body.atmosphericAmbientColor = v; _body.CBUpdate(); Refresh(); }),
+                    FieldProxy.Create("sphere of influence", () => _body.sphereOfInfluence, v => { _body.sphereOfInfluence = v; _body.CBUpdate(); Refresh(); }),
+                    FieldProxy.Create("rotation period", () => _body.rotationPeriod, v => { _body.rotationPeriod = v; _body.CBUpdate(); Refresh(); }),
+                    FieldProxy.Create("tidally locked", () => _body.tidallyLocked, v => { _body.tidallyLocked = v; _body.CBUpdate(); Refresh(); }),
+                };
+                foreach (var field in windowContents)
+                {
+                    Contents.Add(field);
                 }
-
-                Contents.Add(new Button("Set", SetPlanet));
 
                 if (!MatchesDefaults())
                 {
@@ -238,26 +233,6 @@ namespace HyperEdit
 
             if (IsKerbin())
                 Refresh();
-        }
-
-        private void SetPlanet()
-        {
-            if (_body == null)
-            {
-                ErrorPopup.Error("No active body selected");
-                return;
-            }
-
-            if (_fields.Any(f => !f.CanParseTextBox()))
-            {
-                ErrorPopup.Error("A planet parameter was not a valid");
-                return;
-            }
-
-            _fields.ToList().ForEach(f => f.Commit());
-
-            _body.CBUpdate();
-            Refresh();
         }
 
         private void SetBody(CelestialBody body)
