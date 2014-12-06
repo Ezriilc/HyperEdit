@@ -9,7 +9,6 @@
 
 using System;
 using System.ComponentModel;
-using System.Reflection;
 
 namespace HyperEdit
 {
@@ -60,9 +59,8 @@ namespace HyperEdit
         private static string TrimUnityColor(string value)
         {
             value = value.Trim();
-            if (!value.StartsWith("RGBA"))
-                return null;
-            value = value.Substring(4).Trim();
+            if (value.StartsWith("RGBA"))
+                value = value.Substring(4).Trim();
             value = value.Trim('(', ')');
             return value;
         }
@@ -86,7 +84,7 @@ namespace HyperEdit
                     ErrorPopup.Error("\"" + value + "\" was not in the correct format");
                     return;
                 }
-                if (values.Length == 4 && !float.TryParse(values[4], out color.a))
+                if (values.Length == 3 && !float.TryParse(values[3], out color.a))
                 {
                     ErrorPopup.Error("\"" + value + "\" was not in the correct format");
                     return;
