@@ -27,7 +27,7 @@ namespace HyperEdit
                     new TextBox("Lat", "0"),
                     new TextBox("Lon", "0"),
                     new TextBox("Alt", "50"),
-                    new DynamicButton("Land", LandAtTarget),
+                    new FrameUpdateToggle("Landing", IsLanding, DoLand),
                     new Button("Save", SaveCoords),
                     new Button("Load", LoadCoords),
                     new Button("Delete", DeleteCoords),
@@ -98,36 +98,40 @@ namespace HyperEdit
             }
         }
 
-        private string LandAtTarget()
+        private bool IsLanding()
         {
-            if (this.ActiveVesselNullcheck())
-                return "Land";
-            double latitude, longitude, altitude;
-            if (double.TryParse(FindField<TextBox, string>("Lat"), out latitude) == false ||
-                double.TryParse(FindField<TextBox, string>("Lon"), out longitude) == false ||
-                double.TryParse(FindField<TextBox, string>("Alt"), out altitude) == false)
-            {
-                ErrorPopup.Error("Landing parameter was not a number");
-                return "Land";
-            }
+            if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null)
+                return false;
+            return FlightGlobals.ActiveVessel.GetComponent<LanderAttachment>() != null;
+        }
+
+        private void DoLand(bool land)
+        {
             if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null)
             {
                 ErrorPopup.Error("Could not find active vessel");
-                return "Land";
+                return;
             }
             var lander = FlightGlobals.ActiveVessel.GetComponent<LanderAttachment>();
             if (lander == null)
             {
+                double latitude, longitude, altitude;
+                if (double.TryParse(FindField<TextBox, string>("Lat"), out latitude) == false ||
+                    double.TryParse(FindField<TextBox, string>("Lon"), out longitude) == false ||
+                    double.TryParse(FindField<TextBox, string>("Alt"), out altitude) == false)
+                {
+                    ErrorPopup.Error("Landing parameter was not a number");
+                    return;
+                }
+
                 lander = FlightGlobals.ActiveVessel.gameObject.AddComponent<LanderAttachment>();
                 lander.Latitude = latitude;
                 lander.Longitude = longitude;
                 lander.Altitude = altitude;
-                return "Release";
             }
             else
             {
                 UnityEngine.Object.Destroy(lander);
-                return "Land";
             }
         }
     }

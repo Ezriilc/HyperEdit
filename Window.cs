@@ -293,6 +293,28 @@ namespace HyperEdit
         }
     }
 
+    public class FrameUpdateToggle : IWindowContent
+    {
+        public string Name { get; private set; }
+        public Func<bool> Get { get; private set; }
+        public Action<bool> OnChange { get; private set; }
+
+        public FrameUpdateToggle(string name, Func<bool> get, Action<bool> onChange)
+        {
+            Name = name;
+            Get = get;
+            OnChange = onChange;
+        }
+
+        public void Draw()
+        {
+            var prev = Get();
+            var newv = GUILayout.Toggle(prev, Name);
+            if (prev != newv)
+                OnChange(newv);
+        }
+    }
+
     public class Scroller : IWindowContent
     {
         public IWindowContent[] Contents { get; set; }
