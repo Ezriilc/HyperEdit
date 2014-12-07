@@ -51,7 +51,7 @@ namespace HyperEdit
                 return;
             }
             double time;
-            if (double.TryParse(s, out time) == false)
+            if (SiSuffix.TryParse(s, out time) == false)
             {
                 ErrorPopup.Error("Time was not a number");
                 return;

@@ -120,7 +120,7 @@ namespace HyperEdit
         private void OnVelChangeSet(string s)
         {
             double speed;
-            if (double.TryParse(s, out speed) == false)
+            if (SiSuffix.TryParse(s, out speed) == false)
             {
                 ErrorPopup.Error("Speed was not a number");
                 return;
@@ -213,7 +213,7 @@ namespace HyperEdit
         private void RendezvousWith(Vessel vessel)
         {
             double leadTime;
-            if (double.TryParse(FindField<TextBox, string>("Lead time"), out leadTime) == false)
+            if (SiSuffix.TryParse(FindField<TextBox, string>("Lead time"), out leadTime) == false)
             {
                 ErrorPopup.Error("Lead time was not a number");
                 return;
@@ -297,17 +297,17 @@ namespace HyperEdit
                 epoch = Planetarium.GetUniversalTime();
             else if (string.IsNullOrEmpty(epochText))
                 epoch = _orbit.orbit.epoch;
-            else if (double.TryParse(epochText, out epoch) == false)
+            else if (SiSuffix.TryParse(epochText, out epoch) == false)
             {
                 ErrorPopup.Error("An orbital parameter was not a number");
                 return;
             }
-            if (double.TryParse(FindField<TextBox, string>("inc"), out inc) == false ||
-                double.TryParse(FindField<TextBox, string>("e"), out e) == false ||
-                double.TryParse(FindField<TextBox, string>("sma"), out sma) == false ||
-                double.TryParse(FindField<TextBox, string>("lan"), out lan) == false ||
-                double.TryParse(FindField<TextBox, string>("w"), out w) == false ||
-                double.TryParse(FindField<TextBox, string>("mEp"), out mEp) == false)
+            if (SiSuffix.TryParse(FindField<TextBox, string>("inc"), out inc) == false ||
+                SiSuffix.TryParse(FindField<TextBox, string>("e"), out e) == false ||
+                SiSuffix.TryParse(FindField<TextBox, string>("sma"), out sma) == false ||
+                SiSuffix.TryParse(FindField<TextBox, string>("lan"), out lan) == false ||
+                SiSuffix.TryParse(FindField<TextBox, string>("w"), out w) == false ||
+                SiSuffix.TryParse(FindField<TextBox, string>("mEp"), out mEp) == false)
             {
                 ErrorPopup.Error("An orbital parameter was not a number");
                 return;
@@ -325,7 +325,7 @@ namespace HyperEdit
         private void SetSimple()
         {
             double altitude;
-            if (double.TryParse(FindField<TextBox, string>("altitude"), out altitude) == false)
+            if (SiSuffix.TryParse(FindField<TextBox, string>("altitude"), out altitude) == false)
             {
                 ErrorPopup.Error("Altitude was not a number");
                 return;

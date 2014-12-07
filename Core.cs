@@ -88,17 +88,16 @@ namespace HyperEdit
             get
             {
                 return _pressedButton ?? (_pressedButton = new GUIStyle(HighLogic.Skin.button)
-                    {
-                        normal = HighLogic.Skin.button.active,
-                        hover = HighLogic.Skin.button.active,
-                        active = HighLogic.Skin.button.normal
-                    });
+                {
+                    normal = HighLogic.Skin.button.active,
+                    hover = HighLogic.Skin.button.active,
+                    active = HighLogic.Skin.button.normal
+                });
             }
         }
     }
 
-/*
-public static class Si_DISABLED // Not currently used.  Si suffixes are unnecessary and confusing.  Possibly useful with modification for clarity and practicality.
+    public static class SiSuffix
     {
         private static readonly Dictionary<string, double> Suffixes = new Dictionary<string, double>
             {
@@ -143,6 +142,8 @@ public static class Si_DISABLED // Not currently used.  Si suffixes are unnecess
             return true;
         }
 
+        /*
+        // Not currently used.  Si suffixes are unnecessary and confusing.  Possibly useful with modification for clarity and practicality.
         public static string ToString(this double value)
         {
             var log = Math.Log10(Math.Abs(value));
@@ -160,8 +161,9 @@ public static class Si_DISABLED // Not currently used.  Si suffixes are unnecess
             value /= minSuffix.Value;
             return value.ToString("F") + minSuffix.Key;
         }
+        */
     }
-*/
+
     public static class Extentions
     {
         public static bool ActiveVesselNullcheck(this Window window)

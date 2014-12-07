@@ -116,9 +116,9 @@ namespace HyperEdit
             if (lander == null)
             {
                 double latitude, longitude, altitude;
-                if (double.TryParse(FindField<TextBox, string>("Lat"), out latitude) == false ||
-                    double.TryParse(FindField<TextBox, string>("Lon"), out longitude) == false ||
-                    double.TryParse(FindField<TextBox, string>("Alt"), out altitude) == false)
+                if (SiSuffix.TryParse(FindField<TextBox, string>("Lat"), out latitude) == false ||
+                    SiSuffix.TryParse(FindField<TextBox, string>("Lon"), out longitude) == false ||
+                    SiSuffix.TryParse(FindField<TextBox, string>("Alt"), out altitude) == false)
                 {
                     ErrorPopup.Error("Landing parameter was not a number");
                     return;

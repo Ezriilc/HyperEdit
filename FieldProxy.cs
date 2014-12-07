@@ -35,22 +35,18 @@ namespace HyperEdit
                 set((T)(object)value);
                 return;
             }
-
-            var converter = TypeDescriptor.GetConverter(typeof(T));
-            if (converter != null)
+            if (typeof(T) == typeof(double) || typeof(T) == typeof(float))
             {
-                T newValue;
-                try
+                double number;
+                if (SiSuffix.TryParse(value, out number) == false)
                 {
-                    newValue = (T)converter.ConvertFromString(value);
-                }
-                catch (Exception e)
-                {
-                    ErrorPopup.Error("\"" + value + "\" was not in the correct format: " + e.Message);
+                    ErrorPopup.Error("\"" + value + "\" was not in the correct format");
                     return;
                 }
-                set(newValue);
-                return;
+                if (typeof(T) == typeof(float))
+                    set((T)(object)(float)number);
+                else
+                    set((T)(object)number);
             }
 
             ErrorPopup.Error("Internal error: Type " + typeof(T).Name + " cannot be parsed");
