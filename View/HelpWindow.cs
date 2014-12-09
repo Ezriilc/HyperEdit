@@ -1,27 +1,15 @@
-﻿//
-// This file is part of the HyperEdit plugin for Kerbal Space Program, Copyright Erickson Swift, 2013.
-// HyperEdit is licensed under the GPL, found in COPYING.txt.
-// Currently supported by Team HyperEdit, and Ezriilc.
-// Original HyperEdit concept and code by khyperia (no longer involved).
-//
+﻿using UnityEngine;
 
-using System.Collections.Generic;
-using UnityEngine;
-
-namespace HyperEdit
+namespace HyperEdit.View
 {
-    public class HelpWindow : Window
+    public static class HelpWindow
     {
-        public HelpWindow()
+        public static void Create()
         {
-            EnsureSingleton(this);
-            Title = "Help";
-            WindowRect = new Rect(Screen.width / 2 - 250, Screen.height / 2 - 200, 500, 400);
-            Contents = new List<IWindowContent>
-                {
-                    new Scroller(new[]{(IWindowContent)new Label(HelpContents) }),
-                    new Button("Close", CloseWindow)
-                };
+            Window.Create("Help", 500, 400, w =>
+            {
+                GUILayout.Label(HelpContents);
+            });
         }
 
         private const string HelpContents = @"Main window:

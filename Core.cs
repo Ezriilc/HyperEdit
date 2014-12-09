@@ -39,7 +39,6 @@ namespace HyperEdit
     public class HyperEditBehaviour : MonoBehaviour
     {
         private static Krakensbane _krakensbane;
-        private static readonly HyperEditWindow HyperEditWindow = new HyperEditWindow();
 
         public static Krakensbane Krakensbane
         {
@@ -49,7 +48,7 @@ namespace HyperEdit
         public void Update()
         {
             if ((Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)) && Input.GetKeyDown(KeyCode.H))
-                HyperEditWindow.OpenWindow();
+                View.CoreView.Create();
         }
     }
 
@@ -58,25 +57,6 @@ namespace HyperEdit
         public static void Error(string message)
         {
             PopupDialog.SpawnPopupDialog("Error", message, "Close", true, HighLogic.Skin);
-        }
-    }
-
-    public class HyperEditWindow : Window
-    {
-        public HyperEditWindow()
-        {
-            EnsureSingleton(this);
-            Title = "HyperEdit";
-            WindowRect = new Rect(50, 50, 100, 100);
-            Contents = new List<IWindowContent>
-                {
-                    new Button("Ship Lander", new Lander().OpenWindow),
-                    new Button("Orbit Editor", new OrbitEditor().OpenWindow),
-                    new Button("Planet Editor", new PlanetEditor().OpenWindow),
-                    new Button("Misc Tools", new MiscTools().OpenWindow),
-                    new Button("HyperEdit Help", new HelpWindow().OpenWindow),
-                    new Button("Close All", CloseAll)
-                };
         }
     }
 
@@ -166,17 +146,6 @@ namespace HyperEdit
 
     public static class Extentions
     {
-        public static bool ActiveVesselNullcheck(this Window window)
-        {
-            if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null)
-            {
-                ErrorPopup.Error("Could not find the active vessel (are you in the flight scene?)");
-                window.CloseWindow();
-                return true;
-            }
-            return false;
-        }
-
         public static Vessel GetVessel(this Orbit orbit)
         {
             return FlightGlobals.fetch == null ? null : FlightGlobals.Vessels.FirstOrDefault(v => v.orbitDriver != null && v.orbit == orbit);
@@ -290,6 +259,41 @@ namespace HyperEdit
         public static string Aggregate(this IEnumerable<string> source, string middle)
         {
             return source.Aggregate("", (total, part) => total + middle + part).Substring(middle.Length);
+        }
+
+        public static bool CbTryParse(string bodyName, out CelestialBody body)
+        {
+            body = FlightGlobals.Bodies == null ? null : FlightGlobals.Bodies.FirstOrDefault(cb => cb.name == bodyName);
+            return body != null;
+        }
+
+        private static string TrimUnityColor(string value)
+        {
+            value = value.Trim();
+            if (value.StartsWith("RGBA"))
+                value = value.Substring(4).Trim();
+            value = value.Trim('(', ')');
+            return value;
+        }
+
+        public static bool ColorTryParse(string value, out Color color)
+        {
+            color = new Color();
+            string parseValue = TrimUnityColor(value);
+            if (parseValue == null)
+                return false;
+            string[] values = parseValue.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            if (values.Length == 3 || values.Length == 4)
+            {
+                if (!float.TryParse(values[0], out color.r) ||
+                    !float.TryParse(values[1], out color.g) ||
+                    !float.TryParse(values[2], out color.b))
+                    return false;
+                if (values.Length == 3 && !float.TryParse(values[3], out color.a))
+                    return false;
+                return true;
+            }
+            return false;
         }
     }
 }
