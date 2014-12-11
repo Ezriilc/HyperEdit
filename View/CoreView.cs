@@ -15,16 +15,18 @@ namespace HyperEdit.View
         public override void Draw(Window window)
         {
             base.Draw(window);
-            if (GUILayout.Button("Close all"))
+            if (GUILayout.Button(new GUIContent("Close all", "Closes all windows")))
                 Window.CloseAll();
-            if (GUILayout.Button("Orbit Editor"))
+            if (GUILayout.Button(new GUIContent("Orbit Editor", "Opens the Orbit Editor window")))
                 CreateView(new Model.OrbitEditor());
-            if (GUILayout.Button("Planet Editor"))
+            if (GUILayout.Button(new GUIContent("Planet Editor", "Opens the Planet Editor window")))
                 CreateView(new Model.PlanetEditor());
-            if (GUILayout.Button("Ship Lander"))
+            if (GUILayout.Button(new GUIContent("Ship Lander", "Opens the Ship Lander window")))
                 CreateView(new Model.Lander());
-            if (GUILayout.Button("Misc Tools"))
+            if (GUILayout.Button(new GUIContent("Misc Tools", "Opens the Misc Tools window")))
                 CreateView(new Model.MiscEditor());
+            if (GUILayout.Button(new GUIContent("About", "Opens the About window")))
+                AboutWindow.Create();
         }
     }
 }

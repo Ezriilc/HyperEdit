@@ -30,7 +30,7 @@ namespace HyperEdit.View
                     _model.VesselsToAlign.Remove(vessel);
             }
             GUILayout.EndScrollView();
-            if (AllValid && GUILayout.Button("Align"))
+            if (AllValid && GUILayout.Button(new GUIContent("Align", "Sets all semi-major axes of selected vessels to be equal, so they all have the same period")))
                 _model.Align();
         }
     }

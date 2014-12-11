@@ -261,11 +261,11 @@ namespace HyperEdit
             return source.Aggregate("", (total, part) => total + middle + part).Substring(middle.Length);
         }
 
-        public static bool CbTryParse(string bodyName, out CelestialBody body)
-        {
-            body = FlightGlobals.Bodies == null ? null : FlightGlobals.Bodies.FirstOrDefault(cb => cb.name == bodyName);
-            return body != null;
-        }
+        //public static bool CbTryParse(string bodyName, out CelestialBody body)
+        //{
+        //    body = FlightGlobals.Bodies == null ? null : FlightGlobals.Bodies.FirstOrDefault(cb => cb.name == bodyName);
+        //    return body != null;
+        //}
 
         private static string TrimUnityColor(string value)
         {

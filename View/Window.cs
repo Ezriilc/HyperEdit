@@ -60,6 +60,8 @@ namespace HyperEdit.View
             }
         }
 
+        private string _tempTooltip;
+        private string _oldTooltip;
         private string _title;
         private bool _shrinkHeight;
         private Rect _windowRect;
@@ -82,12 +84,19 @@ namespace HyperEdit.View
         {
             if (_shrinkHeight)
                 _windowRect.height = 5;
+            _oldTooltip = _tempTooltip;
         }
 
         public void OnGUI()
         {
             GUI.skin = HighLogic.Skin;
             _windowRect = GUILayout.Window(GetInstanceID(), _windowRect, DrawWindow, _title, GUILayout.ExpandHeight(true));
+
+            if (string.IsNullOrEmpty(_oldTooltip) == false)
+            {
+                var rect = new Rect(_windowRect.xMin, _windowRect.yMax, _windowRect.width, 50);
+                GUI.Label(rect, _oldTooltip);
+            }
         }
 
         private void DrawWindow(int windowId)
@@ -96,6 +105,9 @@ namespace HyperEdit.View
             if (GUILayout.Button("Close"))
                 Close();
             _drawFunc(this);
+
+            _tempTooltip = GUI.tooltip;
+
             GUILayout.EndVertical();
             GUI.DragWindow();
         }

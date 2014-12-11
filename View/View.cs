@@ -14,7 +14,7 @@ namespace HyperEdit.View
 
         protected bool AllValid { get { return _allValid; } }
 
-        protected T GuiTextField<T>(string key, string display, TryParse<T> parser, T value, Func<T, string> toString = null)
+        protected T GuiTextField<T>(string key, GUIContent display, TryParse<T> parser, T value, Func<T, string> toString = null)
         {
             if (display != null)
             {
@@ -23,19 +23,31 @@ namespace HyperEdit.View
             }
             if (_textboxInputs.ContainsKey(key) == false)
                 _textboxInputs[key] = toString == null ? value.ToString() : toString(value);
-            _textboxInputs[key] = GUILayout.TextField(_textboxInputs[key]); // TODO: Highlight if isValid = false
-            if (display != null)
-            {
-                GUILayout.EndHorizontal();
-            }
+
             T tempValue;
             var isValid = parser(_textboxInputs[key], out tempValue);
             if (!isValid)
                 _allValid = false;
+
+            if (isValid)
+            {
+                _textboxInputs[key] = GUILayout.TextField(_textboxInputs[key]);
+            }
+            else
+            {
+                var color = GUI.color;
+                GUI.color = Color.red;
+                _textboxInputs[key] = GUILayout.TextField(_textboxInputs[key]);
+                GUI.color = color;
+            }
+            if (display != null)
+            {
+                GUILayout.EndHorizontal();
+            }
             return isValid ? tempValue : value;
         }
 
-        protected T? GuiTextFieldSettable<T>(string key, string display, TryParse<T> parser, T value, Func<T, string> toString = null) where T : struct
+        protected T? GuiTextFieldSettable<T>(string key, GUIContent display, TryParse<T> parser, T value, Func<T, string> toString = null) where T : struct
         {
             GUILayout.BeginHorizontal();
             if (display != null)
