@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace HyperEdit.View
 {
@@ -17,7 +18,18 @@ namespace HyperEdit.View
         public override void Draw(Window window)
         {
             base.Draw(window);
-            if (GUILayout.Button(new GUIContent("Refill ship resources", "Refill all resources (fuel/power/etc) to max value"))) _model.RefillVesselResources();
+            GUILayout.Label(new GUIContent("Resources", "Set amounts of various resources contained on the active vessel"));
+            foreach (var resource in _model.GetResources())
+            {
+                GUILayout.BeginHorizontal();
+                GUILayout.Label(resource.Key);
+                var newval = (double)GUILayout.HorizontalSlider((float)resource.Value, 0, 1);
+                if (Math.Abs(newval - resource.Value) > float.Epsilon)
+                {
+                    _model.SetResource(resource.Key, newval);
+                }
+                GUILayout.EndHorizontal();
+            }
             var newUT = GuiTextFieldSettable("UniversalTime", new GUIContent("Time", "Set time (aka UniversalTime)"), double.TryParse, _model.UniversalTime);
             if (newUT.HasValue)
                 _model.UniversalTime = newUT.Value;
