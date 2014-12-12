@@ -38,13 +38,6 @@ namespace HyperEdit
     }
     public class HyperEditBehaviour : MonoBehaviour
     {
-        private static Krakensbane _krakensbane;
-
-        public static Krakensbane Krakensbane
-        {
-            get { return _krakensbane ?? (_krakensbane = (Krakensbane)FindObjectOfType(typeof(Krakensbane))); }
-        }
-
         public void Update()
         {
             if ((Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)) && Input.GetKeyDown(KeyCode.H))

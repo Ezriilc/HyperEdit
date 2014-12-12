@@ -185,15 +185,24 @@ namespace HyperEdit.Model
                         QuaternionD.AngleAxis(Latitude, Vector3d.forward) * Vector3d.right) -
                               pqs.radius;
                     alt = Math.Max(alt, 0); // Underwater!
-                    var diff = vessel.mainBody.GetWorldSurfacePosition(Latitude, Longitude, alt + Altitude) - vessel.GetWorldPos3D();
                     if (vessel.Landed)
                         vessel.Landed = false;
                     else if (vessel.Splashed)
                         vessel.Splashed = false;
                     foreach (var part in vessel.parts.Where(part => part.Modules.OfType<LaunchClamp>().Any()).ToList())
                         part.Die();
-                    HyperEditBehaviour.Krakensbane.Teleport(diff);
-                    vessel.ChangeWorldVelocity(-vessel.obt_velocity);
+
+                    var teleportPosition = vessel.mainBody.GetWorldSurfacePosition(Latitude, Longitude, alt + Altitude);
+                    var teleportVelocity = vessel.mainBody.getRFrmVel(teleportPosition);
+                    teleportPosition = (teleportPosition - vessel.GetWorldPos3D()).xzy + vessel.orbit.pos;
+                    teleportVelocity = teleportVelocity.xzy;
+                    // counter for the momentary fall when on rails (about one second)
+                    teleportVelocity += teleportPosition.normalized * (2 * vessel.mainBody.gravParameter / teleportPosition.sqrMagnitude);
+
+                    var orbit = vessel.orbitDriver.orbit.Clone();
+                    orbit.UpdateFromStateVectors(teleportPosition, teleportVelocity, orbit.referenceBody, Planetarium.GetUniversalTime());
+                    vessel.orbitDriver.orbit.Set(orbit);
+                    
                     _alreadyTeleported = true;
                 }
             }
