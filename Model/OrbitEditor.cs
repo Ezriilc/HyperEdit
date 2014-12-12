@@ -225,7 +225,7 @@ namespace HyperEdit.Model
             public void SelectVessel()
             {
                 if (FlightGlobals.fetch == null || FlightGlobals.Vessels == null)
-                    View.WindowHelper.Error("Could not get list of vessels");
+                    Extentions.ErrorPopup("Could not get list of vessels");
                 else
                     View.WindowHelper.Selector("Select vessel", FlightGlobals.Vessels, v => v.name, v => RendezvousWith = v);
             }
@@ -332,7 +332,7 @@ namespace HyperEdit.Model
         public void SelectOrbit()
         {
             if (FlightGlobals.fetch == null)
-                View.WindowHelper.Error("Could not get list of orbits (are you in the flight scene?)");
+                Extentions.ErrorPopup("Could not get list of orbits (are you in the flight scene?)");
             else
                 View.WindowHelper.Selector("Select orbit", OrderedOrbits(), GetName, o => CurrentlyEditing = o);
         }
@@ -340,7 +340,7 @@ namespace HyperEdit.Model
         public void SelectBody()
         {
             if (FlightGlobals.fetch == null || FlightGlobals.Bodies == null)
-                View.WindowHelper.Error("Could not get list of bodies (are you in the flight scene?)");
+                Extentions.ErrorPopup("Could not get list of bodies (are you in the flight scene?)");
             else
                 View.WindowHelper.Selector("Select body", FlightGlobals.Bodies, b => b.bodyName, Editor.SetBody);
         }

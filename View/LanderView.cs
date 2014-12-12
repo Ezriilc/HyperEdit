@@ -19,7 +19,7 @@ namespace HyperEdit.View
             base.Draw(window);
             _model.Latitude = GuiTextField("Latitude", new GUIContent("Lat", "Latitude of landing coordinates"), double.TryParse, _model.Latitude);
             _model.Longitude = GuiTextField("Longitude", new GUIContent("Lon", "Longitude of landing coordinates"), double.TryParse, _model.Longitude);
-            _model.Altitude = GuiTextField("Altitutde", new GUIContent("Alt", "Altitude of landing coordinates"), double.TryParse, _model.Altitude);
+            _model.Altitude = GuiTextField("Altitutde", new GUIContent("Alt", "Altitude of landing coordinates"), SiSuffix.TryParse, _model.Altitude);
             _model.Landing = GUILayout.Toggle(_model.Landing, new GUIContent("Landing", "Land the ship (or stop landing)"));
             if (GUILayout.Button(new GUIContent("Save", "Save the current location")))
             {

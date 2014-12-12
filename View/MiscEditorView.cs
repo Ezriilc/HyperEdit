@@ -30,7 +30,7 @@ namespace HyperEdit.View
                 }
                 GUILayout.EndHorizontal();
             }
-            var newUT = GuiTextFieldSettable("UniversalTime", new GUIContent("Time", "Set time (aka UniversalTime)"), double.TryParse, _model.UniversalTime);
+            var newUT = GuiTextFieldSettable("UniversalTime", new GUIContent("Time", "Set time (aka UniversalTime)"), SiSuffix.TryParse, _model.UniversalTime);
             if (newUT.HasValue)
                 _model.UniversalTime = newUT.Value;
             if (GUILayout.Button(new GUIContent("Align SMAs", "Open the semi-major axis aligner window")))

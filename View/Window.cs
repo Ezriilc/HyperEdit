@@ -24,8 +24,10 @@ namespace HyperEdit.View
         public static void Selector<T>(string title, IEnumerable<T> elements, Func<T, string> nameSelector, Action<T> onSelect)
         {
             var collection = elements.Select(t => new { value = t, name = nameSelector(t) }).ToList();
-            Window.Create(title, 200, 100, w =>
+            var scrollPos = new Vector2();
+            Window.Create(title, 300, 500, w =>
             {
+                scrollPos = GUILayout.BeginScrollView(scrollPos);
                 foreach (var item in collection)
                 {
                     if (GUILayout.Button(item.name))
@@ -35,12 +37,8 @@ namespace HyperEdit.View
                         return;
                     }
                 }
+                GUILayout.EndScrollView();
             });
-        }
-
-        public static void Error(string v)
-        {
-            Window.Create("Error", 200, 100, w => GUILayout.Label(v));
         }
     }
 
@@ -102,7 +100,8 @@ namespace HyperEdit.View
         private void DrawWindow(int windowId)
         {
             GUILayout.BeginVertical();
-            if (GUILayout.Button("Close"))
+            //if (GUILayout.Button("Close"))
+            if (GUI.Button(new Rect(_windowRect.width - 18, 2, 16, 16), "X")) // X button from mechjeb
                 Close();
             _drawFunc(this);
 

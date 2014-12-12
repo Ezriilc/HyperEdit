@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using HyperEdit;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace HyperEdit.Model
@@ -19,6 +21,7 @@ namespace HyperEdit.Model
             public double SphereOfInfluence { get; set; }
             public double RotationPeriod { get; set; }
             public bool TidallyLocked { get; set; }
+            public Orbit Orbit { get; set; }
 
             public PlanetSettings(CelestialBody body)
             {
@@ -32,6 +35,7 @@ namespace HyperEdit.Model
                 SphereOfInfluence = body.sphereOfInfluence;
                 RotationPeriod = body.rotationPeriod;
                 TidallyLocked = body.tidallyLocked;
+                Orbit = body.orbitDriver == null ? null : body.orbitDriver.orbit.Clone();
 
                 if (_defaultSettings.ContainsKey(body.bodyName) == false)
                 {
@@ -54,7 +58,7 @@ namespace HyperEdit.Model
                   TidallyLocked == body.tidallyLocked;
             }
 
-            public void CopyTo(CelestialBody body)
+            public void CopyTo(CelestialBody body, bool setOrbit)
             {
                 body.GeeASL = GeeASL;
                 body.atmoshpereTemperatureMultiplier = AtmoshpereTemperatureMultiplier;
@@ -66,7 +70,65 @@ namespace HyperEdit.Model
                 body.sphereOfInfluence = SphereOfInfluence;
                 body.rotationPeriod = RotationPeriod;
                 body.tidallyLocked = TidallyLocked;
+                if (setOrbit && body.orbitDriver != null && Orbit != null)
+                    body.orbitDriver.orbit.Set(Orbit);
                 body.CBUpdate();
+            }
+
+            public static ConfigNode GetConfig(CelestialBody body)
+            {
+                var node = new ConfigNode(body.bodyName);
+                node.AddValue("GeeASL", body.GeeASL);
+                node.AddValue("atmoshpereTemperatureMultiplier", body.atmoshpereTemperatureMultiplier);
+                node.AddValue("atmosphere", body.atmosphere);
+                node.AddValue("atmosphereContainsOxygen", body.atmosphereContainsOxygen);
+                node.AddValue("atmosphereMultiplier", body.atmosphereMultiplier);
+                node.AddValue("atmosphereScaleHeight", body.atmosphereScaleHeight);
+                node.AddValue("atmosphericAmbientColor", body.atmosphericAmbientColor);
+                node.AddValue("sphereOfInfluence", body.sphereOfInfluence);
+                node.AddValue("rotationPeriod", body.rotationPeriod);
+                node.AddValue("tidallyLocked", body.tidallyLocked);
+
+                if (body.orbitDriver == null)
+                    return node;
+                var orbit = body.orbitDriver.orbit;
+                node.AddValue("inclination", orbit.inclination);
+                node.AddValue("eccentricity", orbit.eccentricity);
+                node.AddValue("semiMajorAxis", orbit.semiMajorAxis);
+                node.AddValue("LAN", orbit.LAN);
+                node.AddValue("argumentOfPeriapsis", orbit.argumentOfPeriapsis);
+                node.AddValue("meanAnomalyAtEpoch", orbit.meanAnomalyAtEpoch);
+                node.AddValue("orbitEpoch", orbit.epoch);
+                node.AddValue("orbitBody", orbit.referenceBody.bodyName);
+                return node;
+            }
+
+            public static void ApplyConfig(ConfigNode node, CelestialBody body)
+            {
+                node.TryGetValue("GeeASL", ref body.GeeASL, double.TryParse);
+                node.TryGetValue("atmoshpereTemperatureMultiplier", ref body.atmoshpereTemperatureMultiplier, float.TryParse);
+                node.TryGetValue("atmosphere", ref body.atmosphere, bool.TryParse);
+                node.TryGetValue("atmosphereContainsOxygen", ref body.atmosphereContainsOxygen, bool.TryParse);
+                node.TryGetValue("atmosphereMultiplier", ref body.atmosphereMultiplier, float.TryParse);
+                node.TryGetValue("atmosphereScaleHeight", ref body.atmosphereScaleHeight, double.TryParse);
+                node.TryGetValue("atmosphericAmbientColor", ref body.atmosphericAmbientColor, Extentions.ColorTryParse);
+                node.TryGetValue("sphereOfInfluence", ref body.sphereOfInfluence, double.TryParse);
+                node.TryGetValue("rotationPeriod", ref body.rotationPeriod, double.TryParse);
+                node.TryGetValue("tidallyLocked", ref body.tidallyLocked, bool.TryParse);
+                body.CBUpdate();
+
+                if (body.orbitDriver == null)
+                    return;
+                var orbit = body.orbitDriver.orbit.Clone();
+                node.TryGetValue("inclination", ref orbit.inclination, double.TryParse);
+                node.TryGetValue("eccentricity", ref orbit.eccentricity, double.TryParse);
+                node.TryGetValue("semiMajorAxis", ref orbit.semiMajorAxis, double.TryParse);
+                node.TryGetValue("LAN", ref orbit.LAN, double.TryParse);
+                node.TryGetValue("argumentOfPeriapsis", ref orbit.argumentOfPeriapsis, double.TryParse);
+                node.TryGetValue("meanAnomalyAtEpoch", ref orbit.meanAnomalyAtEpoch, double.TryParse);
+                node.TryGetValue("orbitEpoch", ref orbit.epoch, double.TryParse);
+                node.TryGetValue("orbitBody", ref orbit.referenceBody, Extentions.CbTryParse);
+                body.orbitDriver.orbit.Set(orbit);
             }
         }
 
@@ -87,7 +149,7 @@ namespace HyperEdit.Model
         public void SelectPlanet()
         {
             if (FlightGlobals.fetch == null || FlightGlobals.Bodies == null)
-                View.WindowHelper.Error("Could not get list of planets");
+                Extentions.ErrorPopup("Could not get list of planets");
             else
                 View.WindowHelper.Selector("Select planet", FlightGlobals.Bodies, b => b.bodyName, b => CurrentBody = b);
         }
@@ -96,7 +158,7 @@ namespace HyperEdit.Model
         {
             if (_currentBody == null)
                 return;
-            _currentSettings.CopyTo(_currentBody);
+            _currentSettings.CopyTo(_currentBody, false);
         }
 
         public bool IsNotDefault
@@ -126,11 +188,39 @@ namespace HyperEdit.Model
             {
                 var defaultCb = _defaultSettings[_currentBody.bodyName];
                 _currentSettings = defaultCb;
-                Apply();
+                _currentSettings.CopyTo(_currentBody, true);
             }
             catch (KeyNotFoundException)
             {
                 Debug.Log("Defaults for celestial body " + _currentBody.bodyName + " not found");
+            }
+        }
+
+        public void SavePlanet()
+        {
+            if (CurrentBody == null)
+                return;
+            var cfg = PlanetSettings.GetConfig(CurrentBody);
+            cfg.Save(KSP.IO.IOUtils.GetFilePathFor(typeof(HyperEditBehaviour), cfg.name + ".cfg"));
+        }
+
+        public static void ApplyFileDefaults()
+        {
+            if (FlightGlobals.fetch == null || FlightGlobals.Bodies == null)
+            {
+                Debug.LogError("Could not apply planet defaults: FlightGlobals.Bodies was null");
+                return;
+            }
+            foreach (var body in FlightGlobals.Bodies)
+            {
+                new PlanetSettings(body); // trigger default settings check
+                var filename = body.bodyName + ".cfg";
+                if (KSP.IO.File.Exists<HyperEditBehaviour>(filename) == false)
+                    continue;
+                var filepath = KSP.IO.IOUtils.GetFilePathFor(typeof(HyperEditBehaviour), filename);
+                var cfg = ConfigNode.Load(filepath);
+                Debug.Log("Applying saved config for " + body.bodyName);
+                PlanetSettings.ApplyConfig(cfg, body);
             }
         }
     }

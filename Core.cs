@@ -18,6 +18,7 @@ public class HyperEditModule : MonoBehaviour
     public HyperEditModule()
     {
         HyperEdit.Immortal.AddImmortal<HyperEdit.HyperEditBehaviour>();
+        HyperEdit.Model.PlanetEditor.ApplyFileDefaults();
     }
 }
 
@@ -36,37 +37,13 @@ namespace HyperEdit
             return _gameObject.GetComponent<T>() ?? _gameObject.AddComponent<T>();
         }
     }
+
     public class HyperEditBehaviour : MonoBehaviour
     {
         public void Update()
         {
             if ((Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)) && Input.GetKeyDown(KeyCode.H))
                 View.CoreView.Create();
-        }
-    }
-
-    public static class ErrorPopup
-    {
-        public static void Error(string message)
-        {
-            PopupDialog.SpawnPopupDialog("Error", message, "Close", true, HighLogic.Skin);
-        }
-    }
-
-    public static class Settings
-    {
-        private static GUIStyle _pressedButton;
-        public static GUIStyle PressedButton
-        {
-            get
-            {
-                return _pressedButton ?? (_pressedButton = new GUIStyle(HighLogic.Skin.button)
-                {
-                    normal = HighLogic.Skin.button.active,
-                    hover = HighLogic.Skin.button.active,
-                    active = HighLogic.Skin.button.normal
-                });
-            }
         }
     }
 
@@ -96,6 +73,14 @@ namespace HyperEdit
                 {"z", 1e-21},
                 {"y", 1e-24}
             };
+
+        public static bool TryParse(string s, out float value)
+        {
+            double dval;
+            var success = TryParse(s, out dval);
+            value = (float)dval;
+            return success;
+        }
 
         public static bool TryParse(string s, out double value)
         {
@@ -139,6 +124,36 @@ namespace HyperEdit
 
     public static class Extentions
     {
+        public static void TryGetValue<T>(this ConfigNode node, string key, ref T value, View.View.TryParse<T> tryParse)
+        {
+            var strvalue = node.GetValue(key);
+            if (strvalue == null)
+                return;
+            T temp;
+            if (tryParse(strvalue, out temp) == false)
+                return;
+            value = temp;
+        }
+
+        public static void ErrorPopup(string message)
+        {
+            PopupDialog.SpawnPopupDialog("Error", message, "Close", true, HighLogic.Skin);
+        }
+
+        private static GUIStyle _pressedButton;
+        public static GUIStyle PressedButton
+        {
+            get
+            {
+                return _pressedButton ?? (_pressedButton = new GUIStyle(HighLogic.Skin.button)
+                {
+                    normal = HighLogic.Skin.button.active,
+                    hover = HighLogic.Skin.button.active,
+                    active = HighLogic.Skin.button.normal
+                });
+            }
+        }
+
         public static Vessel GetVessel(this Orbit orbit)
         {
             return FlightGlobals.fetch == null ? null : FlightGlobals.Vessels.FirstOrDefault(v => v.orbitDriver != null && v.orbit == orbit);
@@ -165,7 +180,7 @@ namespace HyperEdit
         {
             if (newOrbit.getRelativePositionAtUT(Planetarium.GetUniversalTime()).magnitude > newOrbit.referenceBody.sphereOfInfluence)
             {
-                ErrorPopup.Error("Destination position was above the sphere of influence");
+                ErrorPopup("Destination position was above the sphere of influence");
                 return;
             }
 
@@ -254,11 +269,11 @@ namespace HyperEdit
             return source.Aggregate("", (total, part) => total + middle + part).Substring(middle.Length);
         }
 
-        //public static bool CbTryParse(string bodyName, out CelestialBody body)
-        //{
-        //    body = FlightGlobals.Bodies == null ? null : FlightGlobals.Bodies.FirstOrDefault(cb => cb.name == bodyName);
-        //    return body != null;
-        //}
+        public static bool CbTryParse(string bodyName, out CelestialBody body)
+        {
+            body = FlightGlobals.Bodies == null ? null : FlightGlobals.Bodies.FirstOrDefault(cb => cb.name == bodyName);
+            return body != null;
+        }
 
         private static string TrimUnityColor(string value)
         {

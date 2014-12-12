@@ -44,29 +44,29 @@ namespace HyperEdit.View
             if (_model.CurrentlyEditing != null)
             {
                 GUILayout.BeginHorizontal();
-                if (simple == null ? GUILayout.Button("Simple") : GUILayout.Button("Simple", Settings.PressedButton))
+                if (simple == null ? GUILayout.Button("Simple") : GUILayout.Button("Simple", Extentions.PressedButton))
                 {
                     _model.Editor = new Model.OrbitEditor.Simple(_model.CurrentlyEditing.orbit);
                     ClearTextFields();
                 }
-                if (complex == null ? GUILayout.Button("Complex") : GUILayout.Button("Complex", Settings.PressedButton))
+                if (complex == null ? GUILayout.Button("Complex") : GUILayout.Button("Complex", Extentions.PressedButton))
                 {
                     _model.Editor = new Model.OrbitEditor.Complex(_model.CurrentlyEditing.orbit);
                     ClearTextFields();
                 }
-                if (graphical == null ? GUILayout.Button("Graphical") : GUILayout.Button("Graphical", Settings.PressedButton))
+                if (graphical == null ? GUILayout.Button("Graphical") : GUILayout.Button("Graphical", Extentions.PressedButton))
                 {
                     _model.Editor = new Model.OrbitEditor.Graphical(_model.CurrentlyEditing.orbit);
                     ClearTextFields();
                 }
-                if (velocity == null ? GUILayout.Button("Velocity") : GUILayout.Button("Velocity", Settings.PressedButton))
+                if (velocity == null ? GUILayout.Button("Velocity") : GUILayout.Button("Velocity", Extentions.PressedButton))
                 {
                     _model.Editor = new Model.OrbitEditor.Velocity(_model.CurrentlyEditing.orbit);
                     ClearTextFields();
                 }
                 if (FlightGlobals.fetch != null && FlightGlobals.Vessels != null && FlightGlobals.Vessels.Any(v => v.orbitDriver == _model.CurrentlyEditing))
                 {
-                    if (rendezvous == null ? GUILayout.Button("Rendezvous") : GUILayout.Button("Rendezvous", Settings.PressedButton))
+                    if (rendezvous == null ? GUILayout.Button("Rendezvous") : GUILayout.Button("Rendezvous", Extentions.PressedButton))
                     {
                         _model.Editor = new Model.OrbitEditor.Rendezvous(_model.CurrentlyEditing.orbit);
                         ClearTextFields();
@@ -77,7 +77,7 @@ namespace HyperEdit.View
 
             if (simple != null)
             {
-                simple.Altitude = GuiTextField("Altitude", new GUIContent("Altitude", "Altitude of circular orbit"), double.TryParse, simple.Altitude);
+                simple.Altitude = GuiTextField("Altitude", new GUIContent("Altitude", "Altitude of circular orbit"), SiSuffix.TryParse, simple.Altitude);
                 GUILayout.Label(simple.Body == null ? "No body selected" : "Body: " + simple.Body.bodyName);
                 if (GUILayout.Button("Select body"))
                 {
@@ -91,11 +91,11 @@ namespace HyperEdit.View
             {
                 complex.Inclination = GuiTextField("Inclination", new GUIContent("Inclination", "How close to the equator the orbit plane is"), double.TryParse, complex.Inclination);
                 complex.Eccentricity = GuiTextField("Eccentricity", new GUIContent("Eccentricity", "How circular the orbit is (0=circular, 0.5=elliptical, 1=parabolic)"), double.TryParse, complex.Eccentricity);
-                complex.SemiMajorAxis = GuiTextField("SemiMajorAxis", new GUIContent("Semi-major axis", "Mean radius of the orbit (ish)"), double.TryParse, complex.SemiMajorAxis);
+                complex.SemiMajorAxis = GuiTextField("SemiMajorAxis", new GUIContent("Semi-major axis", "Mean radius of the orbit (ish)"), SiSuffix.TryParse, complex.SemiMajorAxis);
                 complex.LongitudeAscendingNode = GuiTextField("LongitudeAscendingNode", new GUIContent("Lon. of asc. node", "Longitude of the place where you cross the equator northwards"), double.TryParse, complex.LongitudeAscendingNode);
                 complex.ArgumentOfPeriapsis = GuiTextField("ArgumentOfPeriapsis", new GUIContent("Argument of periapsis", "Rotation of the orbit around the normal"), double.TryParse, complex.ArgumentOfPeriapsis);
                 complex.MeanAnomalyAtEpoch = GuiTextField("MeanAnomalyAtEpoch", new GUIContent("Mean anomaly at epoch", "Position along the orbit at the epoch"), double.TryParse, complex.MeanAnomalyAtEpoch);
-                complex.Epoch = GuiTextField("Epoch", new GUIContent("Epoch", "Epoch at which mEp is measured"), double.TryParse, complex.Epoch);
+                complex.Epoch = GuiTextField("Epoch", new GUIContent("Epoch", "Epoch at which mEp is measured"), SiSuffix.TryParse, complex.Epoch);
                 GUILayout.Label(complex.Body == null ? "No body selected" : "Body: " + complex.Body.bodyName);
                 if (GUILayout.Button("Select body"))
                 {
@@ -129,17 +129,17 @@ namespace HyperEdit.View
                 foreach (var type in System.Enum.GetValues(typeof(Model.OrbitEditor.Velocity.ChangeDirection)))
                 {
                     var value = (Model.OrbitEditor.Velocity.ChangeDirection)type;
-                    if (value == velocity.Direction ? GUILayout.Button(value.ToString(), Settings.PressedButton) : GUILayout.Button(value.ToString()))
+                    if (value == velocity.Direction ? GUILayout.Button(value.ToString(), Extentions.PressedButton) : GUILayout.Button(value.ToString()))
                         velocity.Direction = value;
                 }
                 GUILayout.EndHorizontal();
-                velocity.Speed = GuiTextField("Speed", new GUIContent("Speed", "How much velocity to add (can be negative)"), double.TryParse, velocity.Speed);
+                velocity.Speed = GuiTextField("Speed", new GUIContent("Speed", "How much velocity to add (can be negative)"), SiSuffix.TryParse, velocity.Speed);
                 if (AllValid && GUILayout.Button("Add"))
                     _model.Apply();
             }
             if (rendezvous != null)
             {
-                rendezvous.LeadTime = GuiTextField("LeadTime", new GUIContent("Lead time", "How many seconds off to rendezvous at (zero = on top of each other, bad)"), double.TryParse, rendezvous.LeadTime);
+                rendezvous.LeadTime = GuiTextField("LeadTime", new GUIContent("Lead time", "How many seconds off to rendezvous at (zero = on top of each other, bad)"), SiSuffix.TryParse, rendezvous.LeadTime);
                 GUILayout.Label(rendezvous.RendezvousWith == null ? "No vessel" : "Vessel: " + rendezvous.RendezvousWith.name);
                 if (GUILayout.Button("Select vessel"))
                     rendezvous.SelectVessel();
