@@ -194,10 +194,11 @@ namespace HyperEdit.Model
 
                     var teleportPosition = vessel.mainBody.GetWorldSurfacePosition(Latitude, Longitude, alt + Altitude);
                     var teleportVelocity = vessel.mainBody.getRFrmVel(teleportPosition);
+                    // convert from world space to "normal" space
                     teleportPosition = (teleportPosition - vessel.GetWorldPos3D()).xzy + vessel.orbit.pos;
-                    teleportVelocity = teleportVelocity.xzy;
+                    teleportVelocity = (teleportVelocity - vessel.GetObtVelocity()).xzy + vessel.orbit.vel;
                     // counter for the momentary fall when on rails (about one second)
-                    teleportVelocity += teleportPosition.normalized * (2 * vessel.mainBody.gravParameter / teleportPosition.sqrMagnitude);
+                    teleportVelocity += teleportPosition.normalized * (vessel.mainBody.gravParameter / teleportPosition.sqrMagnitude);
 
                     var orbit = vessel.orbitDriver.orbit.Clone();
                     orbit.UpdateFromStateVectors(teleportPosition, teleportVelocity, orbit.referenceBody, Planetarium.GetUniversalTime());
