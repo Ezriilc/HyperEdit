@@ -54,14 +54,14 @@ namespace HyperEdit.Model
             public double Lat { get; set; }
             public double Lon { get; set; }
 
-            public LandingCoordinates(string name, double lat, double lon)
+            public LandingCoordinates(string name, double lat, double lon) : this()
             {
                 Name = name;
                 Lat = lat;
                 Lon = lon;
             }
 
-            public LandingCoordinates(string value)
+            public LandingCoordinates(string value) : this()
             {
                 var split = value.Split(',');
                 if (split.Length < 3)
@@ -191,6 +191,7 @@ namespace HyperEdit.Model
                         vessel.Splashed = false;
                     foreach (var part in vessel.parts.Where(part => part.Modules.OfType<LaunchClamp>().Any()).ToList())
                         part.Die();
+                    TimeWarp.SetRate(0, true); // HoldVesselUnpack is in display frames, not physics frames
 
                     var teleportPosition = vessel.mainBody.GetWorldSurfacePosition(Latitude, Longitude, alt + Altitude);
                     var teleportVelocity = vessel.mainBody.getRFrmVel(teleportPosition);

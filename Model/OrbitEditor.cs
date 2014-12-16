@@ -9,7 +9,7 @@ namespace HyperEdit.Model
         public float Min { get; private set; }
         public float Max { get; private set; }
 
-        public SliderRange(float min, float max)
+        public SliderRange(float min, float max) : this()
         {
             Min = min;
             Max = max;

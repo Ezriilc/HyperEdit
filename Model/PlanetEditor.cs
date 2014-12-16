@@ -23,7 +23,7 @@ namespace HyperEdit.Model
             public bool TidallyLocked { get; set; }
             public Orbit Orbit { get; set; }
 
-            public PlanetSettings(CelestialBody body)
+            public PlanetSettings(CelestialBody body) : this()
             {
                 GeeASL = body.GeeASL;
                 AtmoshpereTemperatureMultiplier = body.atmoshpereTemperatureMultiplier;

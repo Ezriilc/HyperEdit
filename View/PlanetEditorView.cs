@@ -51,10 +51,10 @@ namespace HyperEdit.View
                 {
                     _model.SavePlanet();
                 }
-                if (GUILayout.Button(new GUIContent("Reload config files", "Reloads the planet .cfg files in ./GameData/Kerbaltek/PluginData/HyperEdit/")))
-                {
-                    Model.PlanetEditor.ApplyFileDefaults();
-                }
+            }
+            if (GUILayout.Button(new GUIContent("Reload config files", "Reloads the planet .cfg files in ./GameData/Kerbaltek/PluginData/HyperEdit/")))
+            {
+                Model.PlanetEditor.ApplyFileDefaults();
             }
         }
     }
