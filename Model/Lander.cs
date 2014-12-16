@@ -202,7 +202,7 @@ namespace HyperEdit.Model
 
                     var orbit = vessel.orbitDriver.orbit.Clone();
                     orbit.UpdateFromStateVectors(teleportPosition, teleportVelocity, orbit.referenceBody, Planetarium.GetUniversalTime());
-                    vessel.orbitDriver.orbit.Set(orbit);
+                    vessel.SetOrbit(orbit);
                     
                     _alreadyTeleported = true;
                 }

@@ -1,13 +1,4 @@
-﻿//
-// This file is part of the HyperEdit plugin for Kerbal Space Program, Copyright Erickson Swift, 2013.
-// HyperEdit is licensed under the GPL, found in COPYING.txt.
-// Currently supported by Team HyperEdit, and Ezriilc.
-// Original HyperEdit concept and code by khyperia (no longer involved).
-//
-// Thanks to Payo for inventing, writing and contributing the PlanetEditor component.
-//
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -27,6 +18,7 @@ namespace HyperEdit
     public static class Immortal
     {
         private static GameObject _gameObject;
+
         public static T AddImmortal<T>() where T : Component
         {
             if (_gameObject == null)
@@ -124,6 +116,11 @@ namespace HyperEdit
 
     public static class Extentions
     {
+        public static void Log(string message)
+        {
+            Debug.Log("HyperEdit: " + message);
+        }
+
         public static void TryGetValue<T>(this ConfigNode node, string key, ref T value, View.View.TryParse<T> tryParse)
         {
             var strvalue = node.GetValue(key);
@@ -154,29 +151,19 @@ namespace HyperEdit
             }
         }
 
-        public static Vessel GetVessel(this Orbit orbit)
+        public static void DynamicSetOrbit(this OrbitDriver orbit, Orbit newOrbit)
         {
-            return FlightGlobals.fetch == null ? null : FlightGlobals.Vessels.FirstOrDefault(v => v.orbitDriver != null && v.orbit == orbit);
-        }
-
-        public static CelestialBody GetPlanet(this Orbit orbit)
-        {
-            return FlightGlobals.fetch == null ? null : FlightGlobals.Bodies.FirstOrDefault(v => v.orbitDriver != null && v.orbit == orbit);
-        }
-
-        public static void Set(this Orbit orbit, Orbit newOrbit)
-        {
-            var vessel = FlightGlobals.fetch == null ? null : FlightGlobals.Vessels.FirstOrDefault(v => v.orbitDriver != null && v.orbit == orbit);
-            var body = FlightGlobals.fetch == null ? null : FlightGlobals.Bodies.FirstOrDefault(v => v.orbitDriver != null && v.orbit == orbit);
+            var vessel = orbit.vessel;
+            var body = orbit.celestialBody;
             if (vessel != null)
-                WarpShip(vessel, newOrbit);
+                vessel.SetOrbit(newOrbit);
             else if (body != null)
-                WarpPlanet(body, newOrbit);
+                body.SetOrbit(newOrbit);
             else
-                HardsetOrbit(orbit, newOrbit);
+                HardsetOrbit(orbit.orbit, newOrbit);
         }
 
-        private static void WarpShip(Vessel vessel, Orbit newOrbit)
+        public static void SetOrbit(this Vessel vessel, Orbit newOrbit)
         {
             if (newOrbit.getRelativePositionAtUT(Planetarium.GetUniversalTime()).magnitude > newOrbit.referenceBody.sphereOfInfluence)
             {
@@ -201,6 +188,7 @@ namespace HyperEdit
             }
             catch (NullReferenceException)
             {
+                Extentions.Log("OrbitPhysicsManager.HoldVesselUnpack threw NullReferenceException");
             }
 
             foreach (var v in (FlightGlobals.fetch == null ? (IEnumerable<Vessel>)new[] { vessel } : FlightGlobals.Vessels).Where(v => v.packed == false))
@@ -212,7 +200,7 @@ namespace HyperEdit
             vessel.orbitDriver.vel = vessel.orbit.vel;
         }
 
-        private static void WarpPlanet(CelestialBody body, Orbit newOrbit)
+        public static void SetOrbit(this CelestialBody body, Orbit newOrbit)
         {
             var oldBody = body.referenceBody;
             HardsetOrbit(body.orbit, newOrbit);
@@ -259,14 +247,9 @@ namespace HyperEdit
         public static float Soi(this CelestialBody body)
         {
             var radius = (float)(body.sphereOfInfluence * 0.95);
-            if (Planetarium.fetch != null && body == Planetarium.fetch.Sun || float.IsNaN(radius) || float.IsInfinity(radius) || radius < 0 || radius > 200000000000f)
+            if (float.IsNaN(radius) || float.IsInfinity(radius) || radius < 0 || radius > 200000000000f)
                 radius = 200000000000f; // jool apo = 72,212,238,387
             return radius;
-        }
-
-        public static string Aggregate(this IEnumerable<string> source, string middle)
-        {
-            return source.Aggregate("", (total, part) => total + middle + part).Substring(middle.Length);
         }
 
         public static bool CbTryParse(string bodyName, out CelestialBody body)

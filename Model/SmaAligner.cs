@@ -22,7 +22,7 @@ namespace HyperEdit.Model
             {
                 var orbit = vessel.orbit.Clone();
                 orbit.semiMajorAxis = averageSma;
-                vessel.orbit.Set(orbit);
+                vessel.SetOrbit(orbit);
             }
         }
     }

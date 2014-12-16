@@ -311,7 +311,7 @@ namespace HyperEdit.Model
         {
             if (CurrentlyEditing != null)
             {
-                CurrentlyEditing.orbit.Set(Editor.Orbit(CurrentlyEditing.orbit));
+                CurrentlyEditing.DynamicSetOrbit(Editor.Orbit(CurrentlyEditing.orbit));
             }
         }
 

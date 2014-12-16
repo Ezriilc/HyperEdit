@@ -71,7 +71,7 @@ namespace HyperEdit.Model
                 body.rotationPeriod = RotationPeriod;
                 body.tidallyLocked = TidallyLocked;
                 if (setOrbit && body.orbitDriver != null && Orbit != null)
-                    body.orbitDriver.orbit.Set(Orbit);
+                    body.SetOrbit(Orbit);
                 body.CBUpdate();
             }
 
@@ -128,7 +128,7 @@ namespace HyperEdit.Model
                 node.TryGetValue("meanAnomalyAtEpoch", ref orbit.meanAnomalyAtEpoch, double.TryParse);
                 node.TryGetValue("orbitEpoch", ref orbit.epoch, double.TryParse);
                 node.TryGetValue("orbitBody", ref orbit.referenceBody, Extentions.CbTryParse);
-                body.orbitDriver.orbit.Set(orbit);
+                body.SetOrbit(orbit);
             }
         }
 
@@ -174,7 +174,7 @@ namespace HyperEdit.Model
                 }
                 catch (KeyNotFoundException)
                 {
-                    Debug.Log("Defaults for celestial body " + _currentBody.bodyName + " not found");
+                    Extentions.Log("Defaults for celestial body " + _currentBody.bodyName + " not found");
                     return false;
                 }
             }
@@ -192,7 +192,7 @@ namespace HyperEdit.Model
             }
             catch (KeyNotFoundException)
             {
-                Debug.Log("Defaults for celestial body " + _currentBody.bodyName + " not found");
+                Extentions.Log("Defaults for celestial body " + _currentBody.bodyName + " not found");
             }
         }
 
@@ -208,7 +208,7 @@ namespace HyperEdit.Model
         {
             if (FlightGlobals.fetch == null || FlightGlobals.Bodies == null)
             {
-                Debug.LogError("Could not apply planet defaults: FlightGlobals.Bodies was null");
+                Extentions.Log("Could not apply planet defaults: FlightGlobals.Bodies was null");
                 return;
             }
             foreach (var body in FlightGlobals.Bodies)
@@ -219,7 +219,7 @@ namespace HyperEdit.Model
                     continue;
                 var filepath = KSP.IO.IOUtils.GetFilePathFor(typeof(HyperEditBehaviour), filename);
                 var cfg = ConfigNode.Load(filepath);
-                Debug.Log("Applying saved config for " + body.bodyName);
+                Extentions.Log("Applying saved config for " + body.bodyName);
                 PlanetSettings.ApplyConfig(cfg, body);
             }
         }
