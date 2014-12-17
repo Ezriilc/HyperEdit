@@ -12,7 +12,7 @@ namespace HyperEdit.View
             });
         }
 
-        private const string AboutContents = @"For support and contact information, please visit: http://www.KerbaltekAerospace.com
+        private const string AboutContents = @"For support and contact information, please visit: http://www.kerbaltek.com/
 
 This is a highly eccentric plugin, so there may be lots of bugs and explosions - please tell us if you find any.
 

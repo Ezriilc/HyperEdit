@@ -32,6 +32,71 @@ namespace HyperEdit
 
     public class HyperEditBehaviour : MonoBehaviour
     {
+        ApplicationLauncherButton _appLauncherButton;
+
+        public void Awake()
+        {
+            GameEvents.onGUIApplicationLauncherReady.Add(AddAppLauncher);
+            GameEvents.onGUIApplicationLauncherDestroyed.Add(RemoveAppLauncher);
+            Extentions.Log("Subscribed to onGUIApplicationLauncherReady/Destroyed");
+        }
+
+        private void AddAppLauncher()
+        {
+            if (_appLauncherButton != null)
+            {
+                Extentions.Log("Not adding to ApplicationLauncher, button already exists (yet onGUIApplicationLauncherReady was called?)");
+                return;
+            }
+            var applauncher = ApplicationLauncher.Instance;
+            if (applauncher == null)
+            {
+                Extentions.Log("Cannot add to ApplicationLauncher, instance was null");
+                return;
+            }
+            ApplicationLauncher.AppScenes scenes =
+                ApplicationLauncher.AppScenes.FLIGHT |
+                ApplicationLauncher.AppScenes.MAPVIEW |
+                ApplicationLauncher.AppScenes.SPACECENTER |
+                ApplicationLauncher.AppScenes.TRACKSTATION;
+            Texture2D tex = new Texture2D(38, 38);
+
+
+            for (int x = 0; x < tex.width; x++)
+                for (int y = 0; y < tex.height; y++)
+                    tex.SetPixel(x, y, new Color(2 * (float)Math.Abs(x - tex.width / 2) / tex.width, 0.25f, 2 * (float)Math.Abs(y - tex.height / 2) / tex.height));
+            for (int x = 10; x < 12; x++)
+                for (int y = 10; y < tex.height - 10; y++)
+                    tex.SetPixel(x, y, new Color(1, 1, 1));
+            for (int x = tex.width - 12; x < tex.width - 10; x++)
+                for (int y = 10; y < tex.height - 10; y++)
+                    tex.SetPixel(x, y, new Color(1, 1, 1));
+            for (int x = 12; x < tex.width - 12; x++)
+                for (int y = tex.height / 2; y < tex.height / 2 + 2; y++)
+                    tex.SetPixel(x, y, new Color(1, 1, 1));
+
+
+            tex.Apply();
+            _appLauncherButton = applauncher.AddModApplication(() => {
+                View.CoreView.Create();
+                _appLauncherButton.SetFalse();
+            }, () => {}, () => {}, () => {}, () => {}, () => {}, scenes, tex);
+            Extentions.Log("Added self to ApplicationLauncher");
+        }
+
+        private void RemoveAppLauncher()
+        {
+            var applauncher = ApplicationLauncher.Instance;
+            if (applauncher == null)
+            {
+                Extentions.Log("Cannot remove from ApplicationLauncher, instance was null");
+                return;
+            }
+            applauncher.RemoveModApplication(_appLauncherButton);
+            _appLauncherButton = null;
+            Extentions.Log("Removed self from ApplicationLauncher");
+        }
+
         public void Update()
         {
             if ((Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)) && Input.GetKeyDown(KeyCode.H))
