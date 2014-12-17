@@ -7,9 +7,11 @@ namespace HyperEdit.Model
     public struct SliderRange
     {
         public float Min { get; private set; }
+
         public float Max { get; private set; }
 
-        public SliderRange(float min, float max) : this()
+        public SliderRange(float min, float max)
+            : this()
         {
             Min = min;
             Max = max;
@@ -21,12 +23,14 @@ namespace HyperEdit.Model
         public interface IEditorType
         {
             Orbit Orbit(Orbit old);
+
             void SetBody(CelestialBody body);
         }
 
         public class Simple : IEditorType
         {
             public double Altitude { get; set; }
+
             public CelestialBody Body { get; set; }
 
             public Orbit Orbit(Orbit old)
@@ -49,12 +53,19 @@ namespace HyperEdit.Model
         public class Complex : IEditorType
         {
             public double Inclination { get; set; }
+
             public double Eccentricity { get; set; }
+
             public double SemiMajorAxis { get; set; }
+
             public double LongitudeAscendingNode { get; set; }
+
             public double ArgumentOfPeriapsis { get; set; }
+
             public double MeanAnomalyAtEpoch { get; set; }
+
             public double Epoch { get; set; }
+
             public CelestialBody Body { get; set; }
 
             public Orbit Orbit(Orbit old)
@@ -83,17 +94,29 @@ namespace HyperEdit.Model
         public class Graphical : IEditorType
         {
             public float Inclination { get; set; }
+
             public SliderRange InclinationRange { get { return new SliderRange(0, 360); } }
+
             public float Eccentricity { get; set; }
+
             public SliderRange EccentricityRange { get { return new SliderRange(0, (float)Math.PI / 2 - 0.001f); } }
+
             public float Periapsis { get; set; }
+
             public SliderRange PeriapsisRange { get { return new SliderRange(0.01f, 1); } }
+
             public float LongitudeAscendingNode { get; set; }
+
             public SliderRange LongitudeAscendingNodeRange { get { return new SliderRange(0, 360); } }
+
             public float ArgumentOfPeriapsis { get; set; }
+
             public SliderRange ArgumentOfPeriapsisRange { get { return new SliderRange(0, 360); } }
+
             public float MeanAnomaly { get; set; }
+
             public SliderRange MeanAnomalyRange { get { return new SliderRange(0, (float)Math.PI * 2); } }
+
             public CelestialBody Body { get; set; }
 
             public Orbit Orbit(Orbit old)
@@ -161,6 +184,7 @@ namespace HyperEdit.Model
             }
 
             public ChangeDirection Direction { get; set; }
+
             public double Speed { get; set; }
 
             public Orbit Orbit(Orbit oldOrbit)
@@ -210,6 +234,7 @@ namespace HyperEdit.Model
         public class Rendezvous : IEditorType
         {
             public Vessel RendezvousWith { get; set; }
+
             public double LeadTime { get; set; }
 
             public Orbit Orbit(Orbit old)
@@ -268,10 +293,15 @@ namespace HyperEdit.Model
         }
 
         private OrbitDriver _currentlyEditing;
+
         public OrbitDriver CurrentlyEditing
         {
             get { return _currentlyEditing; }
-            set { _currentlyEditing = value; Editor = new Simple(value.orbit); }
+            set
+            {
+                _currentlyEditing = value;
+                Editor = new Simple(value.orbit);
+            }
         }
 
         public IEditorType Editor { get; set; }

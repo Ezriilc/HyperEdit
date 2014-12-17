@@ -7,6 +7,7 @@ namespace HyperEdit.View
         Vector2 _scrollPos;
 
         Model.SmaAligner _model;
+
         public static void Create(Model.SmaAligner model)
         {
             var view = new SmaAlignerView();
@@ -14,7 +15,9 @@ namespace HyperEdit.View
             Window.Create("SMA Aligner", 200, -1, view.Draw);
         }
 
-        private SmaAlignerView() { }
+        private SmaAlignerView()
+        {
+        }
 
         public override void Draw(Window window)
         {

@@ -10,7 +10,9 @@ namespace HyperEdit.View
             Window.Create("HyperEdit", 100, -1, view.Draw);
         }
 
-        private CoreView() { }
+        private CoreView()
+        {
+        }
 
         public override void Draw(Window window)
         {

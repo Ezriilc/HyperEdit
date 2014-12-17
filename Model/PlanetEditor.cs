@@ -12,18 +12,29 @@ namespace HyperEdit.Model
         public struct PlanetSettings
         {
             public double GeeASL { get; set; }
+
             public float AtmoshpereTemperatureMultiplier { get; set; }
+
             public bool Atmosphere { get; set; }
+
             public bool AtmosphereContainsOxygen { get; set; }
+
             public float AtmosphereMultiplier { get; set; }
+
             public double AtmosphereScaleHeight { get; set; }
+
             public Color AtmosphericAmbientColor { get; set; }
+
             public double SphereOfInfluence { get; set; }
+
             public double RotationPeriod { get; set; }
+
             public bool TidallyLocked { get; set; }
+
             public Orbit Orbit { get; set; }
 
-            public PlanetSettings(CelestialBody body) : this()
+            public PlanetSettings(CelestialBody body)
+                : this()
             {
                 GeeASL = body.GeeASL;
                 AtmoshpereTemperatureMultiplier = body.atmoshpereTemperatureMultiplier;
@@ -45,17 +56,16 @@ namespace HyperEdit.Model
 
             public bool Matches(CelestialBody body)
             {
-                return
-                  GeeASL == body.GeeASL &&
-                  AtmoshpereTemperatureMultiplier == body.atmoshpereTemperatureMultiplier &&
-                  Atmosphere == body.atmosphere &&
-                  AtmosphereContainsOxygen == body.atmosphereContainsOxygen &&
-                  AtmosphereMultiplier == body.atmosphereMultiplier &&
-                  AtmosphereScaleHeight == body.atmosphereScaleHeight &&
-                  AtmosphericAmbientColor == body.atmosphericAmbientColor &&
-                  SphereOfInfluence == body.sphereOfInfluence &&
-                  RotationPeriod == body.rotationPeriod &&
-                  TidallyLocked == body.tidallyLocked;
+                return GeeASL == body.GeeASL &&
+                AtmoshpereTemperatureMultiplier == body.atmoshpereTemperatureMultiplier &&
+                Atmosphere == body.atmosphere &&
+                AtmosphereContainsOxygen == body.atmosphereContainsOxygen &&
+                AtmosphereMultiplier == body.atmosphereMultiplier &&
+                AtmosphereScaleHeight == body.atmosphereScaleHeight &&
+                AtmosphericAmbientColor == body.atmosphericAmbientColor &&
+                SphereOfInfluence == body.sphereOfInfluence &&
+                RotationPeriod == body.rotationPeriod &&
+                TidallyLocked == body.tidallyLocked;
             }
 
             public void CopyTo(CelestialBody body, bool setOrbit)
@@ -133,6 +143,7 @@ namespace HyperEdit.Model
         }
 
         private PlanetSettings _currentSettings;
+
         public PlanetSettings CurrentSettings
         {
             get { return _currentSettings; }
@@ -140,10 +151,15 @@ namespace HyperEdit.Model
         }
 
         private CelestialBody _currentBody;
+
         public CelestialBody CurrentBody
         {
             get { return _currentBody; }
-            set { _currentBody = value; _currentSettings = new PlanetSettings(value); }
+            set
+            {
+                _currentBody = value;
+                _currentSettings = new PlanetSettings(value);
+            }
         }
 
         public void SelectPlanet()

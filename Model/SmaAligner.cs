@@ -6,6 +6,7 @@ namespace HyperEdit.Model
     public class SmaAligner
     {
         public List<Vessel> VesselsToAlign { get; private set; }
+
         public List<Vessel> AvailableVessels { get { return FlightGlobals.fetch != null && FlightGlobals.Vessels != null ? FlightGlobals.Vessels : new List<Vessel>(); } }
 
         public SmaAligner()

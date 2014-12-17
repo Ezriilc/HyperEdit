@@ -75,11 +75,16 @@ namespace HyperEdit.View
             var orbit = model as Model.OrbitEditor;
             var planet = model as Model.PlanetEditor;
             var sma = model as Model.SmaAligner;
-            if (lander != null) LanderView.Create(lander);
-            if (misc != null) MiscEditorView.Create(misc);
-            if (orbit != null) OrbitEditorView.Create(orbit);
-            if (planet != null) PlanetEditorView.Create(planet);
-            if (sma != null) SmaAlignerView.Create(sma);
+            if (lander != null)
+                LanderView.Create(lander);
+            if (misc != null)
+                MiscEditorView.Create(misc);
+            if (orbit != null)
+                OrbitEditorView.Create(orbit);
+            if (planet != null)
+                PlanetEditorView.Create(planet);
+            if (sma != null)
+                SmaAlignerView.Create(sma);
         }
     }
 }

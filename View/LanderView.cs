@@ -5,6 +5,7 @@ namespace HyperEdit.View
     public class LanderView : View
     {
         Model.Lander _model;
+
         public static void Create(Model.Lander model)
         {
             var view = new LanderView();
@@ -12,7 +13,9 @@ namespace HyperEdit.View
             Window.Create("Lander", 200, -1, view.Draw);
         }
 
-        private LanderView() { }
+        private LanderView()
+        {
+        }
 
         public override void Draw(Window window)
         {

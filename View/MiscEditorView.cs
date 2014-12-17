@@ -6,6 +6,7 @@ namespace HyperEdit.View
     public class MiscEditorView : View
     {
         Model.MiscEditor _model;
+
         public static void Create(Model.MiscEditor model)
         {
             var view = new MiscEditorView();
@@ -13,7 +14,9 @@ namespace HyperEdit.View
             Window.Create("Misc tools", 300, -1, view.Draw);
         }
 
-        private MiscEditorView() { }
+        private MiscEditorView()
+        {
+        }
 
         public override void Draw(Window window)
         {

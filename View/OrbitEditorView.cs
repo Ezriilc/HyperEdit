@@ -14,7 +14,9 @@ namespace HyperEdit.View
             Window.Create("Orbit editor", 200, -1, view.Draw);
         }
 
-        private OrbitEditorView() { }
+        private OrbitEditorView()
+        {
+        }
 
         private float Slider(GUIContent display, float oldval, Model.SliderRange range, ref bool changed)
         {

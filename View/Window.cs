@@ -11,14 +11,14 @@ namespace HyperEdit.View
         {
             var str = "";
             Window.Create(prompt, 200, 100, w =>
-            {
-                str = GUILayout.TextField(str);
-                if (GUILayout.Button("OK"))
                 {
-                    complete(str);
-                    w.Close();
-                }
-            });
+                    str = GUILayout.TextField(str);
+                    if (GUILayout.Button("OK"))
+                    {
+                        complete(str);
+                        w.Close();
+                    }
+                });
         }
 
         public static void Selector<T>(string title, IEnumerable<T> elements, Func<T, string> nameSelector, Action<T> onSelect)
@@ -26,25 +26,26 @@ namespace HyperEdit.View
             var collection = elements.Select(t => new { value = t, name = nameSelector(t) }).ToList();
             var scrollPos = new Vector2();
             Window.Create(title, 300, 500, w =>
-            {
-                scrollPos = GUILayout.BeginScrollView(scrollPos);
-                foreach (var item in collection)
                 {
-                    if (GUILayout.Button(item.name))
+                    scrollPos = GUILayout.BeginScrollView(scrollPos);
+                    foreach (var item in collection)
                     {
-                        onSelect(item.value);
-                        w.Close();
-                        return;
+                        if (GUILayout.Button(item.name))
+                        {
+                            onSelect(item.value);
+                            w.Close();
+                            return;
+                        }
                     }
-                }
-                GUILayout.EndScrollView();
-            });
+                    GUILayout.EndScrollView();
+                });
         }
     }
 
     public class Window : MonoBehaviour
     {
         private static GameObject _gameObject;
+
         private static GameObject GameObject
         {
             get
@@ -76,7 +77,9 @@ namespace HyperEdit.View
             window._drawFunc = drawFunc;
         }
 
-        private Window() { }
+        private Window()
+        {
+        }
 
         public void Update()
         {

@@ -8,8 +8,11 @@ namespace HyperEdit.Model
     public class Lander
     {
         private const string Filename = "landcoords.txt";
+
         public double Latitude { get; set; }
+
         public double Longitude { get; set; }
+
         public double Altitude { get; set; }
 
         public Lander()
@@ -51,17 +54,21 @@ namespace HyperEdit.Model
         struct LandingCoordinates
         {
             public string Name { get; set; }
+
             public double Lat { get; set; }
+
             public double Lon { get; set; }
 
-            public LandingCoordinates(string name, double lat, double lon) : this()
+            public LandingCoordinates(string name, double lat, double lon)
+                : this()
             {
                 Name = name;
                 Lat = lat;
                 Lon = lon;
             }
 
-            public LandingCoordinates(string value) : this()
+            public LandingCoordinates(string value)
+                : this()
             {
                 var split = value.Split(',');
                 if (split.Length < 3)
@@ -120,21 +127,21 @@ namespace HyperEdit.Model
         public void Load(Action onLoad)
         {
             View.WindowHelper.Selector("Load...", SavedCoords, c => c.Name, c =>
-            {
-                Latitude = c.Lat;
-                Longitude = c.Lon;
-                onLoad();
-            });
+                {
+                    Latitude = c.Lat;
+                    Longitude = c.Lon;
+                    onLoad();
+                });
         }
 
         public void Delete()
         {
             var coords = SavedCoords;
             View.WindowHelper.Selector("Delete...", coords, c => c.Name, toDelete =>
-            {
-                coords.Remove(toDelete);
-                SavedCoords = coords;
-            });
+                {
+                    coords.Remove(toDelete);
+                    SavedCoords = coords;
+                });
         }
 
         public void SetToCurrent()
@@ -181,8 +188,8 @@ namespace HyperEdit.Model
                         return;
                     }
                     var alt = pqs.GetSurfaceHeight(
-                        QuaternionD.AngleAxis(Longitude, Vector3d.down) *
-                        QuaternionD.AngleAxis(Latitude, Vector3d.forward) * Vector3d.right) -
+                                  QuaternionD.AngleAxis(Longitude, Vector3d.down) *
+                                  QuaternionD.AngleAxis(Latitude, Vector3d.forward) * Vector3d.right) -
                               pqs.radius;
                     alt = Math.Max(alt, 0); // Underwater!
                     if (vessel.Landed)

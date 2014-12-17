@@ -5,6 +5,7 @@ namespace HyperEdit.View
     public class PlanetEditorView : View
     {
         Model.PlanetEditor _model;
+
         public static void Create(Model.PlanetEditor model)
         {
             var view = new PlanetEditorView();
@@ -12,7 +13,9 @@ namespace HyperEdit.View
             Window.Create("Planet editor", 400, -1, view.Draw);
         }
 
-        private PlanetEditorView() { }
+        private PlanetEditorView()
+        {
+        }
 
         public override void Draw(Window window)
         {
@@ -47,7 +50,7 @@ namespace HyperEdit.View
                     }
                 }
                 if (GUILayout.Button(new GUIContent("Save planet to config file",
-                    "Saves the current configuration of the planet to a file, so it stays edited even after a restart. Delete the file named the planet's name in ./GameData/Kerbaltek/PluginData/HyperEdit/ to undo.")))
+                            "Saves the current configuration of the planet to a file, so it stays edited even after a restart. Delete the file named the planet's name in ./GameData/Kerbaltek/PluginData/HyperEdit/ to undo.")))
                 {
                     _model.SavePlanet();
                 }
