@@ -57,14 +57,12 @@ namespace HyperEdit
             ApplicationLauncher.AppScenes scenes =
                 ApplicationLauncher.AppScenes.FLIGHT |
                 ApplicationLauncher.AppScenes.MAPVIEW |
-                ApplicationLauncher.AppScenes.SPACECENTER |
                 ApplicationLauncher.AppScenes.TRACKSTATION;
-            Texture2D tex = new Texture2D(38, 38);
-
+            Texture2D tex = new Texture2D(38, 38, TextureFormat.RGBA32, false);
 
             for (int x = 0; x < tex.width; x++)
                 for (int y = 0; y < tex.height; y++)
-                    tex.SetPixel(x, y, new Color(2 * (float)Math.Abs(x - tex.width / 2) / tex.width, 0.25f, 2 * (float)Math.Abs(y - tex.height / 2) / tex.height));
+                    tex.SetPixel(x, y, new Color(2 * (float)Math.Abs(x - tex.width / 2) / tex.width, 0.25f, 2 * (float)Math.Abs(y - tex.height / 2) / tex.height, 0));
             for (int x = 10; x < 12; x++)
                 for (int y = 10; y < tex.height - 10; y++)
                     tex.SetPixel(x, y, new Color(1, 1, 1));
@@ -74,7 +72,6 @@ namespace HyperEdit
             for (int x = 12; x < tex.width - 12; x++)
                 for (int y = tex.height / 2; y < tex.height / 2 + 2; y++)
                     tex.SetPixel(x, y, new Color(1, 1, 1));
-
 
             tex.Apply();
             _appLauncherButton = applauncher.AddModApplication(() =>
@@ -92,7 +89,6 @@ namespace HyperEdit
                 }, () =>
                 {
                 }, scenes, tex);
-            Extentions.Log("Added self to ApplicationLauncher");
         }
 
         private void RemoveAppLauncher()
@@ -103,9 +99,12 @@ namespace HyperEdit
                 Extentions.Log("Cannot remove from ApplicationLauncher, instance was null");
                 return;
             }
+            if (_appLauncherButton == null)
+            {
+                return;
+            }
             applauncher.RemoveModApplication(_appLauncherButton);
             _appLauncherButton = null;
-            Extentions.Log("Removed self from ApplicationLauncher");
         }
 
         public void Update()

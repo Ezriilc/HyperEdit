@@ -23,7 +23,7 @@ namespace HyperEdit.View
             if (GUILayout.Button("Select planet"))
                 _model.SelectPlanet();
             GUILayout.Label(_model.CurrentBody == null ? "Nothing selected" : "Editing: " + _model.CurrentBody.bodyName);
-            if (_model.CurrentBody != null)
+            if (_model.CanEditPlanetSettings)
             {
                 var settings = _model.CurrentSettings;
                 settings.GeeASL = GuiTextField("GeeASL", new GUIContent("Gravity", "Multiplier strength of gravity"), SiSuffix.TryParse, settings.GeeASL);
@@ -41,14 +41,24 @@ namespace HyperEdit.View
                     _model.Apply();
                     ClearTextFields();
                 }
-                if (_model.IsNotDefault)
+            }
+            if (_model.CanResetToDefault)
+            {
+                if (GUILayout.Button("Reset to defaults"))
                 {
-                    if (GUILayout.Button("Reset to defaults"))
-                    {
-                        _model.ResetToDefault();
-                        ClearTextFields();
-                    }
+                    _model.ResetToDefault();
+                    ClearTextFields();
                 }
+            }
+            if (_model.CanCopyToKerbin)
+            {
+                if (GUILayout.Button(new GUIContent("Copy to kerbin")))
+                {
+                    _model.CopyToKerbin();
+                }
+            }
+            if (_model.CanSavePlanet)
+            {
                 if (GUILayout.Button(new GUIContent("Save planet to config file",
                             "Saves the current configuration of the planet to a file, so it stays edited even after a restart. Delete the file named the planet's name in ./GameData/Kerbaltek/PluginData/HyperEdit/ to undo.")))
                 {

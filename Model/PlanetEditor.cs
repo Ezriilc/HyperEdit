@@ -1,7 +1,6 @@
-﻿using System;
-using HyperEdit;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 namespace HyperEdit.Model
 {
@@ -162,6 +161,23 @@ namespace HyperEdit.Model
             }
         }
 
+        private CelestialBody _kerbin;
+
+        public CelestialBody Kerbin
+        {
+            get
+            {
+                return _kerbin != null ? _kerbin :
+                    _kerbin = (FlightGlobals.fetch == null ? null :
+                    FlightGlobals.fetch.bodies.FirstOrDefault(cb => cb.bodyName == "Kerbin"));
+            }
+        }
+
+        public bool CanEditPlanetSettings
+        {
+            get { return CurrentBody != null; }
+        }
+
         public void SelectPlanet()
         {
             if (FlightGlobals.fetch == null || FlightGlobals.Bodies == null)
@@ -177,7 +193,7 @@ namespace HyperEdit.Model
             _currentSettings.CopyTo(_currentBody, false);
         }
 
-        public bool IsNotDefault
+        public bool CanResetToDefault
         {
             get
             {
@@ -212,9 +228,28 @@ namespace HyperEdit.Model
             }
         }
 
+        public bool CanCopyToKerbin
+        {
+            get { return CurrentBody != null && CurrentBody != Kerbin; }
+        }
+
+        public void CopyToKerbin()
+        {
+            if (CanCopyToKerbin == false)
+            {
+                return;
+            }
+            new PlanetSettings(CurrentBody).CopyTo(Kerbin, false);
+        }
+
+        public bool CanSavePlanet
+        {
+            get { return CurrentBody != null; }
+        }
+
         public void SavePlanet()
         {
-            if (CurrentBody == null)
+            if (CanSavePlanet == false)
                 return;
             var cfg = PlanetSettings.GetConfig(CurrentBody);
             cfg.Save(KSP.IO.IOUtils.GetFilePathFor(typeof(HyperEditBehaviour), cfg.name + ".cfg"));
