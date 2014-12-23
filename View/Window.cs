@@ -10,7 +10,7 @@ namespace HyperEdit.View
         public static void Prompt(string prompt, Action<string> complete)
         {
             var str = "";
-            Window.Create(prompt, false, 200, 100, w =>
+            Window.Create(prompt, false, false, 200, 100, w =>
                 {
                     str = GUILayout.TextField(str);
                     if (GUILayout.Button("OK"))
@@ -25,7 +25,7 @@ namespace HyperEdit.View
         {
             var collection = elements.Select(t => new { value = t, name = nameSelector(t) }).ToList();
             var scrollPos = new Vector2();
-            Window.Create(title, false, 300, 500, w =>
+            Window.Create(title, false, false, 300, 500, w =>
                 {
                     scrollPos = GUILayout.BeginScrollView(scrollPos);
                     foreach (var item in collection)
@@ -89,8 +89,14 @@ namespace HyperEdit.View
         private Rect _windowRect;
         private Action<Window> _drawFunc;
 
-        public static void Create(string title, bool savepos, int width, int height, Action<Window> drawFunc)
+        public static void Create(string title, bool savepos, bool ensureUniqueTitle, int width, int height, Action<Window> drawFunc)
         {
+            if (ensureUniqueTitle && GameObject.GetComponents<Window>().Any(w => w._title == title))
+            {
+                Extentions.Log("Not opening window \"" + title + "\", already open");
+                return;
+            }
+
             int winx = 100;
             int winy = 100;
             if (savepos)

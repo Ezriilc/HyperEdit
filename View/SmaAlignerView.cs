@@ -12,7 +12,7 @@ namespace HyperEdit.View
         {
             var view = new SmaAlignerView();
             view._model = model;
-            Window.Create("SMA Aligner", true, 200, -1, view.Draw);
+            Window.Create("SMA Aligner", true, true, 200, -1, view.Draw);
         }
 
         private SmaAlignerView()

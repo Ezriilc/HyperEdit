@@ -11,7 +11,7 @@ namespace HyperEdit.View
         {
             var view = new OrbitEditorView();
             view._model = model;
-            Window.Create("Orbit editor", true, 200, -1, view.Draw);
+            Window.Create("Orbit editor", true, true, 200, -1, view.Draw);
         }
 
         private OrbitEditorView()

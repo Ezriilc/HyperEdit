@@ -11,7 +11,7 @@ namespace HyperEdit.View
         {
             var view = new MiscEditorView();
             view._model = model;
-            Window.Create("Misc tools", true, 300, -1, view.Draw);
+            Window.Create("Misc tools", true, true, 300, -1, view.Draw);
         }
 
         private MiscEditorView()
