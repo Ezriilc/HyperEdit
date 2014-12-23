@@ -7,7 +7,7 @@ namespace HyperEdit.View
         public static void Create()
         {
             var view = new CoreView();
-            Window.Create("HyperEdit", 100, -1, view.Draw);
+            Window.Create("HyperEdit", true, 100, -1, view.Draw);
         }
 
         private CoreView()

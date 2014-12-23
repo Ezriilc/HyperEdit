@@ -10,7 +10,7 @@ namespace HyperEdit.View
         {
             var view = new LanderView();
             view._model = model;
-            Window.Create("Lander", 200, -1, view.Draw);
+            Window.Create("Lander", true, 200, -1, view.Draw);
         }
 
         private LanderView()

@@ -10,7 +10,7 @@ namespace HyperEdit.View
         {
             var view = new PlanetEditorView();
             view._model = model;
-            Window.Create("Planet editor", 400, -1, view.Draw);
+            Window.Create("Planet editor", true, 400, -1, view.Draw);
         }
 
         private PlanetEditorView()

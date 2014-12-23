@@ -10,7 +10,7 @@ namespace HyperEdit.View
         public static void Prompt(string prompt, Action<string> complete)
         {
             var str = "";
-            Window.Create(prompt, 200, 100, w =>
+            Window.Create(prompt, false, 200, 100, w =>
                 {
                     str = GUILayout.TextField(str);
                     if (GUILayout.Button("OK"))
@@ -25,7 +25,7 @@ namespace HyperEdit.View
         {
             var collection = elements.Select(t => new { value = t, name = nameSelector(t) }).ToList();
             var scrollPos = new Vector2();
-            Window.Create(title, 300, 500, w =>
+            Window.Create(title, false, 300, 500, w =>
                 {
                     scrollPos = GUILayout.BeginScrollView(scrollPos);
                     foreach (var item in collection)
@@ -59,6 +59,29 @@ namespace HyperEdit.View
             }
         }
 
+        private static ConfigNode _windowPos;
+
+        private static ConfigNode WindowPos
+        {
+            get
+            {
+                if (_windowPos != null)
+                    return _windowPos;
+                const string filename = "windowpos.cfg";
+                var fp = KSP.IO.IOUtils.GetFilePathFor(typeof(HyperEditBehaviour), filename);
+                if (KSP.IO.File.Exists<HyperEditBehaviour>(filename))
+                    _windowPos = ConfigNode.Load(fp);
+                else
+                    _windowPos = new ConfigNode();
+                return _windowPos;
+            }
+        }
+
+        private static bool SaveWindowPos()
+        {
+            return WindowPos.Save(KSP.IO.IOUtils.GetFilePathFor(typeof(HyperEditBehaviour), "windowpos.cfg"));
+        }
+
         private string _tempTooltip;
         private string _oldTooltip;
         private string _title;
@@ -66,14 +89,35 @@ namespace HyperEdit.View
         private Rect _windowRect;
         private Action<Window> _drawFunc;
 
-        public static void Create(string title, int width, int height, Action<Window> drawFunc)
+        public static void Create(string title, bool savepos, int width, int height, Action<Window> drawFunc)
         {
+            int winx = 100;
+            int winy = 100;
+            if (savepos)
+            {
+                var winposNode = WindowPos.GetNode(title.Replace(' ', '_'));
+                if (winposNode != null)
+                {
+                    winposNode.TryGetValue("x", ref winx, int.TryParse);
+                    winposNode.TryGetValue("y", ref winy, int.TryParse);
+                }
+                else
+                {
+                    Extentions.Log("No winpos found for \"" + title + "\", defaulting to " + winx + "," + winy);
+                }
+            }
+            else
+            {
+                winx = (Screen.width - width) / 2;
+                winy = (Screen.height - height) / 2;
+            }
+
             var window = GameObject.AddComponent<Window>();
             window._shrinkHeight = height == -1;
             if (window._shrinkHeight)
                 height = 5;
             window._title = title;
-            window._windowRect = new Rect(100, 100, width, height);
+            window._windowRect = new Rect(winx, winy, width, height);
             window._drawFunc = drawFunc;
         }
 
@@ -116,6 +160,12 @@ namespace HyperEdit.View
 
         public void Close()
         {
+            ConfigNode node = new ConfigNode(_title.Replace(' ', '_'));
+            node.AddValue("x", (int)_windowRect.x);
+            node.AddValue("y", (int)_windowRect.y);
+            if (WindowPos.SetNode(node.name, node) == false)
+                WindowPos.AddNode(node);
+            SaveWindowPos();
             Destroy(this);
         }
 

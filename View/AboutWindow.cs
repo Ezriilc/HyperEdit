@@ -6,7 +6,7 @@ namespace HyperEdit.View
     {
         public static void Create()
         {
-            Window.Create("About", 500, 200, w =>
+            Window.Create("About", true, 500, 200, w =>
                 {
                     GUILayout.Label(AboutContents);
                 });
