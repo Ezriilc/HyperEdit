@@ -38,7 +38,6 @@ namespace HyperEdit
         {
             GameEvents.onGUIApplicationLauncherReady.Add(AddAppLauncher);
             GameEvents.onGUIApplicationLauncherDestroyed.Add(RemoveAppLauncher);
-            Extentions.Log("Subscribed to onGUIApplicationLauncherReady/Destroyed");
         }
 
         private void AddAppLauncher()
@@ -236,7 +235,7 @@ namespace HyperEdit
             else if (body != null)
                 body.SetOrbit(newOrbit);
             else
-                HardsetOrbit(orbit.orbit, newOrbit);
+                HardsetOrbit(orbit, newOrbit);
         }
 
         public static void SetOrbit(this Vessel vessel, Orbit newOrbit)
@@ -270,16 +269,25 @@ namespace HyperEdit
             foreach (var v in (FlightGlobals.fetch == null ? (IEnumerable<Vessel>)new[] { vessel } : FlightGlobals.Vessels).Where(v => v.packed == false))
                 v.GoOnRails();
 
-            HardsetOrbit(vessel.orbit, newOrbit);
+            var oldBody = vessel.orbitDriver.orbit.referenceBody;
+
+            HardsetOrbit(vessel.orbitDriver, newOrbit);
 
             vessel.orbitDriver.pos = vessel.orbit.pos.xzy;
             vessel.orbitDriver.vel = vessel.orbit.vel;
+
+            var newBody = vessel.orbitDriver.orbit.referenceBody;
+            if (newBody != oldBody)
+            {
+                var evnt = new GameEvents.HostedFromToAction<Vessel, CelestialBody>(vessel, oldBody, newBody);
+                GameEvents.onVesselSOIChanged.Fire(evnt);
+            }
         }
 
         public static void SetOrbit(this CelestialBody body, Orbit newOrbit)
         {
             var oldBody = body.referenceBody;
-            HardsetOrbit(body.orbit, newOrbit);
+            HardsetOrbit(body.orbitDriver, newOrbit);
             if (oldBody != newOrbit.referenceBody)
             {
                 oldBody.orbitingBodies.Remove(body);
@@ -288,8 +296,9 @@ namespace HyperEdit
             body.CBUpdate();
         }
 
-        private static void HardsetOrbit(Orbit orbit, Orbit newOrbit)
+        private static void HardsetOrbit(OrbitDriver orbitDriver, Orbit newOrbit)
         {
+            var orbit = orbitDriver.orbit;
             orbit.inclination = newOrbit.inclination;
             orbit.eccentricity = newOrbit.eccentricity;
             orbit.semiMajorAxis = newOrbit.semiMajorAxis;
@@ -300,6 +309,11 @@ namespace HyperEdit
             orbit.referenceBody = newOrbit.referenceBody;
             orbit.Init();
             orbit.UpdateFromUT(Planetarium.GetUniversalTime());
+            if (orbit.referenceBody != newOrbit.referenceBody)
+            {
+                if (orbitDriver.OnReferenceBodyChange != null)
+                    orbitDriver.OnReferenceBodyChange(newOrbit.referenceBody);
+            }
         }
 
         public static void Teleport(this Krakensbane krakensbane, Vector3d offset)
