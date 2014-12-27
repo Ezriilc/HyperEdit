@@ -155,9 +155,9 @@ namespace HyperEdit.Model
         public class LanderAttachment : MonoBehaviour
         {
             private bool _alreadyTeleported;
-            public double Latitude;
-            public double Longitude;
-            public double Altitude;
+            public double Latitude { get; set; }
+            public double Longitude { get; set; }
+            public double Altitude { get; set; }
 
             public void FixedUpdate()
             {

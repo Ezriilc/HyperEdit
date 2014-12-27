@@ -40,6 +40,11 @@ namespace HyperEdit.View
                 _model.AlignSemiMajorAxis();
             if (GUILayout.Button(new GUIContent("Destroy a vessel", "Select a vessel to destroy")))
                 _model.DestroyVessel();
+
+            _model.BoostButtonKey = GuiTextField("BoostButtonKey", new GUIContent("Boost button key", "Sets the keybinding used for the boost button"),
+                Extentions.KeyCodeTryParse, _model.BoostButtonKey, Extentions.KeyCodeToString);
+            _model.BoostButtonSpeed = GuiTextField("BoostButtonSpeed", new GUIContent("Boost button speed", "Sets the dV applied per frame when the boost button is held down"),
+                SiSuffix.TryParse, _model.BoostButtonSpeed);
         }
     }
 }

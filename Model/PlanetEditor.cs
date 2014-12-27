@@ -141,13 +141,7 @@ namespace HyperEdit.Model
             }
         }
 
-        private PlanetSettings _currentSettings;
-
-        public PlanetSettings CurrentSettings
-        {
-            get { return _currentSettings; }
-            set { _currentSettings = value; }
-        }
+        public PlanetSettings CurrentSettings { get; set; }
 
         private CelestialBody _currentBody;
 
@@ -157,7 +151,7 @@ namespace HyperEdit.Model
             set
             {
                 _currentBody = value;
-                _currentSettings = new PlanetSettings(value);
+                CurrentSettings = new PlanetSettings(value);
             }
         }
 
@@ -167,8 +161,8 @@ namespace HyperEdit.Model
         {
             get
             {
-                return _kerbin != null ? _kerbin :
-                    _kerbin = (FlightGlobals.fetch == null ? null :
+                return _kerbin ??
+                    (_kerbin = FlightGlobals.fetch == null ? null :
                     FlightGlobals.fetch.bodies.FirstOrDefault(cb => cb.bodyName == "Kerbin"));
             }
         }
@@ -190,7 +184,7 @@ namespace HyperEdit.Model
         {
             if (_currentBody == null)
                 return;
-            _currentSettings.CopyTo(_currentBody, false);
+            CurrentSettings.CopyTo(_currentBody, false);
         }
 
         public bool CanResetToDefault
@@ -219,8 +213,8 @@ namespace HyperEdit.Model
             try
             {
                 var defaultCb = _defaultSettings[_currentBody.bodyName];
-                _currentSettings = defaultCb;
-                _currentSettings.CopyTo(_currentBody, true);
+                CurrentSettings = defaultCb;
+                CurrentSettings.CopyTo(_currentBody, true);
             }
             catch (KeyNotFoundException)
             {

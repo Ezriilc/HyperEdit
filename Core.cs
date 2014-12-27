@@ -53,23 +53,23 @@ namespace HyperEdit
                 Extentions.Log("Cannot add to ApplicationLauncher, instance was null");
                 return;
             }
-            ApplicationLauncher.AppScenes scenes =
+            const ApplicationLauncher.AppScenes scenes =
                 ApplicationLauncher.AppScenes.FLIGHT |
                 ApplicationLauncher.AppScenes.MAPVIEW |
                 ApplicationLauncher.AppScenes.TRACKSTATION;
-            Texture2D tex = new Texture2D(38, 38, TextureFormat.RGBA32, false);
+            var tex = new Texture2D(38, 38, TextureFormat.RGBA32, false);
 
-            for (int x = 0; x < tex.width; x++)
-                for (int y = 0; y < tex.height; y++)
+            for (var x = 0; x < tex.width; x++)
+                for (var y = 0; y < tex.height; y++)
                     tex.SetPixel(x, y, new Color(2 * (float)Math.Abs(x - tex.width / 2) / tex.width, 0.25f, 2 * (float)Math.Abs(y - tex.height / 2) / tex.height, 0));
-            for (int x = 10; x < 12; x++)
-                for (int y = 10; y < tex.height - 10; y++)
+            for (var x = 10; x < 12; x++)
+                for (var y = 10; y < tex.height - 10; y++)
                     tex.SetPixel(x, y, new Color(1, 1, 1));
-            for (int x = tex.width - 12; x < tex.width - 10; x++)
-                for (int y = 10; y < tex.height - 10; y++)
+            for (var x = tex.width - 12; x < tex.width - 10; x++)
+                for (var y = 10; y < tex.height - 10; y++)
                     tex.SetPixel(x, y, new Color(1, 1, 1));
-            for (int x = 12; x < tex.width - 12; x++)
-                for (int y = tex.height / 2; y < tex.height / 2 + 2; y++)
+            for (var x = 12; x < tex.width - 12; x++)
+                for (var y = tex.height / 2; y < tex.height / 2 + 2; y++)
                     tex.SetPixel(x, y, new Color(1, 1, 1));
 
             tex.Apply();
@@ -152,7 +152,7 @@ namespace HyperEdit
         {
             s = s.Trim();
             double multiplier;
-            var suffix = Suffixes.FirstOrDefault(suf => s.EndsWith(suf.Key));
+            var suffix = Suffixes.FirstOrDefault(suf => s.EndsWith(suf.Key, StringComparison.Ordinal));
             if (suffix.Key != null)
             {
                 s = s.Substring(0, s.Length - suffix.Key.Length);
@@ -266,7 +266,8 @@ namespace HyperEdit
                 Extentions.Log("OrbitPhysicsManager.HoldVesselUnpack threw NullReferenceException");
             }
 
-            foreach (var v in (FlightGlobals.fetch == null ? (IEnumerable<Vessel>)new[] { vessel } : FlightGlobals.Vessels).Where(v => v.packed == false))
+            var allVessels = FlightGlobals.fetch == null ? (IEnumerable<Vessel>)new[] { vessel } : FlightGlobals.Vessels;
+            foreach (var v in allVessels.Where(v => v.packed == false))
                 v.GoOnRails();
 
             var oldBody = vessel.orbitDriver.orbit.referenceBody;
@@ -342,6 +343,41 @@ namespace HyperEdit
             return radius;
         }
 
+        private static Dictionary<string, KeyCode> _keyCodeNames;
+
+        public static Dictionary<string, KeyCode> KeyCodeNames
+        {
+            get
+            {
+                return _keyCodeNames ?? (_keyCodeNames =
+                    Enum.GetNames(typeof(KeyCode)).Distinct().ToDictionary(k => k, k => (KeyCode)Enum.Parse(typeof(KeyCode), k)));
+            }
+        }
+
+        public static bool KeyCodeTryParse(string str, out KeyCode[] value)
+        {
+            var split = str.Split('-', '+');
+            if (split.Length == 0)
+            {
+                value = null;
+                return false;
+            }
+            value = new KeyCode[split.Length];
+            for (int i = 0; i < split.Length; i++)
+            {
+                if (KeyCodeNames.TryGetValue(split[i], out value[i]) == false)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public static string KeyCodeToString(this KeyCode[] values)
+        {
+            return string.Join("-", values.Select(v => v.ToString()).ToArray());
+        }
+
         public static bool CbTryParse(string bodyName, out CelestialBody body)
         {
             body = FlightGlobals.Bodies == null ? null : FlightGlobals.Bodies.FirstOrDefault(cb => cb.name == bodyName);
@@ -351,7 +387,7 @@ namespace HyperEdit
         private static string TrimUnityColor(string value)
         {
             value = value.Trim();
-            if (value.StartsWith("RGBA"))
+            if (value.StartsWith("RGBA", StringComparison.OrdinalIgnoreCase))
                 value = value.Substring(4).Trim();
             value = value.Trim('(', ')');
             return value;
@@ -392,32 +428,17 @@ public class KSPAddonFixed : KSPAddon, IEquatable<KSPAddonFixed>
 
     public override bool Equals(object obj)
     {
-        if (obj.GetType() != this.GetType())
-        {
-            return false;
-        }
-        return Equals((KSPAddonFixed)obj);
+        var other = obj as KSPAddonFixed;
+        return other != null && Equals(other);
     }
 
     public bool Equals(KSPAddonFixed other)
     {
-        if (this.once != other.once)
-        {
-            return false;
-        }
-        if (this.startup != other.startup)
-        {
-            return false;
-        }
-        if (this.type != other.type)
-        {
-            return false;
-        }
-        return true;
+        return once == other.once && startup == other.startup && type == other.type;
     }
 
     public override int GetHashCode()
     {
-        return this.startup.GetHashCode() ^ this.once.GetHashCode() ^ this.type.GetHashCode();
+        return startup.GetHashCode() ^ once.GetHashCode() ^ type.GetHashCode();
     }
 }

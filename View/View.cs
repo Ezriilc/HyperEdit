@@ -58,6 +58,17 @@ namespace HyperEdit.View
             return set ? value : (T?)null;
         }
 
+        protected float Slider(GUIContent display, float oldval, Model.SliderRange range, ref bool changed)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(display);
+            var newval = GUILayout.HorizontalSlider(oldval, range.Min, range.Max);
+            GUILayout.EndHorizontal();
+            if (changed == false)
+                changed = newval != oldval;
+            return newval;
+        }
+
         protected void ClearTextFields()
         {
             _textboxInputs.Clear();

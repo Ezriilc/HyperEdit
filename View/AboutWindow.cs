@@ -6,10 +6,7 @@ namespace HyperEdit.View
     {
         public static void Create()
         {
-            Window.Create("About", true, true, 500, 200, w =>
-                {
-                    GUILayout.Label(AboutContents);
-                });
+            Window.Create("About", true, true, 500, 200, w => GUILayout.Label(AboutContents));
         }
 
         private const string AboutContents = @"For support and contact information, please visit: http://www.kerbaltek.com/
