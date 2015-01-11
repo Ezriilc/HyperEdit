@@ -1,46 +1,38 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace HyperEdit.View
 {
-    public class LanderView : View
+    public static class LanderView
     {
-        Model.Lander _model;
-
-        public static void Create(Model.Lander model)
+        public static void Create()
         {
-            var view = new LanderView();
-            view._model = model;
-            Window.Create("Lander", true, true, 200, -1, view.Draw);
+            Window.Create("Lander", true, true, 200, -1, w => View().Draw());
         }
 
-        private LanderView()
+        public static IView View()
         {
-        }
-
-        public override void Draw(Window window)
-        {
-            base.Draw(window);
-            _model.Latitude = GuiTextField("Latitude", new GUIContent("Lat", "Latitude of landing coordinates"), double.TryParse, _model.Latitude);
-            _model.Longitude = GuiTextField("Longitude", new GUIContent("Lon", "Longitude of landing coordinates"), double.TryParse, _model.Longitude);
-            _model.Altitude = GuiTextField("Altitutde", new GUIContent("Alt", "Altitude of landing coordinates"), SiSuffix.TryParse, _model.Altitude);
-            _model.Landing = GUILayout.Toggle(_model.Landing, new GUIContent("Landing", "Land the ship (or stop landing)"));
-            if (GUILayout.Button(new GUIContent("Save", "Save the current location")))
+            var lat = new TextBoxView<double>("Lat", "Latitude of landing coordinates", "0", double.TryParse);
+            var lon = new TextBoxView<double>("Lon", "Longitude of landing coordinates", "0", double.TryParse);
+            var alt = new TextBoxView<double>("Alt", "Altitude of landing coordinates", "20", SiSuffix.TryParse);
+            Func<bool> isValid = () => lat.Valid && lon.Valid && alt.Valid;
+            Action<double, double> load = (latVal, lonVal) =>
             {
-                _model.Save();
-            }
-            if (GUILayout.Button(new GUIContent("Load", "Load a previously-saved location")))
-            {
-                _model.Load(ClearTextFields);
-            }
-            if (GUILayout.Button(new GUIContent("Delete", "Delete a previously-saved location")))
-            {
-                _model.Delete();
-            }
-            if (GUILayout.Button(new GUIContent("SetToCurrent", "Set lat/lon to the current position")))
-            {
-                _model.SetToCurrent();
-                ClearTextFields();
-            }
+                lat.Object = latVal;
+                lon.Object = lonVal;
+            };
+            return new VerticalView(new IView[]
+                {
+                    lat,
+                    lon,
+                    alt,
+                    new ToggleView("Landing", "Land the ship (or stop landing)", Model.DoLander.IsLanding,
+                        isValid, b => Model.DoLander.ToggleLanding(lat.Object, lon.Object, alt.Object)),
+                    new ButtonView("Save", "Save the current location", isValid, () => Model.DoLander.AddSavedCoords(lat.Object, lon.Object)),
+                        new ButtonView("Load", "Load a previously-saved location", () => true, () => Model.DoLander.Load(load)),
+                    new ButtonView("Load", "Load a previously-saved location", () => true, Model.DoLander.Delete),
+                    new ButtonView("SetToCurrent", "Set lat/lon to the current position", () => true, () => Model.DoLander.SetToCurrent(load)),
+                });
         }
     }
 }

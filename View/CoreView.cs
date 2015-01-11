@@ -24,9 +24,9 @@ namespace HyperEdit.View
             if (GUILayout.Button(new GUIContent("Planet Editor", "Opens the Planet Editor window")))
                 CreateView(new Model.PlanetEditor());
             if (GUILayout.Button(new GUIContent("Ship Lander", "Opens the Ship Lander window")))
-                CreateView(new Model.Lander());
+                LanderView.Create();
             if (GUILayout.Button(new GUIContent("Misc Tools", "Opens the Misc Tools window")))
-                CreateView(new Model.MiscEditor());
+                MiscEditorView.Create();
             if (GUILayout.Button(new GUIContent("About", "Opens the About window")))
                 AboutWindow.Create();
         }

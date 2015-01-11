@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace HyperEdit.Model
 {
-    public class MiscEditor
+    public static class MiscEditor
     {
-        public void DestroyVessel()
+        public static void DestroyVessel()
         {
             if (FlightGlobals.fetch == null || FlightGlobals.Vessels == null)
                 Extentions.ErrorPopup("Could not get list of vessels");
@@ -14,32 +14,32 @@ namespace HyperEdit.Model
                 View.WindowHelper.Selector("Destroy...", FlightGlobals.Vessels, v => v.name, v => v.Die());
         }
 
-        public double UniversalTime
+        public static double UniversalTime
         {
             get { return Planetarium.GetUniversalTime(); }
             set { Planetarium.SetUniversalTime(value); }
         }
 
-        public void AlignSemiMajorAxis()
+        public static void AlignSemiMajorAxis()
         {
             View.View.CreateView(new SmaAligner());
         }
 
-        public void RefillVesselResources()
+        public static void RefillVesselResources()
         {
             if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null)
                 return;
             RefillVesselResources(FlightGlobals.ActiveVessel);
         }
 
-        public IEnumerable<KeyValuePair<string, double>> GetResources()
+        public static IEnumerable<KeyValuePair<string, double>> GetResources()
         {
             if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null)
                 return new KeyValuePair<string, double>[0];
             return GetResources(FlightGlobals.ActiveVessel);
         }
 
-        public IEnumerable<KeyValuePair<string, double>> GetResources(Vessel vessel)
+        public static IEnumerable<KeyValuePair<string, double>> GetResources(Vessel vessel)
         {
             if (vessel.parts == null)
                 return new KeyValuePair<string, double>[0];
@@ -49,14 +49,14 @@ namespace HyperEdit.Model
                 .Select(g => new KeyValuePair<string, double>(g.Key, g.Sum(x => x.amount) / g.Sum(x => x.maxAmount)));
         }
 
-        public void SetResource(string key, double value)
+        public static void SetResource(string key, double value)
         {
             if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null)
                 return;
             SetResource(FlightGlobals.ActiveVessel, key, value);
         }
 
-        private void SetResource(Vessel vessel, string key, double value)
+        private static void SetResource(Vessel vessel, string key, double value)
         {
             if (vessel.parts == null)
                 return;
@@ -66,7 +66,7 @@ namespace HyperEdit.Model
                         part.TransferResource(resource.info.id, resource.maxAmount * value - resource.amount);
         }
 
-        public void RefillVesselResources(Vessel vessel)
+        public static void RefillVesselResources(Vessel vessel)
         {
             if (vessel.parts == null)
                 return;
@@ -75,13 +75,13 @@ namespace HyperEdit.Model
                     part.TransferResource(resource.info.id, resource.maxAmount - resource.amount);
         }
 
-        public KeyCode[] BoostButtonKey
+        public static KeyCode[] BoostButtonKey
         {
             get { return BoostListener.Fetch.Keys; }
             set { BoostListener.Fetch.Keys = value; }
         }
 
-        public double BoostButtonSpeed
+        public static double BoostButtonSpeed
         {
             get { return BoostListener.Fetch.Speed; }
             set { BoostListener.Fetch.Speed = value; }

@@ -3,48 +3,42 @@ using UnityEngine;
 
 namespace HyperEdit.View
 {
-    public class MiscEditorView : View
+    public class MiscEditorView
     {
-        Model.MiscEditor _model;
-
-        public static void Create(Model.MiscEditor model)
+        public static void Create()
         {
-            var view = new MiscEditorView();
-            view._model = model;
-            Window.Create("Misc tools", true, true, 300, -1, view.Draw);
+            Window.Create("Misc tools", true, true, 300, -1, w => View().Draw());
         }
 
-        private MiscEditorView()
+        public static IView View()
         {
-        }
-
-        public override void Draw(Window window)
-        {
-            base.Draw(window);
-            GUILayout.Label(new GUIContent("Resources", "Set amounts of various resources contained on the active vessel"));
-            foreach (var resource in _model.GetResources())
+            Action resources = () =>
             {
-                GUILayout.BeginHorizontal();
-                GUILayout.Label(resource.Key);
-                var newval = (double)GUILayout.HorizontalSlider((float)resource.Value, 0, 1);
-                if (Math.Abs(newval - resource.Value) > float.Epsilon)
+                foreach (var resource in Model.MiscEditor.GetResources())
                 {
-                    _model.SetResource(resource.Key, newval);
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label(resource.Key);
+                    var newval = (double)GUILayout.HorizontalSlider((float)resource.Value, 0, 1);
+                    if (Math.Abs(newval - resource.Value) > 0.01)
+                    {
+                        Model.MiscEditor.SetResource(resource.Key, newval);
+                    }
+                    GUILayout.EndHorizontal();
                 }
-                GUILayout.EndHorizontal();
-            }
-            var newUT = GuiTextFieldSettable("UniversalTime", new GUIContent("Time", "Set time (aka UniversalTime)"), SiSuffix.TryParse, _model.UniversalTime);
-            if (newUT.HasValue)
-                _model.UniversalTime = newUT.Value;
-            if (GUILayout.Button(new GUIContent("Align SMAs", "Open the semi-major axis aligner window")))
-                _model.AlignSemiMajorAxis();
-            if (GUILayout.Button(new GUIContent("Destroy a vessel", "Select a vessel to destroy")))
-                _model.DestroyVessel();
-
-            _model.BoostButtonKey = GuiTextField("BoostButtonKey", new GUIContent("Boost button key", "Sets the keybinding used for the boost button"),
-                Extentions.KeyCodeTryParse, _model.BoostButtonKey, Extentions.KeyCodeToString);
-            _model.BoostButtonSpeed = GuiTextField("BoostButtonSpeed", new GUIContent("Boost button speed", "Sets the dV applied per frame when the boost button is held down"),
-                SiSuffix.TryParse, _model.BoostButtonSpeed);
+            };
+            return new VerticalView(new IView[]
+                {
+                    new LabelView("Resources", "Set amounts of various resources contained on the active vessel"),
+                    new CustomView(resources),
+                    new TextBoxView<double>("Time", "Set time (aka UniversalTime)",
+                        Model.MiscEditor.UniversalTime.ToString(), SiSuffix.TryParse, v => Model.MiscEditor.UniversalTime = v),
+                    new ButtonView("Align SMAs", "Open the semi-major axis aligner window", () => true, Model.MiscEditor.AlignSemiMajorAxis),
+                    new ButtonView("Destroy a vessel", "Select a vessel to destroy", () => true, Model.MiscEditor.DestroyVessel),
+                    new TextBoxView<KeyCode[]>("Boost button key", "Sets the keybinding used for the boost button",
+                        Model.MiscEditor.BoostButtonKey.KeyCodeToString(), Extentions.KeyCodeTryParse, v => Model.MiscEditor.BoostButtonKey = v),
+                    new TextBoxView<double>("Boost button speed", "Sets the dV applied per frame when the boost button is held down",
+                        Model.MiscEditor.BoostButtonSpeed.ToString(), SiSuffix.TryParse, v => Model.MiscEditor.BoostButtonSpeed = v),
+                });
         }
     }
 }

@@ -5,50 +5,84 @@ using UnityEngine;
 
 namespace HyperEdit.Model
 {
-    public class Lander
+    public static class DoLander
     {
         private const string Filename = "landcoords.txt";
 
-        public double Latitude { get; set; }
-
-        public double Longitude { get; set; }
-
-        public double Altitude { get; set; }
-
-        public Lander()
+        public static bool IsLanding()
         {
-            Latitude = 0;
-            Longitude = 0;
-            Altitude = 50;
+            if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null)
+                return false;
+            return FlightGlobals.ActiveVessel.GetComponent<LanderAttachment>() != null;
         }
 
-        public bool Landing
+        public static void ToggleLanding(double latitude, double longitude, double altitude)
+        {
+            if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null)
+                return;
+            var lander = FlightGlobals.ActiveVessel.GetComponent<LanderAttachment>();
+            if (lander == null)
+            {
+                lander = FlightGlobals.ActiveVessel.gameObject.AddComponent<LanderAttachment>();
+                lander.Latitude = latitude;
+                lander.Longitude = longitude;
+                lander.Altitude = altitude;
+            }
+            else
+            {
+                UnityEngine.Object.Destroy(lander);
+            }
+        }
+
+        private static List<LandingCoordinates> SavedCoords
         {
             get
             {
-                if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null)
-                    return false;
-                return FlightGlobals.ActiveVessel.GetComponent<LanderAttachment>() != null;
+                return KSP.IO.File.Exists<HyperEditBehaviour>(Filename)
+                    ? KSP.IO.File.ReadAllLines<HyperEditBehaviour>(Filename).Select(x => new LandingCoordinates(x)).Where(l => string.IsNullOrEmpty(l.Name) == false).ToList()
+                        : new List<LandingCoordinates>();
             }
             set
             {
-                if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null)
-                    return;
-                var lander = FlightGlobals.ActiveVessel.GetComponent<LanderAttachment>();
-                if (value == (lander != null))
-                    return;
-                if (lander == null)
-                {
-                    lander = FlightGlobals.ActiveVessel.gameObject.AddComponent<LanderAttachment>();
-                    lander.Latitude = Latitude;
-                    lander.Longitude = Longitude;
-                    lander.Altitude = Altitude;
-                }
-                else
-                {
-                    UnityEngine.Object.Destroy(lander);
-                }
+                KSP.IO.File.WriteAllText<HyperEditBehaviour>(string.Join(Environment.NewLine, value.Select(l => l.ToString()).ToArray()), Filename);
             }
+        }
+
+        public static void AddSavedCoords(double latitude, double longitude)
+        {
+            View.WindowHelper.Prompt("Save as...", s => AddSavedCoords(s, latitude, longitude));
+        }
+
+        private static void AddSavedCoords(string name, double latitude, double longitude)
+        {
+            var saved = SavedCoords;
+            saved.Add(new LandingCoordinates(name, latitude, longitude));
+            SavedCoords = saved;
+        }
+
+        public static void Load(Action<double, double> onLoad)
+        {
+            View.WindowHelper.Selector("Load...", SavedCoords, c => c.Name, c =>
+                {
+                    onLoad(c.Lat, c.Lon);
+                });
+        }
+
+        public static void Delete()
+        {
+            var coords = SavedCoords;
+            View.WindowHelper.Selector("Delete...", coords, c => c.Name, toDelete =>
+                {
+                    coords.Remove(toDelete);
+                    SavedCoords = coords;
+                });
+        }
+
+        public static void SetToCurrent(Action<double, double> onLoad)
+        {
+            if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null)
+                return;
+            onLoad(FlightGlobals.ActiveVessel.latitude, FlightGlobals.ActiveVessel.longitude);
         }
 
         struct LandingCoordinates
@@ -97,123 +131,69 @@ namespace HyperEdit.Model
                 return Name + "," + Lat + "," + Lon;
             }
         }
+    }
 
-        private List<LandingCoordinates> SavedCoords
+    public class LanderAttachment : MonoBehaviour
+    {
+        private bool _alreadyTeleported;
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
+        public double Altitude { get; set; }
+
+        public void FixedUpdate()
         {
-            get
+            var vessel = GetComponent<Vessel>();
+            if (vessel != FlightGlobals.ActiveVessel)
             {
-                return KSP.IO.File.Exists<HyperEditBehaviour>(Filename)
-                           ? KSP.IO.File.ReadAllLines<HyperEditBehaviour>(Filename).Select(x => new LandingCoordinates(x)).Where(l => string.IsNullOrEmpty(l.Name) == false).ToList()
-                           : new List<LandingCoordinates>();
-            }
-            set
-            {
-                KSP.IO.File.WriteAllText<HyperEditBehaviour>(string.Join(Environment.NewLine, value.Select(l => l.ToString()).ToArray()), Filename);
-            }
-        }
-
-        public void Save()
-        {
-            View.WindowHelper.Prompt("Save as...", Save);
-        }
-
-        public void Save(string name)
-        {
-            var saved = SavedCoords;
-            saved.Add(new LandingCoordinates(name, Latitude, Longitude));
-            SavedCoords = saved;
-        }
-
-        public void Load(Action onLoad)
-        {
-            View.WindowHelper.Selector("Load...", SavedCoords, c => c.Name, c =>
-                {
-                    Latitude = c.Lat;
-                    Longitude = c.Lon;
-                    onLoad();
-                });
-        }
-
-        public void Delete()
-        {
-            var coords = SavedCoords;
-            View.WindowHelper.Selector("Delete...", coords, c => c.Name, toDelete =>
-                {
-                    coords.Remove(toDelete);
-                    SavedCoords = coords;
-                });
-        }
-
-        public void SetToCurrent()
-        {
-            if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null)
+                Destroy(this);
                 return;
-            Longitude = FlightGlobals.ActiveVessel.longitude;
-            Latitude = FlightGlobals.ActiveVessel.latitude;
-        }
-
-        public class LanderAttachment : MonoBehaviour
-        {
-            private bool _alreadyTeleported;
-            public double Latitude { get; set; }
-            public double Longitude { get; set; }
-            public double Altitude { get; set; }
-
-            public void FixedUpdate()
+            }
+            if (_alreadyTeleported)
             {
-                var vessel = GetComponent<Vessel>();
-                if (vessel != FlightGlobals.ActiveVessel)
+                if (vessel.LandedOrSplashed)
+                {
+                    Destroy(this);
+                }
+                else
+                {
+                    var accel = (vessel.srf_velocity + vessel.upAxis) * -0.5;
+                    vessel.ChangeWorldVelocity(accel);
+                }
+            }
+            else
+            {
+                var pqs = vessel.mainBody.pqsController;
+                if (pqs == null)
                 {
                     Destroy(this);
                     return;
                 }
-                if (_alreadyTeleported)
-                {
-                    if (vessel.LandedOrSplashed)
-                    {
-                        Destroy(this);
-                    }
-                    else
-                    {
-                        var accel = (vessel.srf_velocity + vessel.upAxis) * -0.5;
-                        vessel.ChangeWorldVelocity(accel);
-                    }
-                }
-                else
-                {
-                    var pqs = vessel.mainBody.pqsController;
-                    if (pqs == null)
-                    {
-                        Destroy(this);
-                        return;
-                    }
-                    var alt = pqs.GetSurfaceHeight(
-                                  QuaternionD.AngleAxis(Longitude, Vector3d.down) *
-                                  QuaternionD.AngleAxis(Latitude, Vector3d.forward) * Vector3d.right) -
-                              pqs.radius;
-                    alt = Math.Max(alt, 0); // Underwater!
-                    if (vessel.Landed)
-                        vessel.Landed = false;
-                    else if (vessel.Splashed)
-                        vessel.Splashed = false;
-                    foreach (var part in vessel.parts.Where(part => part.Modules.OfType<LaunchClamp>().Any()).ToList())
-                        part.Die();
-                    TimeWarp.SetRate(0, true); // HoldVesselUnpack is in display frames, not physics frames
+                var alt = pqs.GetSurfaceHeight(
+                    QuaternionD.AngleAxis(Longitude, Vector3d.down) *
+                    QuaternionD.AngleAxis(Latitude, Vector3d.forward) * Vector3d.right) -
+                    pqs.radius;
+                alt = Math.Max(alt, 0); // Underwater!
+                if (vessel.Landed)
+                    vessel.Landed = false;
+                else if (vessel.Splashed)
+                    vessel.Splashed = false;
+                foreach (var part in vessel.parts.Where(part => part.Modules.OfType<LaunchClamp>().Any()).ToList())
+                    part.Die();
+                TimeWarp.SetRate(0, true); // HoldVesselUnpack is in display frames, not physics frames
 
-                    var teleportPosition = vessel.mainBody.GetWorldSurfacePosition(Latitude, Longitude, alt + Altitude);
-                    var teleportVelocity = vessel.mainBody.getRFrmVel(teleportPosition);
-                    // convert from world space to "normal" space
-                    teleportPosition = (teleportPosition - vessel.GetWorldPos3D()).xzy + vessel.orbit.pos;
-                    teleportVelocity = (teleportVelocity - vessel.GetObtVelocity()).xzy + vessel.orbit.vel;
-                    // counter for the momentary fall when on rails (about one second)
-                    teleportVelocity += teleportPosition.normalized * (vessel.mainBody.gravParameter / teleportPosition.sqrMagnitude);
+                var teleportPosition = vessel.mainBody.GetWorldSurfacePosition(Latitude, Longitude, alt + Altitude);
+                var teleportVelocity = vessel.mainBody.getRFrmVel(teleportPosition);
+                // convert from world space to "normal" space
+                teleportPosition = (teleportPosition - vessel.GetWorldPos3D()).xzy + vessel.orbit.pos;
+                teleportVelocity = (teleportVelocity - vessel.GetObtVelocity()).xzy + vessel.orbit.vel;
+                // counter for the momentary fall when on rails (about one second)
+                teleportVelocity += teleportPosition.normalized * (vessel.mainBody.gravParameter / teleportPosition.sqrMagnitude);
 
-                    var orbit = vessel.orbitDriver.orbit.Clone();
-                    orbit.UpdateFromStateVectors(teleportPosition, teleportVelocity, orbit.referenceBody, Planetarium.GetUniversalTime());
-                    vessel.SetOrbit(orbit);
-                    
-                    _alreadyTeleported = true;
-                }
+                var orbit = vessel.orbitDriver.orbit.Clone();
+                orbit.UpdateFromStateVectors(teleportPosition, teleportVelocity, orbit.referenceBody, Planetarium.GetUniversalTime());
+                vessel.SetOrbit(orbit);
+
+                _alreadyTeleported = true;
             }
         }
     }
