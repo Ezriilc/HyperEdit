@@ -1,142 +1,222 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace HyperEdit.View
 {
-    public class OrbitEditorView : View
+    public static class OrbitEditorView
     {
-        Model.OrbitEditor _model;
-
-        public static void Create(Model.OrbitEditor model)
+        public static void Create()
         {
-            var view = new OrbitEditorView();
-            view._model = model;
-            Window.Create("Orbit editor", true, true, 200, -1, view.Draw);
+            var view = View();
+            Window.Create("Orbit Editor", true, true, 300, -1, w => view.Draw());
         }
 
-        private OrbitEditorView()
+        public static IView View()
         {
-        }
+            ListSelectView<OrbitDriver> currentlyEditing = null;
 
-        public override void Draw(Window window)
-        {
-            base.Draw(window);
-            if (GUILayout.Button("Select orbit to edit"))
-                _model.SelectOrbit();
-            var name = _model.CurrentlyEditingName;
-            GUILayout.Label(name == null ? "Nothing selected" : "Editing: " + name);
+            var referenceSelector = new ListSelectView<CelestialBody>(() => FlightGlobals.fetch == null ? null : FlightGlobals.fetch.bodies, null, cb => cb.bodyName);
 
-            var simple = _model.Editor as Model.OrbitEditor.Simple;
-            var complex = _model.Editor as Model.OrbitEditor.Complex;
-            var graphical = _model.Editor as Model.OrbitEditor.Graphical;
-            var velocity = _model.Editor as Model.OrbitEditor.Velocity;
-            var rendezvous = _model.Editor as Model.OrbitEditor.Rendezvous;
-
-            if (_model.CurrentlyEditing != null)
-            {
-                GUILayout.BeginHorizontal();
-                if (simple == null ? GUILayout.Button("Simple") : GUILayout.Button("Simple", Extentions.PressedButton))
-                {
-                    _model.Editor = new Model.OrbitEditor.Simple(_model.CurrentlyEditing.orbit);
-                    ClearTextFields();
-                }
-                if (complex == null ? GUILayout.Button("Complex") : GUILayout.Button("Complex", Extentions.PressedButton))
-                {
-                    _model.Editor = new Model.OrbitEditor.Complex(_model.CurrentlyEditing.orbit);
-                    ClearTextFields();
-                }
-                if (graphical == null ? GUILayout.Button("Graphical") : GUILayout.Button("Graphical", Extentions.PressedButton))
-                {
-                    _model.Editor = new Model.OrbitEditor.Graphical(_model.CurrentlyEditing.orbit);
-                    ClearTextFields();
-                }
-                if (velocity == null ? GUILayout.Button("Velocity") : GUILayout.Button("Velocity", Extentions.PressedButton))
-                {
-                    _model.Editor = new Model.OrbitEditor.Velocity(_model.CurrentlyEditing.orbit);
-                    ClearTextFields();
-                }
-                if (FlightGlobals.fetch != null && FlightGlobals.Vessels != null && FlightGlobals.Vessels.Any(v => v.orbitDriver == _model.CurrentlyEditing))
-                {
-                    if (rendezvous == null ? GUILayout.Button("Rendezvous") : GUILayout.Button("Rendezvous", Extentions.PressedButton))
+            var simpleAltitude = new TextBoxView<double>("Altitude", "Altitude of circular orbit", 110000, SiSuffix.TryParse);
+            var simpleApply = new ConditionalView(() => simpleAltitude.Valid && referenceSelector.CurrentlySelected != null,
+                                  new ButtonView("Apply", "Sets the orbit", () =>
                     {
-                        _model.Editor = new Model.OrbitEditor.Rendezvous(_model.CurrentlyEditing.orbit);
-                        ClearTextFields();
-                    }
-                }
-                GUILayout.EndHorizontal();
-            }
+                        Model.OrbitEditor.Simple(currentlyEditing.CurrentlySelected, simpleAltitude.Object, referenceSelector.CurrentlySelected);
+                    }));
+            var simple = new VerticalView(new IView[]{ simpleAltitude, referenceSelector, simpleApply });
 
-            if (simple != null)
-            {
-                simple.Altitude = GuiTextField("Altitude", new GUIContent("Altitude", "Altitude of circular orbit"), SiSuffix.TryParse, simple.Altitude);
-                GUILayout.Label(simple.Body == null ? "No body selected" : "Body: " + simple.Body.bodyName);
-                if (GUILayout.Button("Select body"))
+            var complexInclination = new TextBoxView<double>("Inclination", "How close to the equator the orbit plane is", 0, double.TryParse);
+            var complexEccentricity = new TextBoxView<double>("Eccentricity", "How circular the orbit is (0=circular, 0.5=elliptical, 1=parabolic)", 0, double.TryParse);
+            var complexSemiMajorAxis = new TextBoxView<double>("Semi-major axis", "Mean radius of the orbit (ish)", 10000000, SiSuffix.TryParse);
+            var complexLongitudeAscendingNode = new TextBoxView<double>("Lon. of asc. node", "Longitude of the place where you cross the equator northwards", 0, double.TryParse);
+            var complexArgumentOfPeriapsis = new TextBoxView<double>("Argument of periapsis", "Rotation of the orbit around the normal", 0, double.TryParse);
+            var complexMeanAnomalyAtEpoch = new TextBoxView<double>("Mean anomaly at epoch", "Position along the orbit at the epoch", 0, double.TryParse);
+            var complexEpoch = new TextBoxView<double>("Epoch", "Epoch at which mEp is measured", 0, SiSuffix.TryParse);
+            var complexApply = new ConditionalView(() => complexInclination.Valid &&
+                                   complexEccentricity.Valid &&
+                                   complexSemiMajorAxis.Valid &&
+                                   complexLongitudeAscendingNode.Valid &&
+                                   complexArgumentOfPeriapsis.Valid &&
+                                   complexMeanAnomalyAtEpoch.Valid &&
+                                   complexEpoch.Valid &&
+                                   referenceSelector.CurrentlySelected != null,
+                                   new ButtonView("Apply", "Sets the orbit", () =>
+                    {
+                        Model.OrbitEditor.Complex(currentlyEditing.CurrentlySelected,
+                            complexInclination.Object,
+                            complexEccentricity.Object,
+                            complexSemiMajorAxis.Object,
+                            complexLongitudeAscendingNode.Object,
+                            complexArgumentOfPeriapsis.Object,
+                            complexMeanAnomalyAtEpoch.Object,
+                            complexEpoch.Object,
+                            referenceSelector.CurrentlySelected);
+                    }));
+            var complex = new VerticalView(new IView[]
                 {
-                    _model.SelectBody();
-                    ClearTextFields();
-                }
-                if (AllValid && GUILayout.Button("Set"))
-                    _model.Apply();
-            }
-            if (complex != null)
+                    complexInclination,
+                    complexEccentricity,
+                    complexSemiMajorAxis,
+                    complexLongitudeAscendingNode,
+                    complexArgumentOfPeriapsis,
+                    complexMeanAnomalyAtEpoch,
+                    complexEpoch,
+                    referenceSelector,
+                    complexApply
+                });
+
+            SliderView graphicalInclination = null;
+            SliderView graphicalEccentricity = null;
+            SliderView graphicalPeriapsis = null;
+            SliderView graphicalLongitudeAscendingNode = null;
+            SliderView graphicalArgumentOfPeriapsis = null;
+            SliderView graphicalMeanAnomaly = null;
+
+            Action<double> graphicalOnChange = ignored =>
             {
-                complex.Inclination = GuiTextField("Inclination", new GUIContent("Inclination", "How close to the equator the orbit plane is"), double.TryParse, complex.Inclination);
-                complex.Eccentricity = GuiTextField("Eccentricity", new GUIContent("Eccentricity", "How circular the orbit is (0=circular, 0.5=elliptical, 1=parabolic)"), double.TryParse, complex.Eccentricity);
-                complex.SemiMajorAxis = GuiTextField("SemiMajorAxis", new GUIContent("Semi-major axis", "Mean radius of the orbit (ish)"), SiSuffix.TryParse, complex.SemiMajorAxis);
-                complex.LongitudeAscendingNode = GuiTextField("LongitudeAscendingNode", new GUIContent("Lon. of asc. node", "Longitude of the place where you cross the equator northwards"), double.TryParse, complex.LongitudeAscendingNode);
-                complex.ArgumentOfPeriapsis = GuiTextField("ArgumentOfPeriapsis", new GUIContent("Argument of periapsis", "Rotation of the orbit around the normal"), double.TryParse, complex.ArgumentOfPeriapsis);
-                complex.MeanAnomalyAtEpoch = GuiTextField("MeanAnomalyAtEpoch", new GUIContent("Mean anomaly at epoch", "Position along the orbit at the epoch"), double.TryParse, complex.MeanAnomalyAtEpoch);
-                complex.Epoch = GuiTextField("Epoch", new GUIContent("Epoch", "Epoch at which mEp is measured"), SiSuffix.TryParse, complex.Epoch);
-                GUILayout.Label(complex.Body == null ? "No body selected" : "Body: " + complex.Body.bodyName);
-                if (GUILayout.Button("Select body"))
+                Model.OrbitEditor.Graphical(currentlyEditing.CurrentlySelected,
+                    graphicalInclination.Value,
+                    graphicalEccentricity.Value,
+                    graphicalPeriapsis.Value,
+                    graphicalLongitudeAscendingNode.Value,
+                    graphicalArgumentOfPeriapsis.Value,
+                    graphicalMeanAnomaly.Value);
+            };
+
+            graphicalInclination = new SliderView("Inclination", "How close to the equator the orbit plane is", graphicalOnChange);
+            graphicalEccentricity = new SliderView("Eccentricity", "How circular the orbit is", graphicalOnChange);
+            graphicalPeriapsis = new SliderView("Periapsis", "Lowest point in the orbit", graphicalOnChange);
+            graphicalLongitudeAscendingNode = new SliderView("Lon. of asc. node", "Longitude of the place where you cross the equator northwards", graphicalOnChange);
+            graphicalArgumentOfPeriapsis = new SliderView("Argument of periapsis", "Rotation of the orbit around the normal", graphicalOnChange);
+            graphicalMeanAnomaly = new SliderView("Mean anomaly", "Position along the orbit", graphicalOnChange);
+            var graphical = new VerticalView(new IView[]
                 {
-                    _model.SelectBody();
-                    ClearTextFields();
-                }
-                if (AllValid && GUILayout.Button("Set"))
-                    _model.Apply();
-            }
-            if (graphical != null)
-            {
-                var changed = false;
-                graphical.Inclination = Slider(new GUIContent("Inclination", "How close to the equator the orbit plane is"), graphical.Inclination, graphical.InclinationRange, ref changed);
-                graphical.Eccentricity = Slider(new GUIContent("Eccentricity", "How circular the orbit is"), graphical.Eccentricity, graphical.EccentricityRange, ref changed);
-                graphical.Periapsis = Slider(new GUIContent("Periapsis", "Lowest point in the orbit"), graphical.Periapsis, graphical.PeriapsisRange, ref changed);
-                graphical.LongitudeAscendingNode = Slider(new GUIContent("Lon. of asc. node", "Longitude of the place where you cross the equator northwards"), graphical.LongitudeAscendingNode, graphical.LongitudeAscendingNodeRange, ref changed);
-                graphical.ArgumentOfPeriapsis = Slider(new GUIContent("Argument of periapsis", "Rotation of the orbit around the normal"), graphical.ArgumentOfPeriapsis, graphical.ArgumentOfPeriapsisRange, ref changed);
-                graphical.MeanAnomaly = Slider(new GUIContent("Mean anomaly", "Position along the orbit"), graphical.MeanAnomaly, graphical.MeanAnomalyRange, ref changed);
-                GUILayout.Label(graphical.Body == null ? "No body selected" : "Body: " + graphical.Body.bodyName);
-                if (GUILayout.Button("Select body"))
+                    graphicalInclination,
+                    graphicalEccentricity,
+                    graphicalPeriapsis,
+                    graphicalLongitudeAscendingNode,
+                    graphicalArgumentOfPeriapsis,
+                    graphicalMeanAnomaly
+                });
+
+            var velocitySpeed = new TextBoxView<double>("Speed", "dV to apply", 0, SiSuffix.TryParse);
+            var velocityDirection = new ListSelectView<Model.OrbitEditor.VelocityChangeDirection>(() => Model.OrbitEditor.AllVelocityChanges);
+            var velocityApply = new ConditionalView(() => velocitySpeed.Valid,
+                                    new ButtonView("Apply", "Adds the selected velocity to the orbit", () =>
+                    {
+                        Model.OrbitEditor.Velocity(currentlyEditing.CurrentlySelected, velocityDirection.CurrentlySelected, velocitySpeed.Object);
+                    }));
+            var velocity = new VerticalView(new IView[]
                 {
-                    _model.SelectBody();
-                    ClearTextFields();
-                }
-                if (changed)
-                    _model.Apply();
-            }
-            if (velocity != null)
+                    velocitySpeed,
+                    velocityDirection,
+                    velocityApply
+                });
+
+            var rendezvousLeadTime = new TextBoxView<double>("Lead time", "How many seconds off to rendezvous at (zero = on top of each other, bad)", 1, SiSuffix.TryParse);
+            var rendezvousVessel = new ListSelectView<Vessel>(() => FlightGlobals.fetch == null ? null : FlightGlobals.fetch.vessels, null, v => v.vesselName);
+            var rendezvousApply = new ConditionalView(() => rendezvousLeadTime.Valid && rendezvousVessel.CurrentlySelected != null,
+                                      new ButtonView("Apply", "Rendezvous", () =>
+                    {
+                        Model.OrbitEditor.Rendezvous(currentlyEditing.CurrentlySelected, rendezvousLeadTime.Object, rendezvousVessel.CurrentlySelected);
+                    }));
+            // rendezvous gets special ConditionalView to force only editing of planets
+            var rendezvous = new ConditionalView(() => currentlyEditing.CurrentlySelected != null && currentlyEditing.CurrentlySelected.vessel != null,
+                                 new VerticalView(new IView[]
+                    {
+                        rendezvousLeadTime,
+                        rendezvousVessel,
+                        rendezvousApply
+                    }));
+
+            Action<OrbitDriver> onCurrentlyEditingChange = newEditing =>
             {
-                GUILayout.BeginHorizontal();
-                foreach (var type in System.Enum.GetValues(typeof(Model.OrbitEditor.Velocity.ChangeDirection)))
+                if (newEditing == null)
                 {
-                    var value = (Model.OrbitEditor.Velocity.ChangeDirection)type;
-                    if (value == velocity.Direction ? GUILayout.Button(value.ToString(), Extentions.PressedButton) : GUILayout.Button(value.ToString()))
-                        velocity.Direction = value;
+                    return;
                 }
-                GUILayout.EndHorizontal();
-                velocity.Speed = GuiTextField("Speed", new GUIContent("Speed", "How much velocity to add (can be negative)"), SiSuffix.TryParse, velocity.Speed);
-                if (AllValid && GUILayout.Button("Add"))
-                    _model.Apply();
-            }
-            if (rendezvous != null)
-            {
-                rendezvous.LeadTime = GuiTextField("LeadTime", new GUIContent("Lead time", "How many seconds off to rendezvous at (zero = on top of each other, bad)"), SiSuffix.TryParse, rendezvous.LeadTime);
-                GUILayout.Label(rendezvous.RendezvousWith == null ? "No vessel" : "Vessel: " + rendezvous.RendezvousWith.name);
-                if (GUILayout.Button("Select vessel"))
-                    rendezvous.SelectVessel();
-                if (AllValid && rendezvous.RendezvousWith != null && GUILayout.Button("Rendezvous"))
-                    _model.Apply();
-            }
+                {
+                    double altitude;
+                    CelestialBody body;
+                    Model.OrbitEditor.GetSimple(newEditing, out altitude, out body);
+                    simpleAltitude.Object = altitude;
+                    referenceSelector.CurrentlySelected = body;
+                }
+                {
+                    double inclination;
+                    double eccentricity;
+                    double semiMajorAxis;
+                    double longitudeAscendingNode;
+                    double argumentOfPeriapsis;
+                    double meanAnomalyAtEpoch;
+                    double epoch;
+                    CelestialBody body;
+                    Model.OrbitEditor.GetComplex(newEditing,
+                        out inclination,
+                        out eccentricity,
+                        out semiMajorAxis,
+                        out longitudeAscendingNode,
+                        out argumentOfPeriapsis,
+                        out meanAnomalyAtEpoch,
+                        out epoch,
+                        out body);
+                    complexInclination.Object = inclination;
+                    complexEccentricity.Object = eccentricity;
+                    complexSemiMajorAxis.Object = semiMajorAxis;
+                    complexLongitudeAscendingNode.Object = longitudeAscendingNode;
+                    complexArgumentOfPeriapsis.Object = argumentOfPeriapsis;
+                    complexMeanAnomalyAtEpoch.Object = meanAnomalyAtEpoch;
+                    complexEpoch.Object = epoch;
+                    referenceSelector.CurrentlySelected = body;
+                }
+                {
+                    double inclination;
+                    double eccentricity;
+                    double periapsis;
+                    double longitudeAscendingNode;
+                    double argumentOfPeriapsis;
+                    double meanAnomaly;
+                    Model.OrbitEditor.GetGraphical(newEditing,
+                        out inclination,
+                        out eccentricity,
+                        out periapsis,
+                        out longitudeAscendingNode,
+                        out argumentOfPeriapsis,
+                        out meanAnomaly);
+                    graphicalInclination.Value = inclination;
+                    graphicalEccentricity.Value = eccentricity;
+                    graphicalPeriapsis.Value = periapsis;
+                    graphicalLongitudeAscendingNode.Value = longitudeAscendingNode;
+                    graphicalArgumentOfPeriapsis.Value = argumentOfPeriapsis;
+                    graphicalMeanAnomaly.Value = meanAnomaly;
+                }
+                {
+                    Model.OrbitEditor.VelocityChangeDirection direction;
+                    double speed;
+                    Model.OrbitEditor.GetVelocity(newEditing, out direction, out speed);
+                    velocityDirection.CurrentlySelected = direction;
+                    velocitySpeed.Object = speed;
+                }
+            };
+
+            currentlyEditing = new ListSelectView<OrbitDriver>(Model.OrbitEditor.OrderedOrbits, onCurrentlyEditingChange, Extentions.OrbitDriverToString);
+
+            var tabs = new TabView(new List<KeyValuePair<string, IView>>()
+                {
+                    new KeyValuePair<string, IView>("Simple", simple),
+                    new KeyValuePair<string, IView>("Complex", complex),
+                    new KeyValuePair<string, IView>("Graphical", graphical),
+                    new KeyValuePair<string, IView>("Velocity", velocity),
+                    new KeyValuePair<string, IView>("Rendezvous", rendezvous),
+                });
+
+            return new VerticalView(new IView[]
+                {
+                    currentlyEditing,
+                    new ConditionalView(() => currentlyEditing.CurrentlySelected != null, tabs)
+                });
         }
     }
 }

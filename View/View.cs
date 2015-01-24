@@ -24,6 +24,24 @@ namespace HyperEdit.View
         }
     }
 
+    public class ConditionalView : IView
+    {
+        private readonly Func<bool> doDisplay;
+        private readonly IView toDisplay;
+
+        public ConditionalView(Func<bool> doDisplay, IView toDisplay)
+        {
+            this.doDisplay = doDisplay;
+            this.toDisplay = toDisplay;
+        }
+
+        public void Draw()
+        {
+            if (doDisplay())
+                toDisplay.Draw();
+        }
+    }
+
     public class LabelView : IView
     {
         private readonly GUIContent label;
@@ -62,29 +80,19 @@ namespace HyperEdit.View
     public class ButtonView : IView
     {
         private readonly GUIContent label;
-        private readonly Func<bool> isValid;
         private readonly Action onChange;
 
-        public ButtonView(string label, string help, Func<bool> isValid, Action onChange)
+        public ButtonView(string label, string help, Action onChange)
         {
             this.label = new GUIContent(label, help);
-            this.isValid = isValid;
             this.onChange = onChange;
         }
 
         public void Draw()
         {
-            var valid = isValid();
-            if (valid)
+            if (GUILayout.Button(label))
             {
-                if (GUILayout.Button(label))
-                {
-                    onChange();
-                }
-            }
-            else
-            {
-                GUILayout.Button(label);
+                onChange();
             }
         }
     }
@@ -113,10 +121,80 @@ namespace HyperEdit.View
         }
     }
 
+    public class SliderView : IView
+    {
+        private readonly Action<double> onChange;
+        private readonly GUIContent label;
+
+        public double Value { get; set; }
+
+        public SliderView(string label, string help, Action<double> onChange = null)
+        {
+            this.onChange = onChange;
+            this.label = new GUIContent(label, help);
+            Value = 0;
+        }
+
+        public void Draw()
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(label);
+            var newValue = (double)GUILayout.HorizontalSlider((float)Value, 0, 1);
+            if (Math.Abs(newValue - Value) > 0.01)
+            {
+                Value = newValue;
+                if (onChange != null)
+                    onChange(Value);
+            }
+            GUILayout.EndHorizontal();
+        }
+    }
+
+    public class ListSelectView<T> : IView
+    {
+        private readonly Func<IEnumerable<T>> list;
+        private readonly Func<T, string> toString;
+        private readonly Action<T> onSelect;
+        private T currentlySelected;
+
+        public T CurrentlySelected
+        {
+            get { return currentlySelected; }
+            set
+            {
+                currentlySelected = value;
+                if (onSelect != null)
+                    onSelect(value);
+            }
+        }
+
+        public ListSelectView(Func<IEnumerable<T>> list, Action<T> onSelect = null, Func<T, string> toString = null)
+        {
+            this.list = list;
+            this.toString = toString ?? (x => x.ToString());
+            this.onSelect = onSelect;
+            this.currentlySelected = default(T);
+        }
+
+        public void Draw()
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(currentlySelected == null ? "<none>" : toString(currentlySelected));
+            if (GUILayout.Button("Select"))
+            {
+                var realList = list();
+                if (realList != null)
+                    WindowHelper.Selector("Select", realList, toString, t => CurrentlySelected = t);
+            }
+            GUILayout.EndHorizontal();
+        }
+    }
+
     public class TextBoxView<T> : IView
     {
         private readonly GUIContent label;
         private readonly View.TryParse<T> parser;
+        private readonly Func<T, string> toString;
         private readonly Action<T> onSet;
         private string value;
         private T obj;
@@ -128,15 +206,16 @@ namespace HyperEdit.View
             get { return obj; }
             set
             {
-                this.value = value.ToString();
+                this.value = toString(value);
                 obj = value;
             }
         }
 
-        public TextBoxView(string label, string help, string start, View.TryParse<T> parser, Action<T> onSet = null)
+        public TextBoxView(string label, string help, T start, View.TryParse<T> parser, Func<T, string> toString = null, Action<T> onSet = null)
         {
             this.label = label == null ? null : new GUIContent(label, help);
-            value = start;
+            this.toString = toString ?? (x => x.ToString());
+            value = this.toString(start);
             this.parser = parser;
             this.onSet = onSet;
         }
@@ -156,7 +235,7 @@ namespace HyperEdit.View
             if (Valid)
             {
                 value = GUILayout.TextField(value);
-                Object = tempValue;
+                obj = tempValue;
             }
             else
             {
@@ -171,6 +250,37 @@ namespace HyperEdit.View
                     onSet(Object);
                 GUILayout.EndHorizontal();
             }
+        }
+    }
+
+    public class TabView : IView
+    {
+        private readonly List<KeyValuePair<string, IView>> views;
+        private KeyValuePair<string, IView> current;
+
+        public TabView(List<KeyValuePair<string, IView>> views)
+        {
+            this.views = views;
+            this.current = views[0];
+        }
+
+        public void Draw()
+        {
+            GUILayout.BeginHorizontal();
+            foreach (var view in views)
+            {
+                if (view.Key == current.Key)
+                {
+                    GUILayout.Button(view.Key, Extentions.PressedButton);
+                }
+                else
+                {
+                    if (GUILayout.Button(view.Key))
+                        current = view;
+                }
+            }
+            GUILayout.EndHorizontal();
+            current.Value.Draw();
         }
     }
 
@@ -251,11 +361,8 @@ namespace HyperEdit.View
 
         public static void CreateView(object model)
         {
-            var orbit = model as Model.OrbitEditor;
             var planet = model as Model.PlanetEditor;
             var sma = model as Model.SmaAligner;
-            if (orbit != null)
-                OrbitEditorView.Create(orbit);
             if (planet != null)
                 PlanetEditorView.Create(planet);
             if (sma != null)

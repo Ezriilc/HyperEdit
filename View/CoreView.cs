@@ -20,7 +20,7 @@ namespace HyperEdit.View
             if (GUILayout.Button(new GUIContent("Close all", "Closes all windows")))
                 Window.CloseAll();
             if (GUILayout.Button(new GUIContent("Orbit Editor", "Opens the Orbit Editor window")))
-                CreateView(new Model.OrbitEditor());
+                OrbitEditorView.Create();
             if (GUILayout.Button(new GUIContent("Planet Editor", "Opens the Planet Editor window")))
                 CreateView(new Model.PlanetEditor());
             if (GUILayout.Button(new GUIContent("Ship Lander", "Opens the Ship Lander window")))

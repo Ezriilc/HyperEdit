@@ -378,6 +378,21 @@ namespace HyperEdit
             return string.Join("-", values.Select(v => v.ToString()).ToArray());
         }
 
+        public static string OrbitDriverToString(this OrbitDriver driver)
+        {
+            if (driver == null)
+                return null;
+            var body = FlightGlobals.Bodies.FirstOrDefault(cb => cb.orbitDriver != null && cb.orbitDriver == driver);
+            if (body != null)
+                return body.bodyName;
+            var vessel = FlightGlobals.Vessels.FirstOrDefault(v => v.orbitDriver != null && v.orbitDriver == driver);
+            if (vessel != null)
+                return vessel == FlightGlobals.ActiveVessel ? "Active vessel" : vessel.vesselName;
+            if (string.IsNullOrEmpty(driver.name) == false)
+                return driver.name;
+            return "Unknown";
+        }
+
         public static bool CbTryParse(string bodyName, out CelestialBody body)
         {
             body = FlightGlobals.Bodies == null ? null : FlightGlobals.Bodies.FirstOrDefault(cb => cb.name == bodyName);

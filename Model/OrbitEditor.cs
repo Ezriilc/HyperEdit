@@ -4,261 +4,179 @@ using System.Linq;
 
 namespace HyperEdit.Model
 {
-    public struct SliderRange
+    public static class OrbitEditor
     {
-        public float Min { get; private set; }
-
-        public float Max { get; private set; }
-
-        public SliderRange(float min, float max)
-            : this()
+        public static IEnumerable<OrbitDriver> OrderedOrbits()
         {
-            Min = min;
-            Max = max;
-        }
-    }
-
-    public class OrbitEditor
-    {
-        public interface IEditorType
-        {
-            Orbit Orbit(Orbit old);
-
-            void SetBody(CelestialBody body);
+            var query = (IEnumerable<OrbitDriver>)
+                (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null || FlightGlobals.ActiveVessel.orbitDriver == null
+                    ? new OrbitDriver[0]
+                    : new[] { FlightGlobals.ActiveVessel.orbitDriver });
+            if (FlightGlobals.fetch != null)
+                query = query
+                    .Concat(FlightGlobals.Vessels.Select(v => v.orbitDriver))
+                    .Concat(FlightGlobals.Bodies.Select(v => v.orbitDriver));
+            query = query.Where(o => o != null).Distinct();
+            return query;
         }
 
-        public class Simple : IEditorType
+        public static void Simple(OrbitDriver currentlyEditing, double altitude, CelestialBody body)
         {
-            public double Altitude { get; set; }
-
-            public CelestialBody Body { get; set; }
-
-            public Orbit Orbit(Orbit old)
-            {
-                return CreateOrbit(0, 0, Altitude + Body.Radius, 0, 0, 0, 0, Body);
-            }
-
-            public void SetBody(CelestialBody body)
-            {
-                Body = body;
-            }
-
-            public Simple(Orbit orbit)
-            {
-                Altitude = orbit.altitude;
-                Body = orbit.referenceBody;
-            }
+            SetOrbit(currentlyEditing, CreateOrbit(0, 0, altitude + body.Radius, 0, 0, 0, 0, body));
         }
 
-        public class Complex : IEditorType
+        public static void GetSimple(OrbitDriver currentlyEditing, out double altitude, out CelestialBody body)
         {
-            public double Inclination { get; set; }
-
-            public double Eccentricity { get; set; }
-
-            public double SemiMajorAxis { get; set; }
-
-            public double LongitudeAscendingNode { get; set; }
-
-            public double ArgumentOfPeriapsis { get; set; }
-
-            public double MeanAnomalyAtEpoch { get; set; }
-
-            public double Epoch { get; set; }
-
-            public CelestialBody Body { get; set; }
-
-            public Orbit Orbit(Orbit old)
-            {
-                return CreateOrbit(Inclination, Eccentricity, SemiMajorAxis, LongitudeAscendingNode, ArgumentOfPeriapsis, MeanAnomalyAtEpoch, Epoch, Body);
-            }
-
-            public void SetBody(CelestialBody body)
-            {
-                Body = body;
-            }
-
-            public Complex(Orbit orbit)
-            {
-                Inclination = orbit.inclination;
-                Eccentricity = orbit.eccentricity;
-                SemiMajorAxis = orbit.semiMajorAxis;
-                LongitudeAscendingNode = orbit.LAN;
-                ArgumentOfPeriapsis = orbit.argumentOfPeriapsis;
-                MeanAnomalyAtEpoch = orbit.meanAnomalyAtEpoch;
-                Epoch = orbit.epoch;
-                Body = orbit.referenceBody;
-            }
+            body = currentlyEditing.orbit.referenceBody;
+            altitude = Math.Max(currentlyEditing.orbit.semiMajorAxis - body.Radius, 1000);
         }
 
-        public class Graphical : IEditorType
+        public static void Complex(OrbitDriver currentlyEditing, double inclination, double eccentricity,
+            double semiMajorAxis, double longitudeAscendingNode, double argumentOfPeriapsis,
+            double meanAnomalyAtEpoch, double epoch, CelestialBody body)
         {
-            public float Inclination { get; set; }
-
-            public SliderRange InclinationRange { get { return new SliderRange(0, 360); } }
-
-            public float Eccentricity { get; set; }
-
-            public SliderRange EccentricityRange { get { return new SliderRange(0, (float)Math.PI / 2 - 0.001f); } }
-
-            public float Periapsis { get; set; }
-
-            public SliderRange PeriapsisRange { get { return new SliderRange(0.01f, 1); } }
-
-            public float LongitudeAscendingNode { get; set; }
-
-            public SliderRange LongitudeAscendingNodeRange { get { return new SliderRange(0, 360); } }
-
-            public float ArgumentOfPeriapsis { get; set; }
-
-            public SliderRange ArgumentOfPeriapsisRange { get { return new SliderRange(0, 360); } }
-
-            public float MeanAnomaly { get; set; }
-
-            public SliderRange MeanAnomalyRange { get { return new SliderRange(0, (float)Math.PI * 2); } }
-
-            public CelestialBody Body { get; set; }
-
-            public Orbit Orbit(Orbit old)
-            {
-                var soi = Body.Soi();
-                var pe = (double)Periapsis;
-                var ratio = soi / (Body.Radius + Body.maxAtmosphereAltitude);
-                pe = Math.Pow(ratio, pe) / ratio;
-                pe *= soi;
-
-                var e = Math.Tan(Eccentricity);
-                var semimajor = pe / (1 - e);
-
-                var mep = (double)MeanAnomaly;
-                if (semimajor < 0)
-                {
-                    mep /= Math.PI;
-                    mep -= 1;
-                    mep *= 5;
-                }
-                return CreateOrbit(Inclination, e, semimajor, LongitudeAscendingNode, ArgumentOfPeriapsis, mep, 0, Body);
-            }
-
-            public void SetBody(CelestialBody body)
-            {
-                Body = body;
-            }
-
-            public Graphical(Orbit orbit)
-            {
-                Body = orbit.referenceBody;
-                Inclination = (float)orbit.inclination;
-                LongitudeAscendingNode = (float)orbit.LAN;
-                ArgumentOfPeriapsis = (float)orbit.argumentOfPeriapsis;
-                var e = (float)Math.Atan(orbit.eccentricity);
-                Eccentricity = e;
-                var soi = orbit.referenceBody.Soi();
-                var ratio = soi / ((float)orbit.referenceBody.Radius + orbit.referenceBody.maxAtmosphereAltitude);
-                var semimajor = (float)orbit.semiMajorAxis * (1 - e);
-                semimajor /= soi;
-                semimajor *= ratio;
-                semimajor = (float)Math.Log(semimajor, ratio);
-                Periapsis = semimajor;
-                var mep = (float)orbit.meanAnomalyAtEpoch;
-                if (orbit.semiMajorAxis < 0)
-                {
-                    mep /= 5;
-                    mep += 1;
-                    mep *= (float)Math.PI;
-                }
-                MeanAnomaly = mep;
-            }
+            SetOrbit(currentlyEditing, CreateOrbit(inclination, eccentricity, semiMajorAxis,
+                longitudeAscendingNode, argumentOfPeriapsis, meanAnomalyAtEpoch, epoch, body));
         }
 
-        public class Velocity : IEditorType
+        public static void GetComplex(OrbitDriver currentlyEditing, out double inclination, out double eccentricity,
+            out double semiMajorAxis, out double longitudeAscendingNode, out double argumentOfPeriapsis,
+            out double meanAnomalyAtEpoch, out double epoch, out CelestialBody body)
         {
-            public enum ChangeDirection
-            {
-                Prograde,
-                Normal,
-                Radial,
-                North,
-                East,
-                Up
-            }
-
-            public ChangeDirection Direction { get; set; }
-
-            public double Speed { get; set; }
-
-            public Orbit Orbit(Orbit oldOrbit)
-            {
-                Vector3d velocity;
-                switch (Direction)
-                {
-                    case ChangeDirection.Prograde:
-                        velocity = oldOrbit.getOrbitalVelocityAtUT(Planetarium.GetUniversalTime()).normalized * Speed;
-                        break;
-                    case ChangeDirection.Normal:
-                        velocity = oldOrbit.GetOrbitNormal().normalized * Speed;
-                        break;
-                    case ChangeDirection.Radial:
-                        velocity = Vector3d.Cross(oldOrbit.getOrbitalVelocityAtUT(Planetarium.GetUniversalTime()), oldOrbit.GetOrbitNormal()).normalized * Speed;
-                        break;
-                    case ChangeDirection.North:
-                        var upn = oldOrbit.getRelativePositionAtUT(Planetarium.GetUniversalTime()).normalized;
-                        velocity = Vector3d.Cross(Vector3d.Cross(upn, new Vector3d(0, 0, 1)), upn) * Speed;
-                        break;
-                    case ChangeDirection.East:
-                        var upe = oldOrbit.getRelativePositionAtUT(Planetarium.GetUniversalTime()).normalized;
-                        velocity = Vector3d.Cross(new Vector3d(0, 0, 1), upe) * Speed;
-                        break;
-                    case ChangeDirection.Up:
-                        velocity = oldOrbit.getRelativePositionAtUT(Planetarium.GetUniversalTime()).normalized * Speed;
-                        break;
-                    default:
-                        throw new Exception("Unknown VelChangeDir");
-                }
-                var tempOrbit = oldOrbit.Clone();
-                tempOrbit.UpdateFromStateVectors(oldOrbit.pos, oldOrbit.vel + velocity, oldOrbit.referenceBody, Planetarium.GetUniversalTime());
-                return tempOrbit;
-            }
-
-            public void SetBody(CelestialBody body)
-            {
-            }
-
-            public Velocity(Orbit orbit)
-            {
-                Direction = ChangeDirection.Prograde;
-                Speed = 0;
-            }
+            inclination = currentlyEditing.orbit.inclination;
+            eccentricity = currentlyEditing.orbit.eccentricity;
+            semiMajorAxis = currentlyEditing.orbit.semiMajorAxis;
+            longitudeAscendingNode = currentlyEditing.orbit.LAN;
+            argumentOfPeriapsis = currentlyEditing.orbit.argumentOfPeriapsis;
+            meanAnomalyAtEpoch = currentlyEditing.orbit.meanAnomalyAtEpoch;
+            epoch = currentlyEditing.orbit.epoch;
+            body = currentlyEditing.orbit.referenceBody;
         }
 
-        public class Rendezvous : IEditorType
+        public static void Graphical(OrbitDriver currentlyEditing, double inclination, double eccentricity,
+            double periapsis, double longitudeAscendingNode, double argumentOfPeriapsis,
+            double meanAnomaly)
         {
-            public Vessel RendezvousWith { get; set; }
+            var body = currentlyEditing.orbit.referenceBody;
+            var soi = body.Soi();
+            var ratio = soi / (body.Radius + body.maxAtmosphereAltitude + 1000);
+            periapsis = Math.Pow(ratio, periapsis) / ratio;
+            periapsis *= soi;
 
-            public double LeadTime { get; set; }
+            eccentricity *= Math.PI / 2 - 0.001;
 
-            public Orbit Orbit(Orbit old)
+            var e = Math.Tan(eccentricity);
+            var semimajor = periapsis / (1 - e);
+
+            var mep = (double)meanAnomaly;
+            if (semimajor < 0)
             {
-                var o = RendezvousWith.orbit;
-                return CreateOrbit(o.inclination, o.eccentricity, o.semiMajorAxis, o.LAN, o.argumentOfPeriapsis, o.meanAnomalyAtEpoch, o.epoch - LeadTime, o.referenceBody);
+                mep /= Math.PI;
+                mep -= 1;
+                mep *= 5;
             }
 
-            public void SetBody(CelestialBody body)
-            {
-            }
+            inclination *= 360;
+            longitudeAscendingNode *= 360;
+            argumentOfPeriapsis *= 360;
+            meanAnomaly *= 2 * Math.PI;
 
-            public void SelectVessel()
-            {
-                if (FlightGlobals.fetch == null || FlightGlobals.Vessels == null)
-                    Extentions.ErrorPopup("Could not get list of vessels");
-                else
-                    View.WindowHelper.Selector("Select vessel", FlightGlobals.Vessels, v => v.name, v => RendezvousWith = v);
-            }
+            SetOrbit(currentlyEditing, CreateOrbit(inclination, e, semimajor, longitudeAscendingNode, argumentOfPeriapsis, mep, 0, body));
+        }
 
-            public Rendezvous(Orbit orbit)
+        public static void GetGraphical(OrbitDriver currentlyEditing, out double inclination, out double eccentricity,
+            out double periapsis, out double longitudeAscendingNode, out double argumentOfPeriapsis,
+            out double meanAnomaly)
+        {
+            inclination = currentlyEditing.orbit.inclination / 360;
+            longitudeAscendingNode = currentlyEditing.orbit.LAN / 360;
+            argumentOfPeriapsis = currentlyEditing.orbit.argumentOfPeriapsis / 360;
+            var e = Math.Atan(currentlyEditing.orbit.eccentricity);
+            eccentricity = e / (Math.PI / 2 - 0.001);
+            var soi = currentlyEditing.orbit.referenceBody.Soi();
+            var ratio = soi / (currentlyEditing.orbit.referenceBody.Radius + currentlyEditing.orbit.referenceBody.maxAtmosphereAltitude);
+            var semimajor = currentlyEditing.orbit.semiMajorAxis * (1 - e);
+            semimajor /= soi;
+            semimajor *= ratio;
+            semimajor = Math.Log(semimajor, ratio);
+            periapsis = semimajor;
+            var mep = currentlyEditing.orbit.meanAnomalyAtEpoch;
+            if (currentlyEditing.orbit.semiMajorAxis < 0)
             {
-                LeadTime = 10;
+                mep /= 5;
+                mep += 1;
+                mep *= (float)Math.PI;
             }
+            meanAnomaly = mep / (2 * Math.PI);
+        }
+
+        public enum VelocityChangeDirection
+        {
+            Prograde,
+            Normal,
+            Radial,
+            North,
+            East,
+            Up
+        }
+
+        public static VelocityChangeDirection[] AllVelocityChanges = Enum.GetValues(typeof(VelocityChangeDirection)).Cast<VelocityChangeDirection>().ToArray();
+
+        public static void Velocity(OrbitDriver currentlyEditing, VelocityChangeDirection direction, double speed)
+        {
+            Vector3d velocity;
+            switch (direction)
+            {
+                case VelocityChangeDirection.Prograde:
+                    velocity = currentlyEditing.orbit.getOrbitalVelocityAtUT(Planetarium.GetUniversalTime()).normalized * speed;
+                    break;
+                case VelocityChangeDirection.Normal:
+                    velocity = currentlyEditing.orbit.GetOrbitNormal().normalized * speed;
+                    break;
+                case VelocityChangeDirection.Radial:
+                    velocity = Vector3d.Cross(currentlyEditing.orbit.getOrbitalVelocityAtUT(Planetarium.GetUniversalTime()), currentlyEditing.orbit.GetOrbitNormal()).normalized * speed;
+                    break;
+                case VelocityChangeDirection.North:
+                    var upn = currentlyEditing.orbit.getRelativePositionAtUT(Planetarium.GetUniversalTime()).normalized;
+                    velocity = Vector3d.Cross(Vector3d.Cross(upn, new Vector3d(0, 0, 1)), upn) * speed;
+                    break;
+                case VelocityChangeDirection.East:
+                    var upe = currentlyEditing.orbit.getRelativePositionAtUT(Planetarium.GetUniversalTime()).normalized;
+                    velocity = Vector3d.Cross(new Vector3d(0, 0, 1), upe) * speed;
+                    break;
+                case VelocityChangeDirection.Up:
+                    velocity = currentlyEditing.orbit.getRelativePositionAtUT(Planetarium.GetUniversalTime()).normalized * speed;
+                    break;
+                default:
+                    throw new Exception("Unknown VelChangeDir");
+            }
+            var tempOrbit = currentlyEditing.orbit.Clone();
+            tempOrbit.UpdateFromStateVectors(currentlyEditing.orbit.pos, currentlyEditing.orbit.vel + velocity, currentlyEditing.orbit.referenceBody, Planetarium.GetUniversalTime());
+            SetOrbit(currentlyEditing, tempOrbit);
+        }
+
+        public static void GetVelocity(OrbitDriver currentlyEditing, out VelocityChangeDirection direction, out double speed)
+        {
+            direction = VelocityChangeDirection.Prograde;
+            speed = 0;
+        }
+
+        public static void Rendezvous(OrbitDriver currentlyEditing, double leadTime, Vessel target)
+        {
+            SetOrbit(currentlyEditing, CreateOrbit(
+                target.orbit.inclination,
+                target.orbit.eccentricity,
+                target.orbit.semiMajorAxis,
+                target.orbit.LAN,
+                target.orbit.argumentOfPeriapsis,
+                target.orbit.meanAnomalyAtEpoch,
+                target.orbit.epoch - leadTime,
+                target.orbit.referenceBody));
+        }
+
+        private static void SetOrbit(OrbitDriver currentlyEditing, Orbit orbit)
+        {
+            currentlyEditing.DynamicSetOrbit(orbit);
         }
 
         private static Orbit CreateOrbit(double inc, double e, double sma, double lan, double w, double mEp, double epoch, CelestialBody body)
@@ -291,88 +209,19 @@ namespace HyperEdit.Model
 
             return new Orbit(inc, e, sma, lan, w, mEp, epoch, body);
         }
+    }
 
-        private OrbitDriver _currentlyEditing;
+    public struct SliderRange
+    {
+        public float Min { get; private set; }
 
-        public OrbitDriver CurrentlyEditing
+        public float Max { get; private set; }
+
+        public SliderRange(float min, float max)
+            : this()
         {
-            get { return _currentlyEditing; }
-            set
-            {
-                _currentlyEditing = value;
-                Editor = new Simple(value.orbit);
-            }
-        }
-
-        public IEditorType Editor { get; set; }
-
-        private static string GetName(OrbitDriver driver)
-        {
-            if (driver == null)
-                return null;
-            var body = FlightGlobals.Bodies.FirstOrDefault(cb => cb.orbitDriver != null && cb.orbitDriver == driver);
-            if (body != null)
-                return body.bodyName;
-            var vessel = FlightGlobals.Vessels.FirstOrDefault(v => v.orbitDriver != null && v.orbitDriver == driver);
-            if (vessel != null)
-                return vessel == FlightGlobals.ActiveVessel ? "Active vessel" : vessel.vesselName;
-            if (string.IsNullOrEmpty(driver.name) == false)
-                return driver.name;
-            return "Unknown";
-        }
-
-        public string CurrentlyEditingName
-        {
-            get
-            {
-                return GetName(_currentlyEditing);
-            }
-        }
-
-        public OrbitEditor()
-        {
-            if (FlightGlobals.fetch != null && FlightGlobals.ActiveVessel != null && FlightGlobals.ActiveVessel.orbit != null)
-            {
-                CurrentlyEditing = FlightGlobals.ActiveVessel.orbitDriver;
-            }
-        }
-
-        public void Apply()
-        {
-            if (CurrentlyEditing != null)
-            {
-                CurrentlyEditing.DynamicSetOrbit(Editor.Orbit(CurrentlyEditing.orbit));
-            }
-        }
-
-        private static IEnumerable<OrbitDriver> OrderedOrbits()
-        {
-            var query = (IEnumerable<OrbitDriver>)
-                        (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null || FlightGlobals.ActiveVessel.orbitDriver == null
-                             ? new OrbitDriver[0]
-                             : new[] { FlightGlobals.ActiveVessel.orbitDriver });
-            if (FlightGlobals.fetch != null)
-                query = query
-                    .Concat(FlightGlobals.Vessels.Select(v => v.orbitDriver))
-                    .Concat(FlightGlobals.Bodies.Select(v => v.orbitDriver));
-            query = query.Where(o => o != null).Distinct();
-            return query;
-        }
-
-        public void SelectOrbit()
-        {
-            if (FlightGlobals.fetch == null)
-                Extentions.ErrorPopup("Could not get list of orbits (are you in the flight scene?)");
-            else
-                View.WindowHelper.Selector("Select orbit", OrderedOrbits(), GetName, o => CurrentlyEditing = o);
-        }
-
-        public void SelectBody()
-        {
-            if (FlightGlobals.fetch == null || FlightGlobals.Bodies == null)
-                Extentions.ErrorPopup("Could not get list of bodies (are you in the flight scene?)");
-            else
-                View.WindowHelper.Selector("Select body", FlightGlobals.Bodies, b => b.bodyName, Editor.SetBody);
+            Min = min;
+            Max = max;
         }
     }
 }

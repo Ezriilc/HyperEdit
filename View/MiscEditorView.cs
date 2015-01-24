@@ -7,7 +7,8 @@ namespace HyperEdit.View
     {
         public static void Create()
         {
-            Window.Create("Misc tools", true, true, 300, -1, w => View().Draw());
+            var view = View();
+            Window.Create("Misc tools", true, true, 300, -1, w => view.Draw());
         }
 
         public static IView View()
@@ -31,13 +32,13 @@ namespace HyperEdit.View
                     new LabelView("Resources", "Set amounts of various resources contained on the active vessel"),
                     new CustomView(resources),
                     new TextBoxView<double>("Time", "Set time (aka UniversalTime)",
-                        Model.MiscEditor.UniversalTime.ToString(), SiSuffix.TryParse, v => Model.MiscEditor.UniversalTime = v),
-                    new ButtonView("Align SMAs", "Open the semi-major axis aligner window", () => true, Model.MiscEditor.AlignSemiMajorAxis),
-                    new ButtonView("Destroy a vessel", "Select a vessel to destroy", () => true, Model.MiscEditor.DestroyVessel),
+                        Model.MiscEditor.UniversalTime, SiSuffix.TryParse, null, v => Model.MiscEditor.UniversalTime = v),
+                    new ButtonView("Align SMAs", "Open the semi-major axis aligner window", Model.MiscEditor.AlignSemiMajorAxis),
+                    new ButtonView("Destroy a vessel", "Select a vessel to destroy", Model.MiscEditor.DestroyVessel),
                     new TextBoxView<KeyCode[]>("Boost button key", "Sets the keybinding used for the boost button",
-                        Model.MiscEditor.BoostButtonKey.KeyCodeToString(), Extentions.KeyCodeTryParse, v => Model.MiscEditor.BoostButtonKey = v),
+                        Model.MiscEditor.BoostButtonKey, Extentions.KeyCodeTryParse, x => x.KeyCodeToString(), v => Model.MiscEditor.BoostButtonKey = v),
                     new TextBoxView<double>("Boost button speed", "Sets the dV applied per frame when the boost button is held down",
-                        Model.MiscEditor.BoostButtonSpeed.ToString(), SiSuffix.TryParse, v => Model.MiscEditor.BoostButtonSpeed = v),
+                        Model.MiscEditor.BoostButtonSpeed, SiSuffix.TryParse, null, v => Model.MiscEditor.BoostButtonSpeed = v),
                 });
         }
     }
