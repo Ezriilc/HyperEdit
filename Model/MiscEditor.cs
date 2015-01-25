@@ -22,7 +22,7 @@ namespace HyperEdit.Model
 
         public static void AlignSemiMajorAxis()
         {
-            View.View.CreateView(new SmaAligner());
+            View.SmaAlignerView.Create();
         }
 
         public static void RefillVesselResources()

@@ -15,6 +15,8 @@ public class HyperEditModule : MonoBehaviour
 
 namespace HyperEdit
 {
+    public delegate bool TryParse<T>(string str,out T value);
+
     public static class Immortal
     {
         private static GameObject _gameObject;
@@ -195,7 +197,7 @@ namespace HyperEdit
             Debug.Log("HyperEdit: " + message);
         }
 
-        public static void TryGetValue<T>(this ConfigNode node, string key, ref T value, View.View.TryParse<T> tryParse)
+        public static void TryGetValue<T>(this ConfigNode node, string key, ref T value, TryParse<T> tryParse)
         {
             var strvalue = node.GetValue(key);
             if (strvalue == null)

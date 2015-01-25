@@ -1,40 +1,44 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 namespace HyperEdit.View
 {
-    public class SmaAlignerView : View
+    public static class SmaAlignerView
     {
-        Vector2 _scrollPos;
-
-        Model.SmaAligner _model;
-
-        public static void Create(Model.SmaAligner model)
+        public static void Create()
         {
-            var view = new SmaAlignerView();
-            view._model = model;
-            Window.Create("SMA Aligner", true, true, 200, -1, view.Draw);
+            var view = View();
+            Window.Create("SMA Aligner", true, true, 200, -1, w => view.Draw());
         }
 
-        private SmaAlignerView()
+        public static IView View()
         {
-        }
+            Vector2 scrollPos = new Vector2(0, 0);
+            List<Vessel> vesselsToAlign = new List<Vessel>();
+            var vesselList = new CustomView(() =>
+                {
+                    scrollPos = GUILayout.BeginScrollView(scrollPos, GUILayout.MinHeight(300));
+                    vesselsToAlign.RemoveAll(v => !Model.SmaAligner.AvailableVessels.Contains(v));
+                    foreach (var vessel in Model.SmaAligner.AvailableVessels)
+                    {
+                        var alreadyIn = vesselsToAlign.Contains(vessel);
+                        var newIn = GUILayout.Toggle(alreadyIn, vessel.name);
+                        if (alreadyIn == false && newIn == true)
+                            vesselsToAlign.Add(vessel);
+                        if (alreadyIn == true && newIn == false)
+                            vesselsToAlign.Remove(vessel);
+                    }
+                    GUILayout.EndScrollView();
+                });
+            var align = new ConditionalView(() => vesselsToAlign.Count > 1,
+                            new ButtonView("Align", "Sets all semi-major axes of selected vessels to be equal, so they all have the same period",
+                                () => Model.SmaAligner.Align(vesselsToAlign)));
 
-        public override void Draw(Window window)
-        {
-            base.Draw(window);
-            _scrollPos = GUILayout.BeginScrollView(_scrollPos, GUILayout.MinHeight(300));
-            foreach (var vessel in _model.AvailableVessels)
-            {
-                var alreadyIn = _model.VesselsToAlign.Contains(vessel);
-                var newIn = GUILayout.Toggle(alreadyIn, vessel.name);
-                if (alreadyIn == false && newIn == true)
-                    _model.VesselsToAlign.Add(vessel);
-                if (alreadyIn == true && newIn == false)
-                    _model.VesselsToAlign.Remove(vessel);
-            }
-            GUILayout.EndScrollView();
-            if (AllValid && GUILayout.Button(new GUIContent("Align", "Sets all semi-major axes of selected vessels to be equal, so they all have the same period")))
-                _model.Align();
+            return new VerticalView(new IView[]
+                {
+                    vesselList,
+                    align
+                });
         }
     }
 }

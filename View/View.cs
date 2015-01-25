@@ -216,7 +216,7 @@ namespace HyperEdit.View
     public class TextBoxView<T> : IView
     {
         private readonly GUIContent label;
-        private readonly View.TryParse<T> parser;
+        private readonly TryParse<T> parser;
         private readonly Func<T, string> toString;
         private readonly Action<T> onSet;
         private string value;
@@ -234,7 +234,7 @@ namespace HyperEdit.View
             }
         }
 
-        public TextBoxView(string label, string help, T start, View.TryParse<T> parser, Func<T, string> toString = null, Action<T> onSet = null)
+        public TextBoxView(string label, string help, T start, TryParse<T> parser, Func<T, string> toString = null, Action<T> onSet = null)
         {
             this.label = label == null ? null : new GUIContent(label, help);
             this.toString = toString ?? (x => x.ToString());
@@ -304,89 +304,6 @@ namespace HyperEdit.View
             }
             GUILayout.EndHorizontal();
             current.Value.Draw();
-        }
-    }
-
-    public abstract class View
-    {
-        private Dictionary<string, string> _textboxInputs = new Dictionary<string, string>();
-
-        public delegate bool TryParse<T>(string str,out T value);
-
-        private bool _allValid = true;
-
-        protected bool AllValid { get { return _allValid; } }
-
-        protected T GuiTextField<T>(string key, GUIContent display, TryParse<T> parser, T value, Func<T, string> toString = null)
-        {
-            if (display != null)
-            {
-                GUILayout.BeginHorizontal();
-                GUILayout.Label(display);
-            }
-            if (_textboxInputs.ContainsKey(key) == false)
-                _textboxInputs[key] = toString == null ? value.ToString() : toString(value);
-
-            T tempValue;
-            var isValid = parser(_textboxInputs[key], out tempValue);
-            if (!isValid)
-                _allValid = false;
-
-            if (isValid)
-            {
-                _textboxInputs[key] = GUILayout.TextField(_textboxInputs[key]);
-            }
-            else
-            {
-                var color = GUI.color;
-                GUI.color = Color.red;
-                _textboxInputs[key] = GUILayout.TextField(_textboxInputs[key]);
-                GUI.color = color;
-            }
-            if (display != null)
-            {
-                GUILayout.EndHorizontal();
-            }
-            return isValid ? tempValue : value;
-        }
-
-        protected T? GuiTextFieldSettable<T>(string key, GUIContent display, TryParse<T> parser, T value, Func<T, string> toString = null) where T : struct
-        {
-            GUILayout.BeginHorizontal();
-            if (display != null)
-                GUILayout.Label(display);
-            value = GuiTextField(key, null, parser, value, toString);
-            var set = GUILayout.Button("Set", GUILayout.ExpandWidth(false));
-            GUILayout.EndHorizontal();
-            return set ? value : (T?)null;
-        }
-
-        protected float Slider(GUIContent display, float oldval, Model.SliderRange range, ref bool changed)
-        {
-            GUILayout.BeginHorizontal();
-            GUILayout.Label(display);
-            var newval = GUILayout.HorizontalSlider(oldval, range.Min, range.Max);
-            GUILayout.EndHorizontal();
-            if (changed == false)
-                changed = newval != oldval;
-            return newval;
-        }
-
-        protected void ClearTextFields()
-        {
-            _textboxInputs.Clear();
-        }
-
-        public virtual void Draw(Window window)
-        {
-            _allValid = true;
-        }
-
-        public static void CreateView(object model)
-        {
-            var sma = model as Model.SmaAligner;
-            if (sma != null)
-                SmaAlignerView.Create(sma);
         }
     }
 }

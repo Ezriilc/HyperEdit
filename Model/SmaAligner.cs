@@ -3,23 +3,16 @@ using System.Linq;
 
 namespace HyperEdit.Model
 {
-    public class SmaAligner
+    public static class SmaAligner
     {
-        public List<Vessel> VesselsToAlign { get; private set; }
+        public static List<Vessel> AvailableVessels { get { return FlightGlobals.fetch != null && FlightGlobals.Vessels != null ? FlightGlobals.Vessels : new List<Vessel>(); } }
 
-        public List<Vessel> AvailableVessels { get { return FlightGlobals.fetch != null && FlightGlobals.Vessels != null ? FlightGlobals.Vessels : new List<Vessel>(); } }
-
-        public SmaAligner()
+        public static void Align(List<Vessel> vesselsToAlign)
         {
-            VesselsToAlign = new List<Vessel>();
-        }
+            vesselsToAlign.RemoveAll(v => AvailableVessels.All(a => a.id != v.id));
 
-        public void Align()
-        {
-            VesselsToAlign.RemoveAll(v => AvailableVessels.All(a => a.id != v.id));
-
-            var averageSma = VesselsToAlign.Average(v => v.orbit.semiMajorAxis);
-            foreach (var vessel in VesselsToAlign)
+            var averageSma = vesselsToAlign.Average(v => v.orbit.semiMajorAxis);
+            foreach (var vessel in vesselsToAlign)
             {
                 var orbit = vessel.orbit.Clone();
                 orbit.semiMajorAxis = averageSma;
