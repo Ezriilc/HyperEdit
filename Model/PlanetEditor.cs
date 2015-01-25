@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace HyperEdit.Model
 {
-    public class PlanetEditor
+    public static class PlanetEditor
     {
         private static Dictionary<string, PlanetSettings> _defaultSettings = new Dictionary<string, PlanetSettings>();
 
@@ -32,6 +32,32 @@ namespace HyperEdit.Model
 
             public Orbit Orbit { get; set; }
 
+            public PlanetSettings(
+                double geeAsl,
+                float atmoshpereTemperatureMultiplier,
+                bool atmosphere,
+                bool atmosphereContainsOxygen,
+                float atmosphereMultiplier,
+                double atmosphereScaleHeight,
+                Color atmosphericAmbientColor,
+                double sphereOfInfluence,
+                double rotationPeriod,
+                bool tidallyLocked,
+                Orbit orbit) : this()
+            {
+                GeeASL = geeAsl;
+                AtmoshpereTemperatureMultiplier = atmoshpereTemperatureMultiplier;
+                Atmosphere = atmosphere;
+                AtmosphereContainsOxygen = atmosphereContainsOxygen;
+                AtmosphereMultiplier = atmosphereMultiplier;
+                AtmosphereScaleHeight = atmosphereScaleHeight;
+                AtmosphericAmbientColor = atmosphericAmbientColor;
+                SphereOfInfluence = sphereOfInfluence;
+                RotationPeriod = rotationPeriod;
+                TidallyLocked = tidallyLocked;
+                Orbit = orbit;
+            }
+
             public PlanetSettings(CelestialBody body)
                 : this()
             {
@@ -56,15 +82,15 @@ namespace HyperEdit.Model
             public bool Matches(CelestialBody body)
             {
                 return GeeASL == body.GeeASL &&
-                AtmoshpereTemperatureMultiplier == body.atmoshpereTemperatureMultiplier &&
-                Atmosphere == body.atmosphere &&
-                AtmosphereContainsOxygen == body.atmosphereContainsOxygen &&
-                AtmosphereMultiplier == body.atmosphereMultiplier &&
-                AtmosphereScaleHeight == body.atmosphereScaleHeight &&
-                AtmosphericAmbientColor == body.atmosphericAmbientColor &&
-                SphereOfInfluence == body.sphereOfInfluence &&
-                RotationPeriod == body.rotationPeriod &&
-                TidallyLocked == body.tidallyLocked;
+                    AtmoshpereTemperatureMultiplier == body.atmoshpereTemperatureMultiplier &&
+                    Atmosphere == body.atmosphere &&
+                    AtmosphereContainsOxygen == body.atmosphereContainsOxygen &&
+                    AtmosphereMultiplier == body.atmosphereMultiplier &&
+                    AtmosphereScaleHeight == body.atmosphereScaleHeight &&
+                    AtmosphericAmbientColor == body.atmosphericAmbientColor &&
+                    SphereOfInfluence == body.sphereOfInfluence &&
+                    RotationPeriod == body.rotationPeriod &&
+                    TidallyLocked == body.tidallyLocked;
             }
 
             public void CopyTo(CelestialBody body, bool setOrbit)
@@ -141,111 +167,34 @@ namespace HyperEdit.Model
             }
         }
 
-        public PlanetSettings CurrentSettings { get; set; }
+        private static CelestialBody _kerbin;
 
-        private CelestialBody _currentBody;
-
-        public CelestialBody CurrentBody
-        {
-            get { return _currentBody; }
-            set
-            {
-                _currentBody = value;
-                CurrentSettings = new PlanetSettings(value);
-            }
-        }
-
-        private CelestialBody _kerbin;
-
-        public CelestialBody Kerbin
+        public static CelestialBody Kerbin
         {
             get
             {
                 return _kerbin ??
                     (_kerbin = FlightGlobals.fetch == null ? null :
-                    FlightGlobals.fetch.bodies.FirstOrDefault(cb => cb.bodyName == "Kerbin"));
+                        FlightGlobals.fetch.bodies.FirstOrDefault(cb => cb.bodyName == "Kerbin"));
             }
         }
 
-        public bool CanEditPlanetSettings
+        public static void ResetToDefault(CelestialBody body)
         {
-            get { return CurrentBody != null; }
-        }
-
-        public void SelectPlanet()
-        {
-            if (FlightGlobals.fetch == null || FlightGlobals.Bodies == null)
-                Extentions.ErrorPopup("Could not get list of planets");
-            else
-                View.WindowHelper.Selector("Select planet", FlightGlobals.Bodies, b => b.bodyName, b => CurrentBody = b);
-        }
-
-        public void Apply()
-        {
-            if (_currentBody == null)
-                return;
-            CurrentSettings.CopyTo(_currentBody, false);
-        }
-
-        public bool CanResetToDefault
-        {
-            get
-            {
-                if (_currentBody == null)
-                    return false;
-                try
-                {
-                    var defaultCb = _defaultSettings[_currentBody.bodyName];
-                    return !defaultCb.Matches(_currentBody);
-                }
-                catch (KeyNotFoundException)
-                {
-                    Extentions.Log("Defaults for celestial body " + _currentBody.bodyName + " not found");
-                    return false;
-                }
-            }
-        }
-
-        public void ResetToDefault()
-        {
-            if (_currentBody == null)
-                return;
             try
             {
-                var defaultCb = _defaultSettings[_currentBody.bodyName];
-                CurrentSettings = defaultCb;
-                CurrentSettings.CopyTo(_currentBody, true);
+                var defaultCb = _defaultSettings[body.bodyName];
+                defaultCb.CopyTo(body, true);
             }
             catch (KeyNotFoundException)
             {
-                Extentions.Log("Defaults for celestial body " + _currentBody.bodyName + " not found");
+                Extentions.Log("Defaults for celestial body " + body.bodyName + " not found");
             }
         }
 
-        public bool CanCopyToKerbin
+        public static void SavePlanet(CelestialBody body)
         {
-            get { return CurrentBody != null && CurrentBody != Kerbin; }
-        }
-
-        public void CopyToKerbin()
-        {
-            if (CanCopyToKerbin == false)
-            {
-                return;
-            }
-            new PlanetSettings(CurrentBody).CopyTo(Kerbin, false);
-        }
-
-        public bool CanSavePlanet
-        {
-            get { return CurrentBody != null; }
-        }
-
-        public void SavePlanet()
-        {
-            if (CanSavePlanet == false)
-                return;
-            var cfg = PlanetSettings.GetConfig(CurrentBody);
+            var cfg = PlanetSettings.GetConfig(body);
             cfg.Save(KSP.IO.IOUtils.GetFilePathFor(typeof(HyperEditBehaviour), cfg.name + ".cfg"));
         }
 

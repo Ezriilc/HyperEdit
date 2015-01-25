@@ -27,7 +27,7 @@ namespace HyperEdit.View
                     lat,
                     lon,
                     alt,
-                    new ToggleView("Landing", "Land the ship (or stop landing)", Model.DoLander.IsLanding,
+                    new DynamicToggleView("Landing", "Land the ship (or stop landing)", Model.DoLander.IsLanding,
                         isValid, b => Model.DoLander.ToggleLanding(lat.Object, lon.Object, alt.Object)),
                     new ConditionalView(isValid, new ButtonView("Save", "Save the current location", () => Model.DoLander.AddSavedCoords(lat.Object, lon.Object))),
                     new ButtonView("Load", "Load a previously-saved location", () => Model.DoLander.Load(load)),

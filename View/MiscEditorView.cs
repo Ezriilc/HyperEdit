@@ -20,7 +20,7 @@ namespace HyperEdit.View
                     GUILayout.BeginHorizontal();
                     GUILayout.Label(resource.Key);
                     var newval = (double)GUILayout.HorizontalSlider((float)resource.Value, 0, 1);
-                    if (Math.Abs(newval - resource.Value) > 0.01)
+                    if (Math.Abs(newval - resource.Value) > 0.001)
                     {
                         Model.MiscEditor.SetResource(resource.Key, newval);
                     }

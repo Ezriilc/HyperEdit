@@ -100,11 +100,34 @@ namespace HyperEdit.View
     public class ToggleView : IView
     {
         private readonly GUIContent label;
+        private readonly Action<bool> onChange;
+
+        public bool Value { get; set; }
+
+        public ToggleView(string label, string help, bool initialValue, Action<bool> onChange = null)
+        {
+            this.label = new GUIContent(label, help);
+            this.Value = initialValue;
+            this.onChange = onChange;
+        }
+
+        public void Draw()
+        {
+            var oldValue = Value;
+            Value = GUILayout.Toggle(oldValue, label);
+            if (oldValue != Value && onChange != null)
+                onChange(Value);
+        }
+    }
+
+    public class DynamicToggleView : IView
+    {
+        private readonly GUIContent label;
         private readonly Func<bool> getValue;
         private readonly Func<bool> isValid;
         private readonly Action<bool> onChange;
 
-        public ToggleView(string label, string help, Func<bool> getValue, Func<bool> isValid, Action<bool> onChange)
+        public DynamicToggleView(string label, string help, Func<bool> getValue, Func<bool> isValid, Action<bool> onChange)
         {
             this.label = new GUIContent(label, help);
             this.getValue = getValue;
@@ -140,7 +163,7 @@ namespace HyperEdit.View
             GUILayout.BeginHorizontal();
             GUILayout.Label(label);
             var newValue = (double)GUILayout.HorizontalSlider((float)Value, 0, 1);
-            if (Math.Abs(newValue - Value) > 0.01)
+            if (Math.Abs(newValue - Value) > 0.001)
             {
                 Value = newValue;
                 if (onChange != null)
@@ -361,10 +384,7 @@ namespace HyperEdit.View
 
         public static void CreateView(object model)
         {
-            var planet = model as Model.PlanetEditor;
             var sma = model as Model.SmaAligner;
-            if (planet != null)
-                PlanetEditorView.Create(planet);
             if (sma != null)
                 SmaAlignerView.Create(sma);
         }

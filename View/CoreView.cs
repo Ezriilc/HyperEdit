@@ -2,33 +2,32 @@
 
 namespace HyperEdit.View
 {
-    public class CoreView : View
+    public static class CoreView
     {
         public static void Create()
         {
-            var view = new CoreView();
-            Window.Create("HyperEdit", true, true, 100, -1, view.Draw);
+            var view = View();
+            Window.Create("HyperEdit", true, true, 100, -1, w => view.Draw());
         }
 
-        private CoreView()
+        public static IView View()
         {
-        }
+            var closeAll = new ButtonView("Close all", "Closes all windows", Window.CloseAll);
+            var orbitEditor = new ButtonView("Orbit Editor", "Opens the Orbit Editor window", OrbitEditorView.Create);
+            var planetEditor = new ButtonView("Planet Editor", "Opens the Planet Editor window", PlanetEditorView.Create);
+            var shipLander = new ButtonView("Ship Lander", "Opens the Ship Lander window", LanderView.Create);
+            var miscTools = new ButtonView("Misc Tools", "Opens the Misc Tools window", MiscEditorView.Create);
+            var about = new ButtonView("About", "Opens the About window", AboutWindow.Create);
 
-        public override void Draw(Window window)
-        {
-            base.Draw(window);
-            if (GUILayout.Button(new GUIContent("Close all", "Closes all windows")))
-                Window.CloseAll();
-            if (GUILayout.Button(new GUIContent("Orbit Editor", "Opens the Orbit Editor window")))
-                OrbitEditorView.Create();
-            if (GUILayout.Button(new GUIContent("Planet Editor", "Opens the Planet Editor window")))
-                CreateView(new Model.PlanetEditor());
-            if (GUILayout.Button(new GUIContent("Ship Lander", "Opens the Ship Lander window")))
-                LanderView.Create();
-            if (GUILayout.Button(new GUIContent("Misc Tools", "Opens the Misc Tools window")))
-                MiscEditorView.Create();
-            if (GUILayout.Button(new GUIContent("About", "Opens the About window")))
-                AboutWindow.Create();
+            return new VerticalView(new IView[]
+                {
+                    closeAll,
+                    orbitEditor,
+                    planetEditor,
+                    shipLander,
+                    miscTools,
+                    about
+                });
         }
     }
 }
