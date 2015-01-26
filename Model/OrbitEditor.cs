@@ -91,11 +91,11 @@ namespace HyperEdit.Model
             inclination = currentlyEditing.orbit.inclination / 360;
             longitudeAscendingNode = currentlyEditing.orbit.LAN / 360;
             argumentOfPeriapsis = currentlyEditing.orbit.argumentOfPeriapsis / 360;
-            var e = Math.Atan(currentlyEditing.orbit.eccentricity);
-            eccentricity = e / (Math.PI / 2 - 0.001);
+            var eTemp = Math.Atan(currentlyEditing.orbit.eccentricity);
+            eccentricity = eTemp / (Math.PI / 2 - 0.001);
             var soi = currentlyEditing.orbit.referenceBody.Soi();
             var ratio = soi / (currentlyEditing.orbit.referenceBody.Radius + currentlyEditing.orbit.referenceBody.maxAtmosphereAltitude);
-            var semimajor = currentlyEditing.orbit.semiMajorAxis * (1 - e);
+            var semimajor = currentlyEditing.orbit.semiMajorAxis * (1 - currentlyEditing.orbit.eccentricity);
             semimajor /= soi;
             semimajor *= ratio;
             semimajor = Math.Log(semimajor, ratio);

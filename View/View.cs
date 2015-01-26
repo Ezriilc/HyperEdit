@@ -175,6 +175,7 @@ namespace HyperEdit.View
 
     public class ListSelectView<T> : IView
     {
+        private readonly string prefix;
         private readonly Func<IEnumerable<T>> list;
         private readonly Func<T, string> toString;
         private readonly Action<T> onSelect;
@@ -191,8 +192,9 @@ namespace HyperEdit.View
             }
         }
 
-        public ListSelectView(Func<IEnumerable<T>> list, Action<T> onSelect = null, Func<T, string> toString = null)
+        public ListSelectView(string prefix, Func<IEnumerable<T>> list, Action<T> onSelect = null, Func<T, string> toString = null)
         {
+            this.prefix = prefix + ": ";
             this.list = list;
             this.toString = toString ?? (x => x.ToString());
             this.onSelect = onSelect;
@@ -202,7 +204,7 @@ namespace HyperEdit.View
         public void Draw()
         {
             GUILayout.BeginHorizontal();
-            GUILayout.Label(currentlySelected == null ? "<none>" : toString(currentlySelected));
+            GUILayout.Label(prefix + (currentlySelected == null ? "<none>" : toString(currentlySelected)));
             if (GUILayout.Button("Select"))
             {
                 var realList = list();

@@ -42,7 +42,7 @@ namespace HyperEdit.View
             };
 
             var selectBody = new ConditionalView(() => FlightGlobals.fetch != null && FlightGlobals.Bodies != null,
-                                 new ListSelectView<CelestialBody>(() => FlightGlobals.Bodies, onSelect, cb => cb.bodyName));
+                                 new ListSelectView<CelestialBody>("Selected body", () => FlightGlobals.Bodies, onSelect, cb => cb.bodyName));
 
             var apply = new ConditionalView(() => geeAsl.Valid &&
                             temperature.Valid &&

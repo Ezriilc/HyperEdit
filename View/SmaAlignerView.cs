@@ -8,7 +8,7 @@ namespace HyperEdit.View
         public static void Create()
         {
             var view = View();
-            Window.Create("SMA Aligner", true, true, 200, -1, w => view.Draw());
+            Window.Create("SMA Aligner", true, true, 300, -1, w => view.Draw());
         }
 
         public static IView View()

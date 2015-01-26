@@ -17,7 +17,7 @@ namespace HyperEdit.View
         {
             ListSelectView<OrbitDriver> currentlyEditing = null;
 
-            var referenceSelector = new ListSelectView<CelestialBody>(() => FlightGlobals.fetch == null ? null : FlightGlobals.fetch.bodies, null, cb => cb.bodyName);
+            var referenceSelector = new ListSelectView<CelestialBody>("Reference body", () => FlightGlobals.fetch == null ? null : FlightGlobals.fetch.bodies, null, cb => cb.bodyName);
 
             var simpleAltitude = new TextBoxView<double>("Altitude", "Altitude of circular orbit", 110000, SiSuffix.TryParse);
             var simpleApply = new ConditionalView(() => simpleAltitude.Valid && referenceSelector.CurrentlySelected != null,
@@ -25,7 +25,12 @@ namespace HyperEdit.View
                     {
                         Model.OrbitEditor.Simple(currentlyEditing.CurrentlySelected, simpleAltitude.Object, referenceSelector.CurrentlySelected);
                     }));
-            var simple = new VerticalView(new IView[]{ simpleAltitude, referenceSelector, simpleApply });
+            var simple = new VerticalView(new IView[]
+                {
+                    simpleAltitude,
+                    referenceSelector,
+                    simpleApply
+                });
 
             var complexInclination = new TextBoxView<double>("Inclination", "How close to the equator the orbit plane is", 0, double.TryParse);
             var complexEccentricity = new TextBoxView<double>("Eccentricity", "How circular the orbit is (0=circular, 0.5=elliptical, 1=parabolic)", 0, double.TryParse);
@@ -102,7 +107,7 @@ namespace HyperEdit.View
                 });
 
             var velocitySpeed = new TextBoxView<double>("Speed", "dV to apply", 0, SiSuffix.TryParse);
-            var velocityDirection = new ListSelectView<Model.OrbitEditor.VelocityChangeDirection>(() => Model.OrbitEditor.AllVelocityChanges);
+            var velocityDirection = new ListSelectView<Model.OrbitEditor.VelocityChangeDirection>("Direction", () => Model.OrbitEditor.AllVelocityChanges);
             var velocityApply = new ConditionalView(() => velocitySpeed.Valid,
                                     new ButtonView("Apply", "Adds the selected velocity to the orbit", () =>
                     {
@@ -116,7 +121,7 @@ namespace HyperEdit.View
                 });
 
             var rendezvousLeadTime = new TextBoxView<double>("Lead time", "How many seconds off to rendezvous at (zero = on top of each other, bad)", 1, SiSuffix.TryParse);
-            var rendezvousVessel = new ListSelectView<Vessel>(() => FlightGlobals.fetch == null ? null : FlightGlobals.fetch.vessels, null, v => v.vesselName);
+            var rendezvousVessel = new ListSelectView<Vessel>("Target vessel", () => FlightGlobals.fetch == null ? null : FlightGlobals.fetch.vessels, null, v => v.vesselName);
             var rendezvousApply = new ConditionalView(() => rendezvousLeadTime.Valid && rendezvousVessel.CurrentlySelected != null,
                                       new ButtonView("Apply", "Rendezvous", () =>
                     {
@@ -201,7 +206,24 @@ namespace HyperEdit.View
                 }
             };
 
-            currentlyEditing = new ListSelectView<OrbitDriver>(Model.OrbitEditor.OrderedOrbits, onCurrentlyEditingChange, Extentions.OrbitDriverToString);
+            currentlyEditing = new ListSelectView<OrbitDriver>("Currently editing", Model.OrbitEditor.OrderedOrbits, onCurrentlyEditingChange, Extentions.OrbitDriverToString);
+
+            if (FlightGlobals.fetch != null && FlightGlobals.fetch.activeVessel != null && FlightGlobals.fetch.activeVessel.orbitDriver != null)
+            {
+                currentlyEditing.CurrentlySelected = FlightGlobals.fetch.activeVessel.orbitDriver;
+            }
+
+            var savePlanet = new ButtonView("Save planet", "Saves the current orbit of the planet to a file, so it stays edited even after a restart. Delete the file named the planet's name in ./GameData/Kerbaltek/PluginData/HyperEdit/ to undo.",
+                                 () => Model.PlanetEditor.SavePlanet(currentlyEditing.CurrentlySelected.celestialBody));
+            var resetPlanet = new ButtonView("Reset to defaults", "Reset the selected planet to defaults",
+                                  () => Model.PlanetEditor.ResetToDefault(currentlyEditing.CurrentlySelected.celestialBody));
+
+            var planetButtons = new ConditionalView(() => currentlyEditing.CurrentlySelected != null && currentlyEditing.CurrentlySelected.celestialBody != null,
+                                    new VerticalView(new IView[]
+                    {
+                        savePlanet,
+                        resetPlanet
+                    }));
 
             var tabs = new TabView(new List<KeyValuePair<string, IView>>()
                 {
@@ -215,6 +237,7 @@ namespace HyperEdit.View
             return new VerticalView(new IView[]
                 {
                     currentlyEditing,
+                    planetButtons,
                     new ConditionalView(() => currentlyEditing.CurrentlySelected != null, tabs)
                 });
         }
