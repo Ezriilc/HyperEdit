@@ -209,6 +209,116 @@ namespace HyperEdit.Model
 
             return new Orbit(inc, e, sma, lan, w, mEp, epoch, body);
         }
+
+        public static void DynamicSetOrbit(this OrbitDriver orbit, Orbit newOrbit)
+        {
+            var vessel = orbit.vessel;
+            var body = orbit.celestialBody;
+            if (vessel != null)
+                vessel.SetOrbit(newOrbit);
+            else if (body != null)
+                body.SetOrbit(newOrbit);
+            else
+                HardsetOrbit(orbit, newOrbit);
+        }
+
+        public static void SetOrbit(this Vessel vessel, Orbit newOrbit)
+        {
+            if (newOrbit.getRelativePositionAtUT(Planetarium.GetUniversalTime()).magnitude > newOrbit.referenceBody.sphereOfInfluence)
+            {
+                Extentions.ErrorPopup("Destination position was above the sphere of influence");
+                return;
+            }
+
+            vessel.Landed = false;
+            vessel.Splashed = false;
+            vessel.landedAt = string.Empty;
+            var parts = vessel.parts;
+            if (parts != null)
+            {
+                var clamps = parts.Where(p => p.Modules != null && p.Modules.OfType<LaunchClamp>().Any()).ToList();
+                foreach (var clamp in clamps)
+                    clamp.Die();
+            }
+
+            try
+            {
+                OrbitPhysicsManager.HoldVesselUnpack(60);
+            }
+            catch (NullReferenceException)
+            {
+                Extentions.Log("OrbitPhysicsManager.HoldVesselUnpack threw NullReferenceException");
+            }
+
+            var allVessels = FlightGlobals.fetch == null ? (IEnumerable<Vessel>)new[] { vessel } : FlightGlobals.Vessels;
+            foreach (var v in allVessels.Where(v => v.packed == false))
+                v.GoOnRails();
+
+            var oldBody = vessel.orbitDriver.orbit.referenceBody;
+
+            HardsetOrbit(vessel.orbitDriver, newOrbit);
+
+            vessel.orbitDriver.pos = vessel.orbit.pos.xzy;
+            vessel.orbitDriver.vel = vessel.orbit.vel;
+
+            var newBody = vessel.orbitDriver.orbit.referenceBody;
+            if (newBody != oldBody)
+            {
+                var evnt = new GameEvents.HostedFromToAction<Vessel, CelestialBody>(vessel, oldBody, newBody);
+                GameEvents.onVesselSOIChanged.Fire(evnt);
+            }
+        }
+
+        public static void SetOrbit(this CelestialBody body, Orbit newOrbit)
+        {
+            var oldBody = body.referenceBody;
+            HardsetOrbit(body.orbitDriver, newOrbit);
+            if (oldBody != newOrbit.referenceBody)
+            {
+                oldBody.orbitingBodies.Remove(body);
+                newOrbit.referenceBody.orbitingBodies.Add(body);
+            }
+            body.CBUpdate();
+        }
+
+        private static void HardsetOrbit(OrbitDriver orbitDriver, Orbit newOrbit)
+        {
+            var orbit = orbitDriver.orbit;
+            orbit.inclination = newOrbit.inclination;
+            orbit.eccentricity = newOrbit.eccentricity;
+            orbit.semiMajorAxis = newOrbit.semiMajorAxis;
+            orbit.LAN = newOrbit.LAN;
+            orbit.argumentOfPeriapsis = newOrbit.argumentOfPeriapsis;
+            orbit.meanAnomalyAtEpoch = newOrbit.meanAnomalyAtEpoch;
+            orbit.epoch = newOrbit.epoch;
+            orbit.referenceBody = newOrbit.referenceBody;
+            orbit.Init();
+            orbit.UpdateFromUT(Planetarium.GetUniversalTime());
+            if (orbit.referenceBody != newOrbit.referenceBody)
+            {
+                if (orbitDriver.OnReferenceBodyChange != null)
+                    orbitDriver.OnReferenceBodyChange(newOrbit.referenceBody);
+            }
+        }
+
+        //public static void Teleport(this Krakensbane krakensbane, Vector3d offset)
+        //{
+        //    foreach (var vessel in FlightGlobals.Vessels.Where(v => v.packed == false && v != FlightGlobals.ActiveVessel))
+        //        vessel.GoOnRails();
+        //    krakensbane.setOffset(offset);
+        //}
+
+        //public static Rect Set(this Rect rect, int width, int height)
+        //{
+        //    return new Rect(rect.xMin, rect.yMin, width, height);
+        //}
+
+        public static Orbit Clone(this Orbit o)
+        {
+            return new Orbit(o.inclination, o.eccentricity, o.semiMajorAxis, o.LAN,
+                o.argumentOfPeriapsis, o.meanAnomalyAtEpoch, o.epoch, o.referenceBody);
+        }
+
     }
 
     public struct SliderRange

@@ -7,17 +7,17 @@ namespace HyperEdit.View
 {
     public static class OrbitEditorView
     {
-        public static void Create()
+        public static Action Create()
         {
             var view = View();
-            Window.Create("Orbit Editor", true, true, 300, -1, w => view.Draw());
+            return () => Window.Create("Orbit Editor", true, true, 300, -1, w => view.Draw());
         }
 
         public static IView View()
         {
             ListSelectView<OrbitDriver> currentlyEditing = null;
 
-            var referenceSelector = new ListSelectView<CelestialBody>("Reference body", () => FlightGlobals.fetch == null ? null : FlightGlobals.fetch.bodies, null, cb => cb.bodyName);
+            var referenceSelector = new ListSelectView<CelestialBody>("Reference body", () => FlightGlobals.fetch == null ? null : FlightGlobals.fetch.bodies, null, Extentions.CbToString);
 
             var simpleAltitude = new TextBoxView<double>("Altitude", "Altitude of circular orbit", 110000, SiSuffix.TryParse);
             var simpleApply = new ConditionalView(() => simpleAltitude.Valid && referenceSelector.CurrentlySelected != null,

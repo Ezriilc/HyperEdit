@@ -115,81 +115,6 @@ namespace HyperEdit
         }
     }
 
-    public static class SiSuffix
-    {
-        private static readonly Dictionary<string, double> Suffixes = new Dictionary<string, double>
-        {
-            { "Y", 1e24 },
-            { "Z", 1e21 },
-            { "E", 1e18 },
-            { "P", 1e15 },
-            { "T", 1e12 },
-            { "G", 1e9 },
-            { "M", 1e6 },
-            { "k", 1e3 },
-            { "h", 1e2 },
-            { "da", 1e1 },
-
-            { "d", 1e-1 },
-            { "c", 1e-2 },
-            { "m", 1e-3 },
-            { "u", 1e-6 },
-            { "n", 1e-9 },
-            { "p", 1e-12 },
-            { "f", 1e-15 },
-            { "a", 1e-18 },
-            { "z", 1e-21 },
-            { "y", 1e-24 }
-        };
-
-        public static bool TryParse(string s, out float value)
-        {
-            double dval;
-            var success = TryParse(s, out dval);
-            value = (float)dval;
-            return success;
-        }
-
-        public static bool TryParse(string s, out double value)
-        {
-            s = s.Trim();
-            double multiplier;
-            var suffix = Suffixes.FirstOrDefault(suf => s.EndsWith(suf.Key, StringComparison.Ordinal));
-            if (suffix.Key != null)
-            {
-                s = s.Substring(0, s.Length - suffix.Key.Length);
-                multiplier = suffix.Value;
-            }
-            else
-                multiplier = 1.0;
-            if (double.TryParse(s, out value) == false)
-                return false;
-            value *= multiplier;
-            return true;
-        }
-
-        /*
-        // Not currently used.  Si suffixes are unnecessary and confusing.  Possibly useful with modification for clarity and practicality.
-        public static string ToString(this double value)
-        {
-            var log = Math.Log10(Math.Abs(value));
-            var minDiff = double.MaxValue;
-            var minSuffix = new KeyValuePair<string, double>("", 1);
-            foreach (var suffix in Suffixes.Concat(new[] { new KeyValuePair<string, double>("", 1) }))
-            {
-                var diff = Math.Abs(log - Math.Log10(suffix.Value));
-                if (diff < minDiff)
-                {
-                    minDiff = diff;
-                    minSuffix = suffix;
-                }
-            }
-            value /= minSuffix.Value;
-            return value.ToString("F") + minSuffix.Key;
-        }
-        */
-    }
-
     public static class Extentions
     {
         public static void Log(string message)
@@ -228,120 +153,11 @@ namespace HyperEdit
             }
         }
 
-        public static void DynamicSetOrbit(this OrbitDriver orbit, Orbit newOrbit)
+        public static double Soi(this CelestialBody body)
         {
-            var vessel = orbit.vessel;
-            var body = orbit.celestialBody;
-            if (vessel != null)
-                vessel.SetOrbit(newOrbit);
-            else if (body != null)
-                body.SetOrbit(newOrbit);
-            else
-                HardsetOrbit(orbit, newOrbit);
-        }
-
-        public static void SetOrbit(this Vessel vessel, Orbit newOrbit)
-        {
-            if (newOrbit.getRelativePositionAtUT(Planetarium.GetUniversalTime()).magnitude > newOrbit.referenceBody.sphereOfInfluence)
-            {
-                ErrorPopup("Destination position was above the sphere of influence");
-                return;
-            }
-
-            vessel.Landed = false;
-            vessel.Splashed = false;
-            vessel.landedAt = string.Empty;
-            var parts = vessel.parts;
-            if (parts != null)
-            {
-                var clamps = parts.Where(p => p.Modules != null && p.Modules.OfType<LaunchClamp>().Any()).ToList();
-                foreach (var clamp in clamps)
-                    clamp.Die();
-            }
-
-            try
-            {
-                OrbitPhysicsManager.HoldVesselUnpack(60);
-            }
-            catch (NullReferenceException)
-            {
-                Extentions.Log("OrbitPhysicsManager.HoldVesselUnpack threw NullReferenceException");
-            }
-
-            var allVessels = FlightGlobals.fetch == null ? (IEnumerable<Vessel>)new[] { vessel } : FlightGlobals.Vessels;
-            foreach (var v in allVessels.Where(v => v.packed == false))
-                v.GoOnRails();
-
-            var oldBody = vessel.orbitDriver.orbit.referenceBody;
-
-            HardsetOrbit(vessel.orbitDriver, newOrbit);
-
-            vessel.orbitDriver.pos = vessel.orbit.pos.xzy;
-            vessel.orbitDriver.vel = vessel.orbit.vel;
-
-            var newBody = vessel.orbitDriver.orbit.referenceBody;
-            if (newBody != oldBody)
-            {
-                var evnt = new GameEvents.HostedFromToAction<Vessel, CelestialBody>(vessel, oldBody, newBody);
-                GameEvents.onVesselSOIChanged.Fire(evnt);
-            }
-        }
-
-        public static void SetOrbit(this CelestialBody body, Orbit newOrbit)
-        {
-            var oldBody = body.referenceBody;
-            HardsetOrbit(body.orbitDriver, newOrbit);
-            if (oldBody != newOrbit.referenceBody)
-            {
-                oldBody.orbitingBodies.Remove(body);
-                newOrbit.referenceBody.orbitingBodies.Add(body);
-            }
-            body.CBUpdate();
-        }
-
-        private static void HardsetOrbit(OrbitDriver orbitDriver, Orbit newOrbit)
-        {
-            var orbit = orbitDriver.orbit;
-            orbit.inclination = newOrbit.inclination;
-            orbit.eccentricity = newOrbit.eccentricity;
-            orbit.semiMajorAxis = newOrbit.semiMajorAxis;
-            orbit.LAN = newOrbit.LAN;
-            orbit.argumentOfPeriapsis = newOrbit.argumentOfPeriapsis;
-            orbit.meanAnomalyAtEpoch = newOrbit.meanAnomalyAtEpoch;
-            orbit.epoch = newOrbit.epoch;
-            orbit.referenceBody = newOrbit.referenceBody;
-            orbit.Init();
-            orbit.UpdateFromUT(Planetarium.GetUniversalTime());
-            if (orbit.referenceBody != newOrbit.referenceBody)
-            {
-                if (orbitDriver.OnReferenceBodyChange != null)
-                    orbitDriver.OnReferenceBodyChange(newOrbit.referenceBody);
-            }
-        }
-
-        public static void Teleport(this Krakensbane krakensbane, Vector3d offset)
-        {
-            foreach (var vessel in FlightGlobals.Vessels.Where(v => v.packed == false && v != FlightGlobals.ActiveVessel))
-                vessel.GoOnRails();
-            krakensbane.setOffset(offset);
-        }
-
-        public static Rect Set(this Rect rect, int width, int height)
-        {
-            return new Rect(rect.xMin, rect.yMin, width, height);
-        }
-
-        public static Orbit Clone(this Orbit o)
-        {
-            return new Orbit(o.inclination, o.eccentricity, o.semiMajorAxis, o.LAN,
-                o.argumentOfPeriapsis, o.meanAnomalyAtEpoch, o.epoch, o.referenceBody);
-        }
-
-        public static float Soi(this CelestialBody body)
-        {
-            var radius = (float)(body.sphereOfInfluence * 0.95);
-            if (float.IsNaN(radius) || float.IsInfinity(radius) || radius < 0 || radius > 200000000000f)
-                radius = 200000000000f; // jool apo = 72,212,238,387
+            var radius = body.sphereOfInfluence * 0.95;
+            if (double.IsNaN(radius) || double.IsInfinity(radius) || radius < 0 || radius > 200000000000)
+                radius = 200000000000; // jool apo = 72,212,238,387
             return radius;
         }
 
@@ -393,6 +209,11 @@ namespace HyperEdit
             if (string.IsNullOrEmpty(driver.name) == false)
                 return driver.name;
             return "Unknown";
+        }
+
+        public static string CbToString(this CelestialBody body)
+        {
+            return body.bodyName;
         }
 
         public static bool CbTryParse(string bodyName, out CelestialBody body)

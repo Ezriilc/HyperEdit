@@ -5,10 +5,10 @@ namespace HyperEdit.View
 {
     public static class LanderView
     {
-        public static void Create()
+        public static Action Create()
         {
             var view = View();
-            Window.Create("Lander", true, true, 200, -1, w => view.Draw());
+            return () => Window.Create("Lander", true, true, 200, -1, w => view.Draw());
         }
 
         public static IView View()

@@ -1,12 +1,13 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace HyperEdit.View
 {
     public static class AboutWindow
     {
-        public static void Create()
+        public static Action Create()
         {
-            Window.Create("About", true, true, 500, 200, w => GUILayout.Label(AboutContents));
+            return () => Window.Create("About", true, true, 500, 200, w => GUILayout.Label(AboutContents));
         }
 
         private const string AboutContents = @"For support and contact information, please visit: http://www.kerbaltek.com/

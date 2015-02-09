@@ -12,12 +12,18 @@ namespace HyperEdit.View
 
         public static IView View()
         {
+            var orbitEditorView = OrbitEditorView.Create();
+            var planetEditorView = PlanetEditorView.Create();
+            var landerView = LanderView.Create();
+            var miscEditorView = MiscEditorView.Create();
+            var aboutView = AboutWindow.Create();
+
             var closeAll = new ButtonView("Close all", "Closes all windows", Window.CloseAll);
-            var orbitEditor = new ButtonView("Orbit Editor", "Opens the Orbit Editor window", OrbitEditorView.Create);
-            var planetEditor = new ButtonView("Planet Editor", "Opens the Planet Editor window", PlanetEditorView.Create);
-            var shipLander = new ButtonView("Ship Lander", "Opens the Ship Lander window", LanderView.Create);
-            var miscTools = new ButtonView("Misc Tools", "Opens the Misc Tools window", MiscEditorView.Create);
-            var about = new ButtonView("About", "Opens the About window", AboutWindow.Create);
+            var orbitEditor = new ButtonView("Orbit Editor", "Opens the Orbit Editor window", orbitEditorView);
+            var planetEditor = new ButtonView("Planet Editor", "Opens the Planet Editor window", planetEditorView);
+            var shipLander = new ButtonView("Ship Lander", "Opens the Ship Lander window", landerView);
+            var miscTools = new ButtonView("Misc Tools", "Opens the Misc Tools window", miscEditorView);
+            var about = new ButtonView("About", "Opens the About window", aboutView);
 
             return new VerticalView(new IView[]
                 {

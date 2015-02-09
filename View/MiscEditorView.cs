@@ -5,10 +5,10 @@ namespace HyperEdit.View
 {
     public class MiscEditorView
     {
-        public static void Create()
+        public static Action Create()
         {
             var view = View();
-            Window.Create("Misc tools", true, true, 300, -1, w => view.Draw());
+            return () => Window.Create("Misc tools", true, true, 300, -1, w => view.Draw());
         }
 
         public static IView View()

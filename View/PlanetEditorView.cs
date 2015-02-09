@@ -5,10 +5,10 @@ namespace HyperEdit.View
 {
     public static class PlanetEditorView
     {
-        public static void Create()
+        public static Action Create()
         {
             var view = View();
-            Window.Create("Planet editor", true, true, 400, -1, w => view.Draw());
+            return () => Window.Create("Planet editor", true, true, 400, -1, w => view.Draw());
         }
 
         public static IView View()
@@ -42,7 +42,7 @@ namespace HyperEdit.View
             };
 
             var selectBody = new ConditionalView(() => FlightGlobals.fetch != null && FlightGlobals.Bodies != null,
-                                 new ListSelectView<CelestialBody>("Selected body", () => FlightGlobals.Bodies, onSelect, cb => cb.bodyName));
+                                 new ListSelectView<CelestialBody>("Selected body", () => FlightGlobals.Bodies, onSelect, Extentions.CbToString));
 
             var apply = new ConditionalView(() => geeAsl.Valid &&
                             temperature.Valid &&
