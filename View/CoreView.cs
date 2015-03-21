@@ -1,13 +1,14 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace HyperEdit.View
 {
     public static class CoreView
     {
-        public static void Create()
+        public static Action Create()
         {
             var view = View();
-            Window.Create("HyperEdit", true, true, 100, -1, w => view.Draw());
+			return () => Window.Create("HyperEdit", true, true, 100, -1, w => view.Draw());
         }
 
         public static IView View()

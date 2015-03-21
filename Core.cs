@@ -35,6 +35,16 @@ namespace HyperEdit
     public class HyperEditBehaviour : MonoBehaviour
     {
         ApplicationLauncherButton _appLauncherButton;
+		Action createCoreView = null;
+
+		private void CreateCoreView()
+		{
+			if (createCoreView == null)
+			{
+				createCoreView = View.CoreView.Create();
+			}
+			createCoreView();
+		}
 
         public void Awake()
         {
@@ -77,7 +87,7 @@ namespace HyperEdit
             tex.Apply();
             _appLauncherButton = applauncher.AddModApplication(() =>
                 {
-                    View.CoreView.Create();
+					CreateCoreView();
                     _appLauncherButton.SetFalse();
                 }, () =>
                 {
@@ -111,7 +121,7 @@ namespace HyperEdit
         public void Update()
         {
             if ((Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)) && Input.GetKeyDown(KeyCode.H))
-                View.CoreView.Create();
+				CreateCoreView();
         }
     }
 
