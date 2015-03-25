@@ -79,7 +79,7 @@ namespace HyperEdit.Model
             inclination *= 360;
             longitudeAscendingNode *= 360;
             argumentOfPeriapsis *= 360;
-            meanAnomaly *= 2 * Math.PI;
+            mep *= 2 * Math.PI;
 
             SetOrbit(currentlyEditing, CreateOrbit(inclination, e, semimajor, longitudeAscendingNode, argumentOfPeriapsis, mep, 0, body));
         }

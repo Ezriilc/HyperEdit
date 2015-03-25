@@ -39,6 +39,7 @@ namespace HyperEdit.View
             var complexArgumentOfPeriapsis = new TextBoxView<double>("Argument of periapsis", "Rotation of the orbit around the normal", 0, double.TryParse);
             var complexMeanAnomalyAtEpoch = new TextBoxView<double>("Mean anomaly at epoch", "Position along the orbit at the epoch", 0, double.TryParse);
             var complexEpoch = new TextBoxView<double>("Epoch", "Epoch at which mEp is measured", 0, SiSuffix.TryParse);
+            var complexEpochNow = new ButtonView("Set epoch to now", "Sets the Epoch field to the current time", () => complexEpoch.Object = Planetarium.GetUniversalTime());
             var complexApply = new ConditionalView(() => complexInclination.Valid &&
                                    complexEccentricity.Valid &&
                                    complexSemiMajorAxis.Valid &&
@@ -68,6 +69,7 @@ namespace HyperEdit.View
                     complexArgumentOfPeriapsis,
                     complexMeanAnomalyAtEpoch,
                     complexEpoch,
+                    complexEpochNow,
                     referenceSelector,
                     complexApply
                 });
