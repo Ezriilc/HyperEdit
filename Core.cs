@@ -78,9 +78,10 @@ namespace HyperEdit
             _appLauncherButton = applauncher.AddModApplication(() =>
                 {
                     View.CoreView.Create();
-                    _appLauncherButton.SetFalse();
+                    //_appLauncherButton.SetFalse();
                 }, () =>
                 {
+                    View.Window.CloseAll();
                 }, () =>
                 {
                 }, () =>
@@ -110,8 +111,15 @@ namespace HyperEdit
 
         public void Update()
         {
-            if ((Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)) && Input.GetKeyDown(KeyCode.H))
-                View.CoreView.Create();
+            if ((Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)) && Input.GetKeyDown(KeyCode.H)) {
+                if (View.Window.GameObject.GetComponents<View.Window>().Any(w => w._title == "HyperEdit")) {
+                    View.Window.CloseAll();
+                    _appLauncherButton.SetFalse();
+                } else {
+                    View.CoreView.Create();
+                    _appLauncherButton.SetTrue();
+                }
+            }
         }
     }
 
