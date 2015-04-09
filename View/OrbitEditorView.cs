@@ -24,6 +24,9 @@ namespace HyperEdit.View
                                   new ButtonView("Apply", "Sets the orbit", () =>
                     {
                         Model.OrbitEditor.Simple(currentlyEditing.CurrentlySelected, simpleAltitude.Object, referenceSelector.CurrentlySelected);
+
+                        currentlyEditing.UpdateBasedonCurrentlySelected();
+
                     }));
             var simple = new VerticalView(new IView[]
                 {
@@ -58,6 +61,9 @@ namespace HyperEdit.View
                             complexMeanAnomalyAtEpoch.Object,
                             complexEpoch.Object,
                             referenceSelector.CurrentlySelected);
+
+                        currentlyEditing.UpdateBasedonCurrentlySelected();
+
                     }));
             var complex = new VerticalView(new IView[]
                 {
@@ -88,6 +94,13 @@ namespace HyperEdit.View
                     graphicalLongitudeAscendingNode.Value,
                     graphicalArgumentOfPeriapsis.Value,
                     graphicalMeanAnomaly.Value);
+
+                currentlyEditing.UpdateBasedonCurrentlySelected();
+                //complexInclination.SetValue(graphicalInclination.Value * 360);
+                //complexEccentricity.SetValue(graphicalInclination.Value * Math.PI / 2 - 0.001);
+                //complexLongitudeAscendingNode.SetValue(graphicalInclination.Value * 360);
+                //complexArgumentOfPeriapsis.SetValue(graphicalInclination.Value * 360);
+                //complexMeanAnomalyAtEpoch.SetValue(graphicalInclination.Value * 2 * Math.PI);
             };
 
             graphicalInclination = new SliderView("Inclination", "How close to the equator the orbit plane is", graphicalOnChange);

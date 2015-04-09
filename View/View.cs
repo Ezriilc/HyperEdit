@@ -192,6 +192,9 @@ namespace HyperEdit.View
             }
         }
 
+        public void UpdateBasedonCurrentlySelected(){if (onSelect != null)
+                    onSelect(currentlySelected);}
+
         public ListSelectView(string prefix, Func<IEnumerable<T>> list, Action<T> onSelect = null, Func<T, string> toString = null)
         {
             this.prefix = prefix + ": ";
@@ -244,6 +247,8 @@ namespace HyperEdit.View
             this.parser = parser;
             this.onSet = onSet;
         }
+
+        public void SetValue(Double val){value=val.ToString();}
 
         public void Draw()
         {
