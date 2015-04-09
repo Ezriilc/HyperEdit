@@ -20,6 +20,18 @@ namespace HyperEdit.Model
             return query;
         }
 
+        public static IEnumerable<OrbitDriver> OrderedLanded()
+        {
+            var query = (IEnumerable<OrbitDriver>) new OrbitDriver[0];
+            if (FlightGlobals.fetch != null)
+            {
+                query = (IEnumerable<OrbitDriver>)(FlightGlobals.Vessels.Select(v => v.orbitDriver));
+
+                query = query.Where(o => o != null && o.vessel.Landed).Distinct();
+            }
+            return query;
+        }
+
         public static void Simple(OrbitDriver currentlyEditing, double altitude, CelestialBody body)
         {
             SetOrbit(currentlyEditing, CreateOrbit(0, 0, altitude + body.Radius, 0, 0, 0, 0, body));

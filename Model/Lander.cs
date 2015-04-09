@@ -85,6 +85,16 @@ namespace HyperEdit.Model
             onLoad(FlightGlobals.ActiveVessel.latitude, FlightGlobals.ActiveVessel.longitude);
         }
 
+        public static void SetToLanded(Action<double, double> onLoad)
+        {
+            if (View.LanderView.LandingBeside == null || View.LanderView.LandingBeside == null)
+                return;
+
+            //work out Logitude + 50m
+            Double FiftyMOfLong = (360 * 40) / (View.LanderView.LandingBeside.orbit.referenceBody.Radius * 2 * Math.PI) ;
+            onLoad(View.LanderView.LandingBeside.latitude, View.LanderView.LandingBeside.longitude + FiftyMOfLong);
+        }
+
         struct LandingCoordinates
         {
             public string Name { get; set; }

@@ -8,7 +8,7 @@ namespace HyperEdit.View
         public static void Create()
         {
             var view = View();
-            Window.Create("Lander", true, true, 200, -1, w => view.Draw());
+            Window.Create("Lander", true, true, 300, -1, w => view.Draw());
         }
 
         public static IView View()
@@ -22,6 +22,15 @@ namespace HyperEdit.View
                 lat.Object = latVal;
                 lon.Object = lonVal;
             };
+
+            ListSelectView<OrbitDriver> LandBesideSelector = null;
+            LandBesideSelector = new ListSelectView<OrbitDriver>("Land Next To", Model.OrbitEditor.OrderedLanded, onCurrentlyLandBesideChange, Extentions.OrbitDriverToString);
+
+            if (FlightGlobals.fetch != null && FlightGlobals.fetch.activeVessel != null && FlightGlobals.fetch.activeVessel.orbitDriver != null)
+            {
+                LandBesideSelector.CurrentlySelected = FlightGlobals.fetch.activeVessel.orbitDriver;
+            }
+
             return new VerticalView(new IView[]
                 {
                     lat,
@@ -33,7 +42,23 @@ namespace HyperEdit.View
                     new ButtonView("Load", "Load a previously-saved location", () => Model.DoLander.Load(load)),
                     new ButtonView("Delete", "Delete a previously-saved location", Model.DoLander.Delete),
                     new ButtonView("SetToCurrent", "Set lat/lon to the current position", () => Model.DoLander.SetToCurrent(load)),
+                    LandBesideSelector,
+                    new ButtonView("Set to Land Next To", "Set lat/lon to the Land Beside Vessel", () => Model.DoLander.SetToLanded(load)),
                 });
         }
+
+        static Action<OrbitDriver> onCurrentlyLandBesideChange = newEditing =>
+        {
+            if (newEditing == null)
+            {
+                return;
+            }
+
+            Debug.Log(newEditing.vessel.vesselName);
+            LandingBeside = newEditing.vessel;
+
+            Debug.Log(LandingBeside.latitude);
+        };
+        internal static Vessel LandingBeside = null;
     }
 }
