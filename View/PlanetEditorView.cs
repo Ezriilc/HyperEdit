@@ -30,10 +30,10 @@ namespace HyperEdit.View
             {
                 body = cb;
                 geeAsl.Object = body.GeeASL;
-                temperature.Object = body.atmoshpereTemperatureMultiplier;
+                //temperature.Object = body.atmoshpereTemperatureMultiplier;
                 atmosphere.Value = body.atmosphere;
-                atmosphereMultiplier.Object = body.atmosphereMultiplier;
-                atmosphereScaleHeight.Object = body.atmosphereScaleHeight;
+                //atmosphereMultiplier.Object = body.atmosphereMultiplier;
+                //atmosphereScaleHeight.Object = body.atmosphereScaleHeight;
                 atmosphereContainsOxygen.Value = body.atmosphereContainsOxygen;
                 atmosphereAmbientColor.Object = body.atmosphericAmbientColor;
                 sphereOfInfluence.Object = body.sphereOfInfluence;
@@ -55,11 +55,11 @@ namespace HyperEdit.View
                     {
                         new Model.PlanetEditor.PlanetSettings(
                             geeAsl.Object,
-                            (float)temperature.Object,
+                            //(float)temperature.Object,
                             atmosphere.Value,
                             atmosphereContainsOxygen.Value,
-                            (float)atmosphereMultiplier.Object,
-                            atmosphereScaleHeight.Object,
+                            //(float)atmosphereMultiplier.Object,
+                            //atmosphereScaleHeight.Object,
                             atmosphereAmbientColor.Object,
                             sphereOfInfluence.Object,
                             rotationPeriod.Object,

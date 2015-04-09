@@ -9,7 +9,7 @@ public class HyperEditModule : MonoBehaviour
     public HyperEditModule()
     {
         HyperEdit.Immortal.AddImmortal<HyperEdit.HyperEditBehaviour>();
-        HyperEdit.Model.PlanetEditor.ApplyFileDefaults();
+        //HyperEdit.Model.PlanetEditor.ApplyFileDefaults();
     }
 }
 

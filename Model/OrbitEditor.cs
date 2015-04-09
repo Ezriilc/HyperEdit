@@ -59,7 +59,7 @@ namespace HyperEdit.Model
         {
             var body = currentlyEditing.orbit.referenceBody;
             var soi = body.Soi();
-            var ratio = soi / (body.Radius + body.maxAtmosphereAltitude + 1000);
+            var ratio = soi / (body.Radius + body.atmosphereDepth + 1000);
             periapsis = Math.Pow(ratio, periapsis) / ratio;
             periapsis *= soi;
 
@@ -94,7 +94,7 @@ namespace HyperEdit.Model
             var eTemp = Math.Atan(currentlyEditing.orbit.eccentricity);
             eccentricity = eTemp / (Math.PI / 2 - 0.001);
             var soi = currentlyEditing.orbit.referenceBody.Soi();
-            var ratio = soi / (currentlyEditing.orbit.referenceBody.Radius + currentlyEditing.orbit.referenceBody.maxAtmosphereAltitude);
+            var ratio = soi / (currentlyEditing.orbit.referenceBody.Radius + currentlyEditing.orbit.referenceBody.atmosphereDepth);
             var semimajor = currentlyEditing.orbit.semiMajorAxis * (1 - currentlyEditing.orbit.eccentricity);
             semimajor /= soi;
             semimajor *= ratio;
@@ -186,7 +186,7 @@ namespace HyperEdit.Model
             if (double.IsNaN(e))
                 e = 0;
             if (double.IsNaN(sma))
-                sma = body.Radius + body.maxAtmosphereAltitude + 10000;
+                sma = body.Radius + body.atmosphereDepth + 10000;
             if (double.IsNaN(lan))
                 lan = 0;
             if (double.IsNaN(w))

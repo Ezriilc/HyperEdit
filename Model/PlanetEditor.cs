@@ -12,15 +12,15 @@ namespace HyperEdit.Model
         {
             public double GeeASL { get; set; }
 
-            public float AtmoshpereTemperatureMultiplier { get; set; }
+            //public float AtmoshpereTemperatureMultiplier { get; set; }
 
             public bool Atmosphere { get; set; }
 
             public bool AtmosphereContainsOxygen { get; set; }
 
-            public float AtmosphereMultiplier { get; set; }
+            //public float AtmosphereMultiplier { get; set; }
 
-            public double AtmosphereScaleHeight { get; set; }
+            //public double AtmosphereScaleHeight { get; set; }
 
             public Color AtmosphericAmbientColor { get; set; }
 
@@ -34,11 +34,11 @@ namespace HyperEdit.Model
 
             public PlanetSettings(
                 double geeAsl,
-                float atmoshpereTemperatureMultiplier,
+                //float atmoshpereTemperatureMultiplier,
                 bool atmosphere,
                 bool atmosphereContainsOxygen,
-                float atmosphereMultiplier,
-                double atmosphereScaleHeight,
+                //float atmosphereMultiplier,
+                //double atmosphereScaleHeight,
                 Color atmosphericAmbientColor,
                 double sphereOfInfluence,
                 double rotationPeriod,
@@ -46,11 +46,11 @@ namespace HyperEdit.Model
                 Orbit orbit) : this()
             {
                 GeeASL = geeAsl;
-                AtmoshpereTemperatureMultiplier = atmoshpereTemperatureMultiplier;
+                //AtmoshpereTemperatureMultiplier = atmoshpereTemperatureMultiplier;
                 Atmosphere = atmosphere;
                 AtmosphereContainsOxygen = atmosphereContainsOxygen;
-                AtmosphereMultiplier = atmosphereMultiplier;
-                AtmosphereScaleHeight = atmosphereScaleHeight;
+                //AtmosphereMultiplier = atmosphereMultiplier;
+                //AtmosphereScaleHeight = atmosphereScaleHeight;
                 AtmosphericAmbientColor = atmosphericAmbientColor;
                 SphereOfInfluence = sphereOfInfluence;
                 RotationPeriod = rotationPeriod;
@@ -62,11 +62,11 @@ namespace HyperEdit.Model
                 : this()
             {
                 GeeASL = body.GeeASL;
-                AtmoshpereTemperatureMultiplier = body.atmoshpereTemperatureMultiplier;
+                //AtmoshpereTemperatureMultiplier = body.atmoshpereTemperatureMultiplier;
                 Atmosphere = body.atmosphere;
                 AtmosphereContainsOxygen = body.atmosphereContainsOxygen;
-                AtmosphereMultiplier = body.atmosphereMultiplier;
-                AtmosphereScaleHeight = body.atmosphereScaleHeight;
+                //AtmosphereMultiplier = body.atmosphereMultiplier;
+                //AtmosphereScaleHeight = body.atmosphereScaleHeight;
                 AtmosphericAmbientColor = body.atmosphericAmbientColor;
                 SphereOfInfluence = body.sphereOfInfluence;
                 RotationPeriod = body.rotationPeriod;
@@ -82,11 +82,11 @@ namespace HyperEdit.Model
             public bool Matches(CelestialBody body)
             {
                 return GeeASL == body.GeeASL &&
-                    AtmoshpereTemperatureMultiplier == body.atmoshpereTemperatureMultiplier &&
+                    //AtmoshpereTemperatureMultiplier == body.atmoshpereTemperatureMultiplier &&
                     Atmosphere == body.atmosphere &&
                     AtmosphereContainsOxygen == body.atmosphereContainsOxygen &&
-                    AtmosphereMultiplier == body.atmosphereMultiplier &&
-                    AtmosphereScaleHeight == body.atmosphereScaleHeight &&
+                    //AtmosphereMultiplier == body.atmosphereMultiplier &&
+                    //AtmosphereScaleHeight == body.atmosphereScaleHeight &&
                     AtmosphericAmbientColor == body.atmosphericAmbientColor &&
                     SphereOfInfluence == body.sphereOfInfluence &&
                     RotationPeriod == body.rotationPeriod &&
@@ -96,11 +96,11 @@ namespace HyperEdit.Model
             public void CopyTo(CelestialBody body, bool setOrbit)
             {
                 body.GeeASL = GeeASL;
-                body.atmoshpereTemperatureMultiplier = AtmoshpereTemperatureMultiplier;
+                //body.atmoshpereTemperatureMultiplier = AtmoshpereTemperatureMultiplier;
                 body.atmosphere = Atmosphere;
                 body.atmosphereContainsOxygen = AtmosphereContainsOxygen;
-                body.atmosphereMultiplier = AtmosphereMultiplier;
-                body.atmosphereScaleHeight = AtmosphereScaleHeight;
+                //body.atmosphereMultiplier = AtmosphereMultiplier;
+                //body.atmosphereScaleHeight = AtmosphereScaleHeight;
                 body.atmosphericAmbientColor = AtmosphericAmbientColor;
                 body.sphereOfInfluence = SphereOfInfluence;
                 body.rotationPeriod = RotationPeriod;
@@ -114,11 +114,11 @@ namespace HyperEdit.Model
             {
                 var node = new ConfigNode(body.bodyName);
                 node.AddValue("GeeASL", body.GeeASL);
-                node.AddValue("atmoshpereTemperatureMultiplier", body.atmoshpereTemperatureMultiplier);
+                //node.AddValue("atmoshpereTemperatureMultiplier", body.atmoshpereTemperatureMultiplier);
                 node.AddValue("atmosphere", body.atmosphere);
                 node.AddValue("atmosphereContainsOxygen", body.atmosphereContainsOxygen);
-                node.AddValue("atmosphereMultiplier", body.atmosphereMultiplier);
-                node.AddValue("atmosphereScaleHeight", body.atmosphereScaleHeight);
+                //node.AddValue("atmosphereMultiplier", body.atmosphereMultiplier);
+                //node.AddValue("atmosphereScaleHeight", body.atmosphereScaleHeight);
                 node.AddValue("atmosphericAmbientColor", body.atmosphericAmbientColor);
                 node.AddValue("sphereOfInfluence", body.sphereOfInfluence);
                 node.AddValue("rotationPeriod", body.rotationPeriod);
@@ -141,11 +141,11 @@ namespace HyperEdit.Model
             public static void ApplyConfig(ConfigNode node, CelestialBody body)
             {
                 node.TryGetValue("GeeASL", ref body.GeeASL, double.TryParse);
-                node.TryGetValue("atmoshpereTemperatureMultiplier", ref body.atmoshpereTemperatureMultiplier, float.TryParse);
+                //node.TryGetValue("atmoshpereTemperatureMultiplier", ref body.atmoshpereTemperatureMultiplier, float.TryParse);
                 node.TryGetValue("atmosphere", ref body.atmosphere, bool.TryParse);
                 node.TryGetValue("atmosphereContainsOxygen", ref body.atmosphereContainsOxygen, bool.TryParse);
-                node.TryGetValue("atmosphereMultiplier", ref body.atmosphereMultiplier, float.TryParse);
-                node.TryGetValue("atmosphereScaleHeight", ref body.atmosphereScaleHeight, double.TryParse);
+                //node.TryGetValue("atmosphereMultiplier", ref body.atmosphereMultiplier, float.TryParse);
+                //node.TryGetValue("atmosphereScaleHeight", ref body.atmosphereScaleHeight, double.TryParse);
                 node.TryGetValue("atmosphericAmbientColor", ref body.atmosphericAmbientColor, Extentions.ColorTryParse);
                 node.TryGetValue("sphereOfInfluence", ref body.sphereOfInfluence, double.TryParse);
                 node.TryGetValue("rotationPeriod", ref body.rotationPeriod, double.TryParse);
