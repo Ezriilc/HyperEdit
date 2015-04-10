@@ -15,7 +15,7 @@ public class HyperEditModule : MonoBehaviour
 
 namespace HyperEdit
 {
-    public delegate bool TryParse<T>(string str,out T value);
+    public delegate bool TryParse<T>(string str, out T value);
 
     public static class Immortal
     {
@@ -38,8 +38,15 @@ namespace HyperEdit
 
         public void Awake()
         {
+            GameEvents.OnFlightGlobalsReady.Add(FlightGlobalsReady);
             GameEvents.onGUIApplicationLauncherReady.Add(AddAppLauncher);
             GameEvents.onGUIApplicationLauncherDestroyed.Add(RemoveAppLauncher);
+        }
+
+        private void FlightGlobalsReady(bool ready)
+        {
+            if (ready)
+                Model.PlanetEditor.ApplyFileDefaults();
         }
 
         private void AddAppLauncher()
@@ -111,11 +118,15 @@ namespace HyperEdit
 
         public void Update()
         {
-            if ((Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)) && Input.GetKeyDown(KeyCode.H)) {
-                if (View.Window.GameObject.GetComponents<View.Window>().Any(w => w._title == "HyperEdit")) {
+            if ((Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)) && Input.GetKeyDown(KeyCode.H))
+            {
+                if (View.Window.GameObject.GetComponents<View.Window>().Any(w => w._title == "HyperEdit"))
+                {
                     View.Window.CloseAll();
                     _appLauncherButton.SetFalse();
-                } else {
+                }
+                else
+                {
                     View.CoreView.Create();
                     _appLauncherButton.SetTrue();
                 }
@@ -295,6 +306,23 @@ namespace HyperEdit
             }
         }
 
+        public static void RealCbUpdate(this CelestialBody body)
+        {
+            body.CBUpdate();
+            body.SetupAtmosphere();
+            body.resetTimeWarpLimits();
+
+            // CBUpdate doesn't update hillSphere
+            // http://en.wikipedia.org/wiki/Hill_sphere
+            var orbit = body.orbit;
+            var cubedRoot = Math.Pow(body.Mass / orbit.referenceBody.Mass, 1.0 / 3.0);
+            body.hillSphere = orbit.semiMajorAxis * (1.0 - orbit.eccentricity) * cubedRoot;
+
+            // Nor sphereOfInfluence
+            // http://en.wikipedia.org/wiki/Sphere_of_influence_(astrodynamics)
+            body.sphereOfInfluence = orbit.semiMajorAxis * Math.Pow(body.Mass / orbit.referenceBody.Mass, 2.0 / 5.0);
+        }
+
         public static void SetOrbit(this CelestialBody body, Orbit newOrbit)
         {
             var oldBody = body.referenceBody;
@@ -304,7 +332,7 @@ namespace HyperEdit
                 oldBody.orbitingBodies.Remove(body);
                 newOrbit.referenceBody.orbitingBodies.Add(body);
             }
-            body.CBUpdate();
+            body.RealCbUpdate();
         }
 
         private static void HardsetOrbit(OrbitDriver orbitDriver, Orbit newOrbit)

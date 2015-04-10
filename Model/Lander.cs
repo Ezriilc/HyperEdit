@@ -34,6 +34,18 @@ namespace HyperEdit.Model
             }
         }
 
+        public static void LandHere()
+        {
+            if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null)
+                return;
+            var lander = FlightGlobals.ActiveVessel.GetComponent<LanderAttachment>();
+            if (lander == null)
+            {
+                lander = FlightGlobals.ActiveVessel.gameObject.AddComponent<LanderAttachment>();
+                lander.AlreadyTeleported = true;
+            }
+        }
+
         private static List<LandingCoordinates> SavedCoords
         {
             get
@@ -91,7 +103,7 @@ namespace HyperEdit.Model
                 return;
 
             //work out Logitude + 50m
-            Double FiftyMOfLong = (360 * 40) / (View.LanderView.LandingBeside.orbit.referenceBody.Radius * 2 * Math.PI) ;
+            double FiftyMOfLong = (360 * 40) / (View.LanderView.LandingBeside.orbit.referenceBody.Radius * 2 * Math.PI) ;
             onLoad(View.LanderView.LandingBeside.latitude, View.LanderView.LandingBeside.longitude + FiftyMOfLong);
         }
 
@@ -145,7 +157,7 @@ namespace HyperEdit.Model
 
     public class LanderAttachment : MonoBehaviour
     {
-        private bool _alreadyTeleported;
+        public bool AlreadyTeleported { get; set; }
         public double Latitude { get; set; }
         public double Longitude { get; set; }
         public double Altitude { get; set; }
@@ -158,7 +170,7 @@ namespace HyperEdit.Model
                 Destroy(this);
                 return;
             }
-            if (_alreadyTeleported)
+            if (AlreadyTeleported)
             {
                 if (vessel.LandedOrSplashed)
                 {
@@ -203,7 +215,7 @@ namespace HyperEdit.Model
                 orbit.UpdateFromStateVectors(teleportPosition, teleportVelocity, orbit.referenceBody, Planetarium.GetUniversalTime());
                 vessel.SetOrbit(orbit);
 
-                _alreadyTeleported = true;
+                AlreadyTeleported = true;
             }
         }
     }

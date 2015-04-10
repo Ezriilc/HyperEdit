@@ -80,12 +80,11 @@ namespace HyperEdit.Model
             var e = Math.Tan(eccentricity);
             var semimajor = periapsis / (1 - e);
 
-            var mep = (double)meanAnomaly;
             if (semimajor < 0)
             {
-                mep /= Math.PI;
-                mep -= 1;
-                mep *= 5;
+                meanAnomaly /= Math.PI;
+                meanAnomaly -= 1;
+                meanAnomaly *= 5;
             }
 
             inclination *= 360;
@@ -93,7 +92,7 @@ namespace HyperEdit.Model
             argumentOfPeriapsis *= 360;
             meanAnomaly *= 2 * Math.PI;
 
-            SetOrbit(currentlyEditing, CreateOrbit(inclination, e, semimajor, longitudeAscendingNode, argumentOfPeriapsis, mep, 0, body));
+            SetOrbit(currentlyEditing, CreateOrbit(inclination, e, semimajor, longitudeAscendingNode, argumentOfPeriapsis, meanAnomaly, 0, body));
         }
 
         public static void GetGraphical(OrbitDriver currentlyEditing, out double inclination, out double eccentricity,
@@ -106,7 +105,7 @@ namespace HyperEdit.Model
             var eTemp = Math.Atan(currentlyEditing.orbit.eccentricity);
             eccentricity = eTemp / (Math.PI / 2 - 0.001);
             var soi = currentlyEditing.orbit.referenceBody.Soi();
-            var ratio = soi / (currentlyEditing.orbit.referenceBody.Radius + currentlyEditing.orbit.referenceBody.atmosphereDepth);
+            var ratio = soi / (currentlyEditing.orbit.referenceBody.Radius + currentlyEditing.orbit.referenceBody.atmosphereDepth + 1000);
             var semimajor = currentlyEditing.orbit.semiMajorAxis * (1 - currentlyEditing.orbit.eccentricity);
             semimajor /= soi;
             semimajor *= ratio;

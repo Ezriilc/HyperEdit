@@ -1,77 +1,96 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 using System.Linq;
 
 namespace HyperEdit.Model
 {
     public static class PlanetEditor
     {
+        private static bool haveAppliedDefaults = false;
         private static Dictionary<string, PlanetSettings> _defaultSettings = new Dictionary<string, PlanetSettings>();
 
         public struct PlanetSettings
         {
+            // Included fields for copy-paste:
+            /*
+                double GeeASL
+                bool   ocean
+                bool   atmosphere
+                bool   atmosphereContainsOxygen
+                double atmosphereDepth
+                double atmosphereTemperatureSeaLevel
+                double atmospherePressureSeaLevel
+                double atmosphereMolarMass
+                double atmosphereAdiabaticIndex
+                bool   rotates
+                double rotationPeriod
+                double initialRotation
+                bool   tidallyLocked
+            */
+
             public double GeeASL { get; set; }
-
-            //public float AtmoshpereTemperatureMultiplier { get; set; }
-
-            public bool Atmosphere { get; set; }
-
-            public bool AtmosphereContainsOxygen { get; set; }
-
-            //public float AtmosphereMultiplier { get; set; }
-
-            //public double AtmosphereScaleHeight { get; set; }
-
-            public Color AtmosphericAmbientColor { get; set; }
-
-            public double SphereOfInfluence { get; set; }
-
-            public double RotationPeriod { get; set; }
-
-            public bool TidallyLocked { get; set; }
-
-            public Orbit Orbit { get; set; }
+            public bool ocean { get; set; }
+            public bool atmosphere { get; set; }
+            public bool atmosphereContainsOxygen { get; set; }
+            public double atmosphereDepth { get; set; }
+            public double atmosphereTemperatureSeaLevel { get; set; }
+            public double atmospherePressureSeaLevel { get; set; }
+            public double atmosphereMolarMass { get; set; }
+            public double atmosphereAdiabaticIndex { get; set; }
+            public bool rotates { get; set; }
+            public double rotationPeriod { get; set; }
+            public double initialRotation { get; set; }
+            public bool tidallyLocked { get; set; }
+            public Orbit orbit { get; set; }
 
             public PlanetSettings(
-                double geeAsl,
-                //float atmoshpereTemperatureMultiplier,
+                double GeeASL,
+                bool ocean,
                 bool atmosphere,
                 bool atmosphereContainsOxygen,
-                //float atmosphereMultiplier,
-                //double atmosphereScaleHeight,
-                Color atmosphericAmbientColor,
-                double sphereOfInfluence,
+                double atmosphereDepth,
+                double atmosphereTemperatureSeaLevel,
+                double atmospherePressureSeaLevel,
+                double atmosphereMolarMass,
+                double atmosphereAdiabaticIndex,
+                bool rotates,
                 double rotationPeriod,
+                double initialRotation,
                 bool tidallyLocked,
                 Orbit orbit) : this()
             {
-                GeeASL = geeAsl;
-                //AtmoshpereTemperatureMultiplier = atmoshpereTemperatureMultiplier;
-                Atmosphere = atmosphere;
-                AtmosphereContainsOxygen = atmosphereContainsOxygen;
-                //AtmosphereMultiplier = atmosphereMultiplier;
-                //AtmosphereScaleHeight = atmosphereScaleHeight;
-                AtmosphericAmbientColor = atmosphericAmbientColor;
-                SphereOfInfluence = sphereOfInfluence;
-                RotationPeriod = rotationPeriod;
-                TidallyLocked = tidallyLocked;
-                Orbit = orbit;
+                this.GeeASL = GeeASL;
+                this.ocean = ocean;
+                this.atmosphere = atmosphere;
+                this.atmosphereContainsOxygen = atmosphereContainsOxygen;
+                this.atmosphereDepth = atmosphereDepth;
+                this.atmosphereTemperatureSeaLevel = atmosphereTemperatureSeaLevel;
+                this.atmospherePressureSeaLevel = atmospherePressureSeaLevel;
+                this.atmosphereMolarMass = atmosphereMolarMass;
+                this.atmosphereAdiabaticIndex = atmosphereAdiabaticIndex;
+                this.rotates = rotates;
+                this.rotationPeriod = rotationPeriod;
+                this.initialRotation = initialRotation;
+                this.tidallyLocked = tidallyLocked;
+                this.orbit = orbit;
             }
 
             public PlanetSettings(CelestialBody body)
                 : this()
             {
                 GeeASL = body.GeeASL;
-                //AtmoshpereTemperatureMultiplier = body.atmoshpereTemperatureMultiplier;
-                Atmosphere = body.atmosphere;
-                AtmosphereContainsOxygen = body.atmosphereContainsOxygen;
-                //AtmosphereMultiplier = body.atmosphereMultiplier;
-                //AtmosphereScaleHeight = body.atmosphereScaleHeight;
-                AtmosphericAmbientColor = body.atmosphericAmbientColor;
-                SphereOfInfluence = body.sphereOfInfluence;
-                RotationPeriod = body.rotationPeriod;
-                TidallyLocked = body.tidallyLocked;
-                Orbit = body.orbitDriver == null ? null : body.orbitDriver.orbit.Clone();
+                ocean = body.ocean;
+                atmosphere = body.atmosphere;
+                atmosphereContainsOxygen = body.atmosphereContainsOxygen;
+                atmosphereDepth = body.atmosphereDepth;
+                atmosphereTemperatureSeaLevel = body.atmosphereTemperatureSeaLevel;
+                atmospherePressureSeaLevel = body.atmospherePressureSeaLevel;
+                atmosphereMolarMass = body.atmosphereMolarMass;
+                atmosphereAdiabaticIndex = body.atmosphereAdiabaticIndex;
+                rotates = body.rotates;
+                rotationPeriod = body.rotationPeriod;
+                initialRotation = body.initialRotation;
+                tidallyLocked = body.tidallyLocked;
+                orbit = body.orbitDriver == null ? null : body.orbitDriver.orbit.Clone();
 
                 if (_defaultSettings.ContainsKey(body.bodyName) == false)
                 {
@@ -79,49 +98,44 @@ namespace HyperEdit.Model
                 }
             }
 
-            public bool Matches(CelestialBody body)
-            {
-                return GeeASL == body.GeeASL &&
-                    //AtmoshpereTemperatureMultiplier == body.atmoshpereTemperatureMultiplier &&
-                    Atmosphere == body.atmosphere &&
-                    AtmosphereContainsOxygen == body.atmosphereContainsOxygen &&
-                    //AtmosphereMultiplier == body.atmosphereMultiplier &&
-                    //AtmosphereScaleHeight == body.atmosphereScaleHeight &&
-                    AtmosphericAmbientColor == body.atmosphericAmbientColor &&
-                    SphereOfInfluence == body.sphereOfInfluence &&
-                    RotationPeriod == body.rotationPeriod &&
-                    TidallyLocked == body.tidallyLocked;
-            }
-
             public void CopyTo(CelestialBody body, bool setOrbit)
             {
                 body.GeeASL = GeeASL;
-                //body.atmoshpereTemperatureMultiplier = AtmoshpereTemperatureMultiplier;
-                body.atmosphere = Atmosphere;
-                body.atmosphereContainsOxygen = AtmosphereContainsOxygen;
-                //body.atmosphereMultiplier = AtmosphereMultiplier;
-                //body.atmosphereScaleHeight = AtmosphereScaleHeight;
-                body.atmosphericAmbientColor = AtmosphericAmbientColor;
-                body.sphereOfInfluence = SphereOfInfluence;
-                body.rotationPeriod = RotationPeriod;
-                body.tidallyLocked = TidallyLocked;
-                if (setOrbit && body.orbitDriver != null && Orbit != null)
-                    body.SetOrbit(Orbit);
-                body.CBUpdate();
+                body.ocean = ocean;
+                body.atmosphere = atmosphere;
+                body.atmosphereContainsOxygen = atmosphereContainsOxygen;
+                body.atmosphereDepth = atmosphereDepth;
+                body.atmosphereTemperatureSeaLevel = atmosphereTemperatureSeaLevel;
+                body.atmospherePressureSeaLevel = atmospherePressureSeaLevel;
+                body.atmosphereMolarMass = atmosphereMolarMass;
+                body.atmosphereAdiabaticIndex = atmosphereAdiabaticIndex;
+                body.rotates = rotates;
+                body.rotationPeriod = rotationPeriod;
+                body.initialRotation = initialRotation;
+                body.tidallyLocked = tidallyLocked;
+
+                if (setOrbit && body.orbitDriver != null && orbit != null)
+                    body.SetOrbit(orbit);
+
+                body.RealCbUpdate();
             }
 
             public static ConfigNode GetConfig(CelestialBody body)
             {
                 var node = new ConfigNode(body.bodyName);
+
                 node.AddValue("GeeASL", body.GeeASL);
-                //node.AddValue("atmoshpereTemperatureMultiplier", body.atmoshpereTemperatureMultiplier);
+                node.AddValue("ocean", body.ocean);
                 node.AddValue("atmosphere", body.atmosphere);
                 node.AddValue("atmosphereContainsOxygen", body.atmosphereContainsOxygen);
-                //node.AddValue("atmosphereMultiplier", body.atmosphereMultiplier);
-                //node.AddValue("atmosphereScaleHeight", body.atmosphereScaleHeight);
-                node.AddValue("atmosphericAmbientColor", body.atmosphericAmbientColor);
-                node.AddValue("sphereOfInfluence", body.sphereOfInfluence);
+                node.AddValue("atmosphereDepth", body.atmosphereDepth);
+                node.AddValue("atmosphereTemperatureSeaLevel", body.atmosphereTemperatureSeaLevel);
+                node.AddValue("atmospherePressureSeaLevel", body.atmospherePressureSeaLevel);
+                node.AddValue("atmosphereMolarMass", body.atmosphereMolarMass);
+                node.AddValue("atmosphereAdiabaticIndex", body.atmosphereAdiabaticIndex);
+                node.AddValue("rotates", body.rotates);
                 node.AddValue("rotationPeriod", body.rotationPeriod);
+                node.AddValue("initialRotation", body.initialRotation);
                 node.AddValue("tidallyLocked", body.tidallyLocked);
 
                 if (body.orbitDriver == null)
@@ -141,29 +155,34 @@ namespace HyperEdit.Model
             public static void ApplyConfig(ConfigNode node, CelestialBody body)
             {
                 node.TryGetValue("GeeASL", ref body.GeeASL, double.TryParse);
-                //node.TryGetValue("atmoshpereTemperatureMultiplier", ref body.atmoshpereTemperatureMultiplier, float.TryParse);
+                node.TryGetValue("ocean", ref body.ocean, bool.TryParse);
                 node.TryGetValue("atmosphere", ref body.atmosphere, bool.TryParse);
                 node.TryGetValue("atmosphereContainsOxygen", ref body.atmosphereContainsOxygen, bool.TryParse);
-                //node.TryGetValue("atmosphereMultiplier", ref body.atmosphereMultiplier, float.TryParse);
-                //node.TryGetValue("atmosphereScaleHeight", ref body.atmosphereScaleHeight, double.TryParse);
-                node.TryGetValue("atmosphericAmbientColor", ref body.atmosphericAmbientColor, Extentions.ColorTryParse);
-                node.TryGetValue("sphereOfInfluence", ref body.sphereOfInfluence, double.TryParse);
+                node.TryGetValue("atmosphereDepth", ref body.atmosphereDepth, double.TryParse);
+                node.TryGetValue("atmosphereTemperatureSeaLevel", ref body.atmosphereTemperatureSeaLevel, double.TryParse);
+                node.TryGetValue("atmospherePressureSeaLevel", ref body.atmospherePressureSeaLevel, double.TryParse);
+                node.TryGetValue("atmosphereMolarMass", ref body.atmosphereMolarMass, double.TryParse);
+                node.TryGetValue("atmosphereAdiabaticIndex", ref body.atmosphereAdiabaticIndex, double.TryParse);
+                node.TryGetValue("rotates", ref body.rotates, bool.TryParse);
                 node.TryGetValue("rotationPeriod", ref body.rotationPeriod, double.TryParse);
+                node.TryGetValue("initialRotation", ref body.initialRotation, double.TryParse);
                 node.TryGetValue("tidallyLocked", ref body.tidallyLocked, bool.TryParse);
-                body.CBUpdate();
 
-                if (body.orbitDriver == null)
-                    return;
-                var orbit = body.orbitDriver.orbit.Clone();
-                node.TryGetValue("inclination", ref orbit.inclination, double.TryParse);
-                node.TryGetValue("eccentricity", ref orbit.eccentricity, double.TryParse);
-                node.TryGetValue("semiMajorAxis", ref orbit.semiMajorAxis, double.TryParse);
-                node.TryGetValue("LAN", ref orbit.LAN, double.TryParse);
-                node.TryGetValue("argumentOfPeriapsis", ref orbit.argumentOfPeriapsis, double.TryParse);
-                node.TryGetValue("meanAnomalyAtEpoch", ref orbit.meanAnomalyAtEpoch, double.TryParse);
-                node.TryGetValue("orbitEpoch", ref orbit.epoch, double.TryParse);
-                node.TryGetValue("orbitBody", ref orbit.referenceBody, Extentions.CbTryParse);
-                body.SetOrbit(orbit);
+                if (body.orbitDriver != null)
+                {
+                    var orbit = body.orbitDriver.orbit.Clone();
+                    node.TryGetValue("inclination", ref orbit.inclination, double.TryParse);
+                    node.TryGetValue("eccentricity", ref orbit.eccentricity, double.TryParse);
+                    node.TryGetValue("semiMajorAxis", ref orbit.semiMajorAxis, double.TryParse);
+                    node.TryGetValue("LAN", ref orbit.LAN, double.TryParse);
+                    node.TryGetValue("argumentOfPeriapsis", ref orbit.argumentOfPeriapsis, double.TryParse);
+                    node.TryGetValue("meanAnomalyAtEpoch", ref orbit.meanAnomalyAtEpoch, double.TryParse);
+                    node.TryGetValue("orbitEpoch", ref orbit.epoch, double.TryParse);
+                    node.TryGetValue("orbitBody", ref orbit.referenceBody, Extentions.CbTryParse);
+                    body.SetOrbit(orbit);
+                }
+
+                body.RealCbUpdate();
             }
         }
 
@@ -205,6 +224,9 @@ namespace HyperEdit.Model
                 Extentions.Log("Could not apply planet defaults: FlightGlobals.Bodies was null");
                 return;
             }
+            if (haveAppliedDefaults)
+                return;
+            haveAppliedDefaults = true;
             foreach (var body in FlightGlobals.Bodies)
             {
                 new PlanetSettings(body); // trigger default settings check
