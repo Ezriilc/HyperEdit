@@ -134,7 +134,7 @@ namespace HyperEdit.View
                 });
 
             var rendezvousLeadTime = new TextBoxView<double>("Lead time", "How many seconds off to rendezvous at (zero = on top of each other, bad)", 1, SiSuffix.TryParse);
-            var rendezvousVessel = new ListSelectView<Vessel>("Target vessel", () => FlightGlobals.fetch == null ? null : FlightGlobals.fetch.vessels, null, v => v.vesselName);
+            var rendezvousVessel = new ListSelectView<Vessel>("Target vessel", () => FlightGlobals.fetch == null ? null : FlightGlobals.fetch.vessels, null, Extentions.VesselToString);
             var rendezvousApply = new ConditionalView(() => rendezvousLeadTime.Valid && rendezvousVessel.CurrentlySelected != null,
                                       new ButtonView("Apply", "Rendezvous", () =>
                     {

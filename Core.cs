@@ -411,6 +411,13 @@ namespace HyperEdit
             return true;
         }
 
+        public static string VesselToString(this Vessel vessel)
+        {
+            if (FlightGlobals.fetch != null && FlightGlobals.ActiveVessel == vessel)
+                return "Active vessel";
+            return vessel.vesselName;
+        }
+
         public static string KeyCodeToString(this KeyCode[] values)
         {
             return string.Join("-", values.Select(v => v.ToString()).ToArray());
@@ -425,7 +432,7 @@ namespace HyperEdit
                 return body.bodyName;
             var vessel = FlightGlobals.Vessels.FirstOrDefault(v => v.orbitDriver != null && v.orbitDriver == driver);
             if (vessel != null)
-                return vessel == FlightGlobals.ActiveVessel ? "Active vessel" : vessel.vesselName;
+                return vessel.VesselToString();
             if (string.IsNullOrEmpty(driver.name) == false)
                 return driver.name;
             return "Unknown";

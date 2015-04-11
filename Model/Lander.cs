@@ -97,14 +97,19 @@ namespace HyperEdit.Model
             onLoad(FlightGlobals.ActiveVessel.latitude, FlightGlobals.ActiveVessel.longitude);
         }
 
-        public static void SetToLanded(Action<double, double> onLoad)
+        public static IEnumerable<Vessel> LandedVessels()
         {
-            if (View.LanderView.LandingBeside == null || View.LanderView.LandingBeside == null)
+            return FlightGlobals.fetch == null ? null : FlightGlobals.Vessels.Where(v => v.Landed);
+        }
+
+        public static void SetToLanded(Action<double, double> onLoad, Vessel landingBeside)
+        {
+            if (landingBeside == null)
                 return;
 
             //work out Logitude + 50m
-            double FiftyMOfLong = (360 * 40) / (View.LanderView.LandingBeside.orbit.referenceBody.Radius * 2 * Math.PI) ;
-            onLoad(View.LanderView.LandingBeside.latitude, View.LanderView.LandingBeside.longitude + FiftyMOfLong);
+            double FiftyMOfLong = (360 * 40) / (landingBeside.orbit.referenceBody.Radius * 2 * Math.PI);
+            onLoad(landingBeside.latitude, landingBeside.longitude + FiftyMOfLong);
         }
 
         struct LandingCoordinates

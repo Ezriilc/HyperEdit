@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 
 namespace HyperEdit.View
 {
@@ -23,12 +22,11 @@ namespace HyperEdit.View
                 lon.Object = lonVal;
             };
 
-            ListSelectView<OrbitDriver> LandBesideSelector = null;
-            LandBesideSelector = new ListSelectView<OrbitDriver>("Land Next To", Model.OrbitEditor.OrderedLanded, onCurrentlyLandBesideChange, Extentions.OrbitDriverToString);
+            var landBesideSelector = new ListSelectView<Vessel>("Land Next To", Model.DoLander.LandedVessels, null, Extentions.VesselToString);
 
             if (FlightGlobals.fetch != null && FlightGlobals.fetch.activeVessel != null && FlightGlobals.fetch.activeVessel.orbitDriver != null)
             {
-                LandBesideSelector.CurrentlySelected = FlightGlobals.fetch.activeVessel.orbitDriver;
+                landBesideSelector.CurrentlySelected = FlightGlobals.fetch.activeVessel;
             }
 
             return new VerticalView(new IView[]
@@ -43,23 +41,9 @@ namespace HyperEdit.View
                     new ButtonView("Load", "Load a previously-saved location", () => Model.DoLander.Load(load)),
                     new ButtonView("Delete", "Delete a previously-saved location", Model.DoLander.Delete),
                     new ButtonView("SetToCurrent", "Set lat/lon to the current position", () => Model.DoLander.SetToCurrent(load)),
-                    LandBesideSelector,
-                    new ButtonView("Set to Land Next To", "Set lat/lon to the Land Beside Vessel", () => Model.DoLander.SetToLanded(load)),
+                    landBesideSelector,
+                    new ButtonView("Set to Land Next To", "Set lat/lon to the Land Beside Vessel", () => Model.DoLander.SetToLanded(load, landBesideSelector.CurrentlySelected)),
                 });
         }
-
-        static Action<OrbitDriver> onCurrentlyLandBesideChange = newEditing =>
-        {
-            if (newEditing == null)
-            {
-                return;
-            }
-
-            Debug.Log(newEditing.vessel.vesselName);
-            LandingBeside = newEditing.vessel;
-
-            Debug.Log(LandingBeside.latitude);
-        };
-        internal static Vessel LandingBeside = null;
     }
 }
