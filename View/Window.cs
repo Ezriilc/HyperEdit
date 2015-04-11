@@ -46,7 +46,7 @@ namespace HyperEdit.View
     {
         private static GameObject _gameObject;
 
-        private static GameObject GameObject
+        internal static GameObject GameObject
         {
             get
             {
@@ -84,7 +84,7 @@ namespace HyperEdit.View
 
         private string _tempTooltip;
         private string _oldTooltip;
-        private string _title;
+        internal string _title;
         private bool _shrinkHeight;
         private Rect _windowRect;
         private Action<Window> _drawFunc;

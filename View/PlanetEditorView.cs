@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 
 namespace HyperEdit.View
 {
@@ -15,69 +14,83 @@ namespace HyperEdit.View
         {
             CelestialBody body = null;
 
-            var geeAsl = new TextBoxView<double>("Gravity", "Multiplier strength of gravity", 1, SiSuffix.TryParse);
-            var temperature = new TextBoxView<double>("Temperature", "Temperature multiplier of atmosphere", 1, SiSuffix.TryParse);
-            var atmosphere = new ToggleView("Has atmosphere", "Toggles if the body has an atmosphere", true);
-            var atmosphereMultiplier = new TextBoxView<double>("Atmosphere pressure", "Atmosphere pressure", 1, SiSuffix.TryParse);
-            var atmosphereScaleHeight = new TextBoxView<double>("Atmosphere height", "Scale height of the atmosphere", 1, SiSuffix.TryParse);
-            var atmosphereContainsOxygen = new ToggleView("Atmosphere contains oxygen", "If jet engine intakes work", true);
-            var atmosphereAmbientColor = new TextBoxView<Color>("Atmosphere color", "Color of the light emitted by the atmosphere (doesn't change actual color)", new Color(1, 1, 1), Extentions.ColorTryParse);
-            var sphereOfInfluence = new TextBoxView<double>("Sphere of influence", "Radius of the SOI of the planet", 1, SiSuffix.TryParse);
-            var rotationPeriod = new TextBoxView<double>("Rotation period", "Seconds per revolution of the planet", 1, SiSuffix.TryParse);
-            var tidallyLocked = new ToggleView("Tidally locked", "If rotation period is equal to orbital period", true);
+            var GeeASL = new TextBoxView<double>("Gravity multiplier", "1.0 is kerbin, 0.5 is half of kerbin's gravity, etc.", 1, SiSuffix.TryParse);
+            var ocean = new ToggleView("Has ocean", "Does weird things to the ocean if off", false);
+            var atmosphere = new ToggleView("Has atmosphere", "Toggles if the planet has atmosphere or not", false);
+            var atmosphereContainsOxygen = new ToggleView("Atmosphere contains oxygen", "Whether jet engines work or not", false);
+            var atmosphereDepth = new TextBoxView<double>("Atmosphere depth", "Theoretically atmosphere height. In reality, doesn't work too well.", 1, SiSuffix.TryParse);
+            var atmosphereTemperatureSeaLevel = new TextBoxView<double>("atmosphereTemperatureSeaLevel", "New 1.0 field. Unknown what this does.", 1, SiSuffix.TryParse);
+            var atmospherePressureSeaLevel = new TextBoxView<double>("atmospherePressureSeaLevel", "New 1.0 field. Unknown what this does.", 1, SiSuffix.TryParse);
+            var atmosphereMolarMass = new TextBoxView<double>("atmosphereMolarMass", "New 1.0 field. Unknown what this does.", 1, SiSuffix.TryParse);
+            var atmosphereAdiabaticIndex = new TextBoxView<double>("atmosphereAdiabaticIndex", "New 1.0 field. Unknown what this does.", 1, SiSuffix.TryParse);
+            var rotates = new ToggleView("Rotates", "If the planet rotates.", false);
+            var rotationPeriod = new TextBoxView<double>("Rotation period", "Rotation period of the planet, in seconds.", 1, SiSuffix.TryParse);
+            var initialRotation = new TextBoxView<double>("Initial rotation", "Absolute rotation in degrees of the planet at time=0", 1, SiSuffix.TryParse);
+            var tidallyLocked = new ToggleView("Tidally locked", "If the planet is tidally locked. Overrides Rotation Period.", false);
 
             Action<CelestialBody> onSelect = cb =>
             {
                 body = cb;
-                geeAsl.Object = body.GeeASL;
-                temperature.Object = body.atmoshpereTemperatureMultiplier;
+                GeeASL.Object = body.GeeASL;
+                ocean.Value = body.ocean;
                 atmosphere.Value = body.atmosphere;
-                atmosphereMultiplier.Object = body.atmosphereMultiplier;
-                atmosphereScaleHeight.Object = body.atmosphereScaleHeight;
                 atmosphereContainsOxygen.Value = body.atmosphereContainsOxygen;
-                atmosphereAmbientColor.Object = body.atmosphericAmbientColor;
-                sphereOfInfluence.Object = body.sphereOfInfluence;
+                atmosphereDepth.Object = body.atmosphereDepth;
+                atmosphereTemperatureSeaLevel.Object = body.atmosphereTemperatureSeaLevel;
+                atmospherePressureSeaLevel.Object = body.atmospherePressureSeaLevel;
+                atmosphereMolarMass.Object = body.atmosphereMolarMass;
+                atmosphereAdiabaticIndex.Object = body.atmosphereAdiabaticIndex;
+                rotates.Value = body.rotates;
                 rotationPeriod.Object = body.rotationPeriod;
+                initialRotation.Object = body.initialRotation;
                 tidallyLocked.Value = body.tidallyLocked;
             };
 
             var selectBody = new ConditionalView(() => FlightGlobals.fetch != null && FlightGlobals.Bodies != null,
                                  new ListSelectView<CelestialBody>("Selected body", () => FlightGlobals.Bodies, onSelect, Extentions.CbToString));
 
-            var apply = new ConditionalView(() => geeAsl.Valid &&
-                            temperature.Valid &&
-                            atmosphereMultiplier.Valid &&
-                            atmosphereScaleHeight.Valid &&
-                            atmosphereAmbientColor.Valid &&
-                            sphereOfInfluence.Valid &&
-                            rotationPeriod.Valid,
+            var apply = new ConditionalView(() =>
+                            GeeASL.Valid &&
+                            atmosphereDepth.Valid &&
+                            atmosphereTemperatureSeaLevel.Valid &&
+                            atmospherePressureSeaLevel.Valid &&
+                            atmosphereMolarMass.Valid &&
+                            atmosphereAdiabaticIndex.Valid &&
+                            rotationPeriod.Valid &&
+                            initialRotation.Valid,
                             new ButtonView("Apply", "Applies the changes to the body", () =>
                     {
                         new Model.PlanetEditor.PlanetSettings(
-                            geeAsl.Object,
-                            (float)temperature.Object,
+                            GeeASL.Object,
+                            ocean.Value,
                             atmosphere.Value,
                             atmosphereContainsOxygen.Value,
-                            (float)atmosphereMultiplier.Object,
-                            atmosphereScaleHeight.Object,
-                            atmosphereAmbientColor.Object,
-                            sphereOfInfluence.Object,
+                            atmosphereDepth.Object,
+                            atmosphereTemperatureSeaLevel.Object,
+                            atmospherePressureSeaLevel.Object,
+                            atmosphereMolarMass.Object,
+                            atmosphereAdiabaticIndex.Object,
+                            rotates.Value,
                             rotationPeriod.Object,
+                            initialRotation.Object,
                             tidallyLocked.Value,
                             body.orbit).CopyTo(body, false);
                     }));
 
             var editFields = new ConditionalView(() => body != null, new VerticalView(new IView[]
                     {
-                        geeAsl,
-                        temperature,
+                        GeeASL,
+                        ocean,
                         atmosphere,
-                        atmosphereMultiplier,
-                        atmosphereScaleHeight,
                         atmosphereContainsOxygen,
-                        atmosphereAmbientColor,
-                        sphereOfInfluence,
+                        atmosphereDepth,
+                        atmosphereTemperatureSeaLevel,
+                        atmospherePressureSeaLevel,
+                        atmosphereMolarMass,
+                        atmosphereAdiabaticIndex,
+                        rotates,
                         rotationPeriod,
+                        initialRotation,
                         tidallyLocked,
                         apply,
                     }));

@@ -59,7 +59,7 @@ namespace HyperEdit.Model
         {
             var body = currentlyEditing.orbit.referenceBody;
             var soi = body.Soi();
-            var ratio = soi / (body.Radius + body.maxAtmosphereAltitude + 1000);
+            var ratio = soi / (body.Radius + body.atmosphereDepth + 1000);
             periapsis = Math.Pow(ratio, periapsis) / ratio;
             periapsis *= soi;
 
@@ -68,20 +68,19 @@ namespace HyperEdit.Model
             var e = Math.Tan(eccentricity);
             var semimajor = periapsis / (1 - e);
 
-            var mep = (double)meanAnomaly;
             if (semimajor < 0)
             {
-                mep /= Math.PI;
-                mep -= 1;
-                mep *= 5;
+                meanAnomaly /= Math.PI;
+                meanAnomaly -= 1;
+                meanAnomaly *= 5;
             }
 
             inclination *= 360;
             longitudeAscendingNode *= 360;
             argumentOfPeriapsis *= 360;
-            mep *= 2 * Math.PI;
+            meanAnomaly *= 2 * Math.PI;
 
-            SetOrbit(currentlyEditing, CreateOrbit(inclination, e, semimajor, longitudeAscendingNode, argumentOfPeriapsis, mep, 0, body));
+            SetOrbit(currentlyEditing, CreateOrbit(inclination, e, semimajor, longitudeAscendingNode, argumentOfPeriapsis, meanAnomaly, 0, body));
         }
 
         public static void GetGraphical(OrbitDriver currentlyEditing, out double inclination, out double eccentricity,
@@ -94,7 +93,7 @@ namespace HyperEdit.Model
             var eTemp = Math.Atan(currentlyEditing.orbit.eccentricity);
             eccentricity = eTemp / (Math.PI / 2 - 0.001);
             var soi = currentlyEditing.orbit.referenceBody.Soi();
-            var ratio = soi / (currentlyEditing.orbit.referenceBody.Radius + currentlyEditing.orbit.referenceBody.maxAtmosphereAltitude);
+            var ratio = soi / (currentlyEditing.orbit.referenceBody.Radius + currentlyEditing.orbit.referenceBody.atmosphereDepth + 1000);
             var semimajor = currentlyEditing.orbit.semiMajorAxis * (1 - currentlyEditing.orbit.eccentricity);
             semimajor /= soi;
             semimajor *= ratio;
@@ -186,7 +185,7 @@ namespace HyperEdit.Model
             if (double.IsNaN(e))
                 e = 0;
             if (double.IsNaN(sma))
-                sma = body.Radius + body.maxAtmosphereAltitude + 10000;
+                sma = body.Radius + body.atmosphereDepth + 10000;
             if (double.IsNaN(lan))
                 lan = 0;
             if (double.IsNaN(w))

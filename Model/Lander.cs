@@ -34,6 +34,18 @@ namespace HyperEdit.Model
             }
         }
 
+        public static void LandHere()
+        {
+            if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null)
+                return;
+            var lander = FlightGlobals.ActiveVessel.GetComponent<LanderAttachment>();
+            if (lander == null)
+            {
+                lander = FlightGlobals.ActiveVessel.gameObject.AddComponent<LanderAttachment>();
+                lander.AlreadyTeleported = true;
+            }
+        }
+
         private static List<LandingCoordinates> SavedCoords
         {
             get
@@ -83,6 +95,21 @@ namespace HyperEdit.Model
             if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null)
                 return;
             onLoad(FlightGlobals.ActiveVessel.latitude, FlightGlobals.ActiveVessel.longitude);
+        }
+
+        public static IEnumerable<Vessel> LandedVessels()
+        {
+            return FlightGlobals.fetch == null ? null : FlightGlobals.Vessels.Where(v => v.Landed);
+        }
+
+        public static void SetToLanded(Action<double, double> onLoad, Vessel landingBeside)
+        {
+            if (landingBeside == null)
+                return;
+
+            //work out Logitude + 50m
+            double FiftyMOfLong = (360 * 40) / (landingBeside.orbit.referenceBody.Radius * 2 * Math.PI);
+            onLoad(landingBeside.latitude, landingBeside.longitude + FiftyMOfLong);
         }
 
         struct LandingCoordinates
@@ -135,7 +162,7 @@ namespace HyperEdit.Model
 
     public class LanderAttachment : MonoBehaviour
     {
-        private bool _alreadyTeleported;
+        public bool AlreadyTeleported { get; set; }
         public double Latitude { get; set; }
         public double Longitude { get; set; }
         public double Altitude { get; set; }
@@ -148,7 +175,7 @@ namespace HyperEdit.Model
                 Destroy(this);
                 return;
             }
-            if (_alreadyTeleported)
+            if (AlreadyTeleported)
             {
                 if (vessel.LandedOrSplashed)
                 {
@@ -193,7 +220,7 @@ namespace HyperEdit.Model
                 orbit.UpdateFromStateVectors(teleportPosition, teleportVelocity, orbit.referenceBody, Planetarium.GetUniversalTime());
                 vessel.SetOrbit(orbit);
 
-                _alreadyTeleported = true;
+                AlreadyTeleported = true;
             }
         }
     }
