@@ -50,13 +50,15 @@ namespace HyperEdit.Model
         {
             get
             {
-                return KSP.IO.File.Exists<HyperEditBehaviour>(Filename)
-                    ? KSP.IO.File.ReadAllLines<HyperEditBehaviour>(Filename).Select(x => new LandingCoordinates(x)).Where(l => string.IsNullOrEmpty(l.Name) == false).ToList()
+                var path = IoExt.GetPath(Filename);
+                return System.IO.File.Exists(path)
+                    ? System.IO.File.ReadAllLines(path).Select(x => new LandingCoordinates(x)).Where(l => string.IsNullOrEmpty(l.Name) == false).ToList()
                         : new List<LandingCoordinates>();
             }
             set
             {
-                KSP.IO.File.WriteAllText<HyperEditBehaviour>(string.Join(Environment.NewLine, value.Select(l => l.ToString()).ToArray()), Filename);
+                var path = IoExt.GetPath(Filename);
+                System.IO.File.WriteAllText(string.Join(Environment.NewLine, value.Select(l => l.ToString()).ToArray()), path);
             }
         }
 

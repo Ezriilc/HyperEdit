@@ -67,19 +67,21 @@ namespace HyperEdit.View
             {
                 if (_windowPos != null)
                     return _windowPos;
-                const string filename = "windowpos.cfg";
-                var fp = KSP.IO.IOUtils.GetFilePathFor(typeof(HyperEditBehaviour), filename);
-                if (KSP.IO.File.Exists<HyperEditBehaviour>(filename))
+                var fp = IoExt.GetPath("windowpos.cfg");
+                if (System.IO.File.Exists(fp))
+                {
                     _windowPos = ConfigNode.Load(fp);
+                    _windowPos.name = "windowpos";
+                }
                 else
-                    _windowPos = new ConfigNode();
+                    _windowPos = new ConfigNode("windowpos");
                 return _windowPos;
             }
         }
 
         private static bool SaveWindowPos()
         {
-            return WindowPos.Save(KSP.IO.IOUtils.GetFilePathFor(typeof(HyperEditBehaviour), "windowpos.cfg"));
+            return WindowPos.Save();
         }
 
         private string _tempTooltip;
@@ -93,7 +95,7 @@ namespace HyperEdit.View
         {
             if (ensureUniqueTitle && GameObject.GetComponents<Window>().Any(w => w._title == title))
             {
-                Extentions.Log("Not opening window \"" + title + "\", already open");
+                Extensions.Log("Not opening window \"" + title + "\", already open");
                 return;
             }
 
@@ -109,7 +111,7 @@ namespace HyperEdit.View
                 }
                 else
                 {
-                    Extentions.Log("No winpos found for \"" + title + "\", defaulting to " + winx + "," + winy);
+                    Extensions.Log("No winpos found for \"" + title + "\", defaulting to " + winx + "," + winy);
                 }
             }
             else

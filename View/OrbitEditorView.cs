@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using UnityEngine;
 using System.Collections.Generic;
 
 namespace HyperEdit.View
@@ -13,20 +11,21 @@ namespace HyperEdit.View
             return () => Window.Create("Orbit Editor", true, true, 300, -1, w => view.Draw());
         }
 
+        // Also known as "closure hell"
         public static IView View()
         {
             ListSelectView<OrbitDriver> currentlyEditing = null;
 
-            var referenceSelector = new ListSelectView<CelestialBody>("Reference body", () => FlightGlobals.fetch == null ? null : FlightGlobals.fetch.bodies, null, Extentions.CbToString);
+            var referenceSelector = new ListSelectView<CelestialBody>("Reference body", () => FlightGlobals.fetch == null ? null : FlightGlobals.fetch.bodies, null, Extensions.CbToString);
 
+            #region Simple
             var simpleAltitude = new TextBoxView<double>("Altitude", "Altitude of circular orbit", 110000, SiSuffix.TryParse);
             var simpleApply = new ConditionalView(() => simpleAltitude.Valid && referenceSelector.CurrentlySelected != null,
                                   new ButtonView("Apply", "Sets the orbit", () =>
                     {
                         Model.OrbitEditor.Simple(currentlyEditing.CurrentlySelected, simpleAltitude.Object, referenceSelector.CurrentlySelected);
 
-                        currentlyEditing.UpdateBasedonCurrentlySelected();
-
+                        currentlyEditing.ReInvokeOnSelect();
                     }));
             var simple = new VerticalView(new IView[]
                 {
@@ -34,7 +33,9 @@ namespace HyperEdit.View
                     referenceSelector,
                     simpleApply
                 });
+            #endregion
 
+            #region Complex
             var complexInclination = new TextBoxView<double>("Inclination", "How close to the equator the orbit plane is", 0, double.TryParse);
             var complexEccentricity = new TextBoxView<double>("Eccentricity", "How circular the orbit is (0=circular, 0.5=elliptical, 1=parabolic)", 0, double.TryParse);
             var complexSemiMajorAxis = new TextBoxView<double>("Semi-major axis", "Mean radius of the orbit (ish)", 10000000, SiSuffix.TryParse);
@@ -63,8 +64,7 @@ namespace HyperEdit.View
                             complexEpoch.Object,
                             referenceSelector.CurrentlySelected);
 
-                        currentlyEditing.UpdateBasedonCurrentlySelected();
-
+                        currentlyEditing.ReInvokeOnSelect();
                     }));
             var complex = new VerticalView(new IView[]
                 {
@@ -79,13 +79,16 @@ namespace HyperEdit.View
                     referenceSelector,
                     complexApply
                 });
+            #endregion
 
+            #region Graphical
             SliderView graphicalInclination = null;
             SliderView graphicalEccentricity = null;
             SliderView graphicalPeriapsis = null;
             SliderView graphicalLongitudeAscendingNode = null;
             SliderView graphicalArgumentOfPeriapsis = null;
             SliderView graphicalMeanAnomaly = null;
+            double graphicalEpoch = 0;
 
             Action<double> graphicalOnChange = ignored =>
             {
@@ -95,14 +98,10 @@ namespace HyperEdit.View
                     graphicalPeriapsis.Value,
                     graphicalLongitudeAscendingNode.Value,
                     graphicalArgumentOfPeriapsis.Value,
-                    graphicalMeanAnomaly.Value);
+                    graphicalMeanAnomaly.Value,
+                    graphicalEpoch);
 
-                currentlyEditing.UpdateBasedonCurrentlySelected();
-                //complexInclination.SetValue(graphicalInclination.Value * 360);
-                //complexEccentricity.SetValue(graphicalInclination.Value * Math.PI / 2 - 0.001);
-                //complexLongitudeAscendingNode.SetValue(graphicalInclination.Value * 360);
-                //complexArgumentOfPeriapsis.SetValue(graphicalInclination.Value * 360);
-                //complexMeanAnomalyAtEpoch.SetValue(graphicalInclination.Value * 2 * Math.PI);
+                currentlyEditing.ReInvokeOnSelect();
             };
 
             graphicalInclination = new SliderView("Inclination", "How close to the equator the orbit plane is", graphicalOnChange);
@@ -111,6 +110,33 @@ namespace HyperEdit.View
             graphicalLongitudeAscendingNode = new SliderView("Lon. of asc. node", "Longitude of the place where you cross the equator northwards", graphicalOnChange);
             graphicalArgumentOfPeriapsis = new SliderView("Argument of periapsis", "Rotation of the orbit around the normal", graphicalOnChange);
             graphicalMeanAnomaly = new SliderView("Mean anomaly", "Position along the orbit", graphicalOnChange);
+
+            Action<OrbitDriver> graphicalUpdate = newEditing =>
+            {
+                if (newEditing == null)
+                    return;
+                double inclination;
+                double eccentricity;
+                double periapsis;
+                double longitudeAscendingNode;
+                double argumentOfPeriapsis;
+                double meanAnomaly;
+                Model.OrbitEditor.GetGraphical(newEditing,
+                    out inclination,
+                    out eccentricity,
+                    out periapsis,
+                    out longitudeAscendingNode,
+                    out argumentOfPeriapsis,
+                    out meanAnomaly,
+                    out graphicalEpoch);
+                graphicalInclination.Value = inclination;
+                graphicalEccentricity.Value = eccentricity;
+                graphicalPeriapsis.Value = periapsis;
+                graphicalLongitudeAscendingNode.Value = longitudeAscendingNode;
+                graphicalArgumentOfPeriapsis.Value = argumentOfPeriapsis;
+                graphicalMeanAnomaly.Value = meanAnomaly;
+            };
+
             var graphical = new VerticalView(new IView[]
                 {
                     graphicalInclination,
@@ -118,9 +144,12 @@ namespace HyperEdit.View
                     graphicalPeriapsis,
                     graphicalLongitudeAscendingNode,
                     graphicalArgumentOfPeriapsis,
-                    graphicalMeanAnomaly
+                    graphicalMeanAnomaly,
+                    new CustomView(() => graphicalUpdate(currentlyEditing.CurrentlySelected))
                 });
+            #endregion
 
+            #region Velocity
             var velocitySpeed = new TextBoxView<double>("Speed", "dV to apply", 0, SiSuffix.TryParse);
             var velocityDirection = new ListSelectView<Model.OrbitEditor.VelocityChangeDirection>("Direction", () => Model.OrbitEditor.AllVelocityChanges);
             var velocityApply = new ConditionalView(() => velocitySpeed.Valid,
@@ -134,9 +163,11 @@ namespace HyperEdit.View
                     velocityDirection,
                     velocityApply
                 });
+            #endregion
 
+            #region Rendezvous
             var rendezvousLeadTime = new TextBoxView<double>("Lead time", "How many seconds off to rendezvous at (zero = on top of each other, bad)", 1, SiSuffix.TryParse);
-            var rendezvousVessel = new ListSelectView<Vessel>("Target vessel", () => FlightGlobals.fetch == null ? null : FlightGlobals.fetch.vessels, null, Extentions.VesselToString);
+            var rendezvousVessel = new ListSelectView<Vessel>("Target vessel", () => FlightGlobals.fetch == null ? null : FlightGlobals.fetch.vessels, null, Extensions.VesselToString);
             var rendezvousApply = new ConditionalView(() => rendezvousLeadTime.Valid && rendezvousVessel.CurrentlySelected != null,
                                       new ButtonView("Apply", "Rendezvous", () =>
                     {
@@ -150,7 +181,9 @@ namespace HyperEdit.View
                         rendezvousVessel,
                         rendezvousApply
                     }));
+            #endregion
 
+            #region CurrentlyEditing
             Action<OrbitDriver> onCurrentlyEditingChange = newEditing =>
             {
                 if (newEditing == null)
@@ -191,27 +224,7 @@ namespace HyperEdit.View
                     complexEpoch.Object = epoch;
                     referenceSelector.CurrentlySelected = body;
                 }
-                {
-                    double inclination;
-                    double eccentricity;
-                    double periapsis;
-                    double longitudeAscendingNode;
-                    double argumentOfPeriapsis;
-                    double meanAnomaly;
-                    Model.OrbitEditor.GetGraphical(newEditing,
-                        out inclination,
-                        out eccentricity,
-                        out periapsis,
-                        out longitudeAscendingNode,
-                        out argumentOfPeriapsis,
-                        out meanAnomaly);
-                    graphicalInclination.Value = inclination;
-                    graphicalEccentricity.Value = eccentricity;
-                    graphicalPeriapsis.Value = periapsis;
-                    graphicalLongitudeAscendingNode.Value = longitudeAscendingNode;
-                    graphicalArgumentOfPeriapsis.Value = argumentOfPeriapsis;
-                    graphicalMeanAnomaly.Value = meanAnomaly;
-                }
+                graphicalUpdate(newEditing);
                 {
                     Model.OrbitEditor.VelocityChangeDirection direction;
                     double speed;
@@ -221,12 +234,13 @@ namespace HyperEdit.View
                 }
             };
 
-            currentlyEditing = new ListSelectView<OrbitDriver>("Currently editing", Model.OrbitEditor.OrderedOrbits, onCurrentlyEditingChange, Extentions.OrbitDriverToString);
+            currentlyEditing = new ListSelectView<OrbitDriver>("Currently editing", Model.OrbitEditor.OrderedOrbits, onCurrentlyEditingChange, Extensions.OrbitDriverToString);
 
             if (FlightGlobals.fetch != null && FlightGlobals.fetch.activeVessel != null && FlightGlobals.fetch.activeVessel.orbitDriver != null)
             {
                 currentlyEditing.CurrentlySelected = FlightGlobals.fetch.activeVessel.orbitDriver;
             }
+            #endregion
 
             var savePlanet = new ButtonView("Save planet", "Saves the current orbit of the planet to a file, so it stays edited even after a restart. Delete the file named the planet's name in ./GameData/Kerbaltek/PluginData/HyperEdit/ to undo.",
                                  () => Model.PlanetEditor.SavePlanet(currentlyEditing.CurrentlySelected.celestialBody));

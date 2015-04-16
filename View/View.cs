@@ -144,6 +144,34 @@ namespace HyperEdit.View
         }
     }
 
+    public class DynamicSliderView : IView
+    {
+        private readonly Action<double> onChange;
+        private readonly GUIContent label;
+        private readonly Func<double> get;
+
+        public DynamicSliderView(string label, string help, Func<double> get, Action<double> onChange)
+        {
+            this.onChange = onChange;
+            this.label = new GUIContent(label, help);
+            this.get = get;
+        }
+
+        public void Draw()
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(label);
+            var oldValue = get();
+            var newValue = (double)GUILayout.HorizontalSlider((float)oldValue, 0, 1);
+            if (Math.Abs(newValue - oldValue) > 0.001)
+            {
+                if (onChange != null)
+                    onChange(newValue);
+            }
+            GUILayout.EndHorizontal();
+        }
+    }
+
     public class SliderView : IView
     {
         private readonly Action<double> onChange;
@@ -192,8 +220,11 @@ namespace HyperEdit.View
             }
         }
 
-        public void UpdateBasedonCurrentlySelected(){if (onSelect != null)
-                    onSelect(currentlySelected);}
+        public void ReInvokeOnSelect()
+        {
+            if (onSelect != null)
+                onSelect(currentlySelected);
+        }
 
         public ListSelectView(string prefix, Func<IEnumerable<T>> list, Action<T> onSelect = null, Func<T, string> toString = null)
         {
@@ -248,8 +279,6 @@ namespace HyperEdit.View
             this.onSet = onSet;
         }
 
-        public void SetValue(Double val){value=val.ToString();}
-
         public void Draw()
         {
             if (label != null || onSet != null)
@@ -301,7 +330,7 @@ namespace HyperEdit.View
             {
                 if (view.Key == current.Key)
                 {
-                    GUILayout.Button(view.Key, Extentions.PressedButton);
+                    GUILayout.Button(view.Key, Extensions.PressedButton);
                 }
                 else
                 {

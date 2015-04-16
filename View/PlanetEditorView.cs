@@ -47,7 +47,7 @@ namespace HyperEdit.View
             };
 
             var selectBody = new ConditionalView(() => FlightGlobals.fetch != null && FlightGlobals.Bodies != null,
-                                 new ListSelectView<CelestialBody>("Selected body", () => FlightGlobals.Bodies, onSelect, Extentions.CbToString));
+                                 new ListSelectView<CelestialBody>("Selected body", () => FlightGlobals.Bodies, onSelect, Extensions.CbToString));
 
             var apply = new ConditionalView(() =>
                             GeeASL.Valid &&
@@ -97,7 +97,7 @@ namespace HyperEdit.View
 
             var resetToDefault = new ConditionalView(() => body != null,
                                      new ButtonView("Reset to defaults", "Reset the selected planet to defaults",
-                                         () => Model.PlanetEditor.ResetToDefault(body)));
+                                         () => { Model.PlanetEditor.ResetToDefault(body); onSelect(body); }));
 
             var copyToKerbin = new ConditionalView(() => body != null && body != Model.PlanetEditor.Kerbin,
                                    new ButtonView("Copy to kerbin", "Copies the selected planet's settings to kerbin",

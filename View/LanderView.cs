@@ -22,13 +22,6 @@ namespace HyperEdit.View
                 lon.Object = lonVal;
             };
 
-            var landBesideSelector = new ListSelectView<Vessel>("Land Next To", Model.DoLander.LandedVessels, null, Extentions.VesselToString);
-
-            if (FlightGlobals.fetch != null && FlightGlobals.fetch.activeVessel != null && FlightGlobals.fetch.activeVessel.orbitDriver != null)
-            {
-                landBesideSelector.CurrentlySelected = FlightGlobals.fetch.activeVessel;
-            }
-
             return new VerticalView(new IView[]
                 {
                     lat,
@@ -40,9 +33,8 @@ namespace HyperEdit.View
                     new ConditionalView(isValid, new ButtonView("Save", "Save the current location", () => Model.DoLander.AddSavedCoords(lat.Object, lon.Object))),
                     new ButtonView("Load", "Load a previously-saved location", () => Model.DoLander.Load(load)),
                     new ButtonView("Delete", "Delete a previously-saved location", Model.DoLander.Delete),
-                    new ButtonView("SetToCurrent", "Set lat/lon to the current position", () => Model.DoLander.SetToCurrent(load)),
-                    landBesideSelector,
-                    new ButtonView("Set to Land Next To", "Set lat/lon to the Land Beside Vessel", () => Model.DoLander.SetToLanded(load, landBesideSelector.CurrentlySelected)),
+                    new ButtonView("Set to current", "Set lat/lon to the current position", () => Model.DoLander.SetToCurrent(load)),
+                    new ListSelectView<Vessel>("Set lat/lon to", Model.DoLander.LandedVessels, select => Model.DoLander.SetToLanded(load, select), Extensions.VesselToString),
                 });
         }
     }

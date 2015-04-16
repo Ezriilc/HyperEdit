@@ -178,7 +178,7 @@ namespace HyperEdit.Model
                     node.TryGetValue("argumentOfPeriapsis", ref orbit.argumentOfPeriapsis, double.TryParse);
                     node.TryGetValue("meanAnomalyAtEpoch", ref orbit.meanAnomalyAtEpoch, double.TryParse);
                     node.TryGetValue("orbitEpoch", ref orbit.epoch, double.TryParse);
-                    node.TryGetValue("orbitBody", ref orbit.referenceBody, Extentions.CbTryParse);
+                    node.TryGetValue("orbitBody", ref orbit.referenceBody, Extensions.CbTryParse);
                     body.SetOrbit(orbit);
                 }
 
@@ -207,21 +207,20 @@ namespace HyperEdit.Model
             }
             catch (KeyNotFoundException)
             {
-                Extentions.Log("Defaults for celestial body " + body.bodyName + " not found");
+                Extensions.Log("Defaults for celestial body " + body.bodyName + " not found");
             }
         }
 
         public static void SavePlanet(CelestialBody body)
         {
-            var cfg = PlanetSettings.GetConfig(body);
-            cfg.Save(KSP.IO.IOUtils.GetFilePathFor(typeof(HyperEditBehaviour), cfg.name + ".cfg"));
+            PlanetSettings.GetConfig(body).Save();
         }
 
         public static void ApplyFileDefaults()
         {
             if (FlightGlobals.fetch == null || FlightGlobals.Bodies == null)
             {
-                Extentions.Log("Could not apply planet defaults: FlightGlobals.Bodies was null");
+                Extensions.Log("Could not apply planet defaults: FlightGlobals.Bodies was null");
                 return;
             }
             if (haveAppliedDefaults)
@@ -230,12 +229,11 @@ namespace HyperEdit.Model
             foreach (var body in FlightGlobals.Bodies)
             {
                 new PlanetSettings(body); // trigger default settings check
-                var filename = body.bodyName + ".cfg";
-                if (KSP.IO.File.Exists<HyperEditBehaviour>(filename) == false)
+                var filepath = IoExt.GetPath(body.bodyName + ".cfg");
+                if (System.IO.File.Exists(filepath) == false)
                     continue;
-                var filepath = KSP.IO.IOUtils.GetFilePathFor(typeof(HyperEditBehaviour), filename);
                 var cfg = ConfigNode.Load(filepath);
-                Extentions.Log("Applying saved config for " + body.bodyName);
+                Extensions.Log("Applying saved config for " + body.bodyName);
                 PlanetSettings.ApplyConfig(cfg, body);
             }
         }

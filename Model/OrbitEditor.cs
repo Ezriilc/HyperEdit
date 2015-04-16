@@ -55,7 +55,7 @@ namespace HyperEdit.Model
 
         public static void Graphical(OrbitDriver currentlyEditing, double inclination, double eccentricity,
             double periapsis, double longitudeAscendingNode, double argumentOfPeriapsis,
-            double meanAnomaly)
+            double meanAnomaly, double epoch)
         {
             var body = currentlyEditing.orbit.referenceBody;
             var soi = body.Soi();
@@ -80,12 +80,12 @@ namespace HyperEdit.Model
             argumentOfPeriapsis *= 360;
             meanAnomaly *= 2 * Math.PI;
 
-            SetOrbit(currentlyEditing, CreateOrbit(inclination, e, semimajor, longitudeAscendingNode, argumentOfPeriapsis, meanAnomaly, 0, body));
+            SetOrbit(currentlyEditing, CreateOrbit(inclination, e, semimajor, longitudeAscendingNode, argumentOfPeriapsis, meanAnomaly, epoch, body));
         }
 
         public static void GetGraphical(OrbitDriver currentlyEditing, out double inclination, out double eccentricity,
             out double periapsis, out double longitudeAscendingNode, out double argumentOfPeriapsis,
-            out double meanAnomaly)
+            out double meanAnomaly, out double epoch)
         {
             inclination = currentlyEditing.orbit.inclination / 360;
             longitudeAscendingNode = currentlyEditing.orbit.LAN / 360;
@@ -99,14 +99,15 @@ namespace HyperEdit.Model
             semimajor *= ratio;
             semimajor = Math.Log(semimajor, ratio);
             periapsis = semimajor;
-            var mep = currentlyEditing.orbit.meanAnomalyAtEpoch;
+            meanAnomaly = currentlyEditing.orbit.meanAnomalyAtEpoch;
+            meanAnomaly /= (2 * Math.PI);
             if (currentlyEditing.orbit.semiMajorAxis < 0)
             {
-                mep /= 5;
-                mep += 1;
-                mep *= (float)Math.PI;
+                meanAnomaly /= 5;
+                meanAnomaly += 1;
+                meanAnomaly *= (float)Math.PI;
             }
-            meanAnomaly = mep / (2 * Math.PI);
+            epoch = currentlyEditing.orbit.epoch;
         }
 
         public enum VelocityChangeDirection
@@ -223,9 +224,15 @@ namespace HyperEdit.Model
 
         public static void SetOrbit(this Vessel vessel, Orbit newOrbit)
         {
-            if (newOrbit.getRelativePositionAtUT(Planetarium.GetUniversalTime()).magnitude > newOrbit.referenceBody.sphereOfInfluence)
+            var destinationMagnitude = newOrbit.getRelativePositionAtUT(Planetarium.GetUniversalTime()).magnitude;
+            if (destinationMagnitude > newOrbit.referenceBody.sphereOfInfluence)
             {
-                Extentions.ErrorPopup("Destination position was above the sphere of influence");
+                Extensions.ErrorPopup("Destination position was above the sphere of influence");
+                return;
+            }
+            if (destinationMagnitude < newOrbit.referenceBody.Radius)
+            {
+                Extensions.ErrorPopup("Destination position was below the surface");
                 return;
             }
 
@@ -246,7 +253,7 @@ namespace HyperEdit.Model
             }
             catch (NullReferenceException)
             {
-                Extentions.Log("OrbitPhysicsManager.HoldVesselUnpack threw NullReferenceException");
+                Extensions.Log("OrbitPhysicsManager.HoldVesselUnpack threw NullReferenceException");
             }
 
             var allVessels = FlightGlobals.fetch == null ? (IEnumerable<Vessel>)new[] { vessel } : FlightGlobals.Vessels;

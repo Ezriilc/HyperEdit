@@ -9,7 +9,6 @@ public class HyperEditModule : MonoBehaviour
     public HyperEditModule()
     {
         HyperEdit.Immortal.AddImmortal<HyperEdit.HyperEditBehaviour>();
-        //HyperEdit.Model.PlanetEditor.ApplyFileDefaults();
     }
 }
 
@@ -63,13 +62,13 @@ namespace HyperEdit
         {
             if (_appLauncherButton != null)
             {
-                Extentions.Log("Not adding to ApplicationLauncher, button already exists (yet onGUIApplicationLauncherReady was called?)");
+                Extensions.Log("Not adding to ApplicationLauncher, button already exists (yet onGUIApplicationLauncherReady was called?)");
                 return;
             }
             var applauncher = ApplicationLauncher.Instance;
             if (applauncher == null)
             {
-                Extentions.Log("Cannot add to ApplicationLauncher, instance was null");
+                Extensions.Log("Cannot add to ApplicationLauncher, instance was null");
                 return;
             }
             const ApplicationLauncher.AppScenes scenes =
@@ -114,7 +113,7 @@ namespace HyperEdit
             var applauncher = ApplicationLauncher.Instance;
             if (applauncher == null)
             {
-                Extentions.Log("Cannot remove from ApplicationLauncher, instance was null");
+                Extensions.Log("Cannot remove from ApplicationLauncher, instance was null");
                 return;
             }
             if (_appLauncherButton == null)
@@ -218,7 +217,29 @@ namespace HyperEdit
         */
     }
 
-    public static class Extentions
+    public static class IoExt
+    {
+        private static readonly string RootDir = System.IO.Path.ChangeExtension(typeof(IoExt).Assembly.Location, null);
+
+        static IoExt()
+        {
+            if (!System.IO.Directory.Exists(RootDir))
+                System.IO.Directory.CreateDirectory(RootDir);
+            Extensions.Log("Using \"" + RootDir + "\" as root config directory");
+        }
+
+        public static string GetPath(string path)
+        {
+            return System.IO.Path.Combine(RootDir, path);
+        }
+
+        public static bool Save(this ConfigNode config)
+        {
+            return config.Save(GetPath(config.name + ".cfg"));
+        }
+    }
+
+    public static class Extensions
     {
         public static void Log(string message)
         {
