@@ -280,7 +280,6 @@ namespace HyperEdit
         public static void RealCbUpdate(this CelestialBody body)
         {
             body.CBUpdate();
-            body.SetupAtmosphere();
             body.resetTimeWarpLimits();
 
             // CBUpdate doesn't update hillSphere

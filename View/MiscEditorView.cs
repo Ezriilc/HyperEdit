@@ -35,7 +35,7 @@ namespace HyperEdit.View
                         Model.MiscEditor.UniversalTime, SiSuffix.TryParse, null, v => Model.MiscEditor.UniversalTime = v),
                     new ButtonView("Align SMAs", "Open the semi-major axis aligner window", Model.MiscEditor.AlignSemiMajorAxis),
                     new ButtonView("Destroy a vessel", "Select a vessel to destroy", Model.MiscEditor.DestroyVessel),
-                    new ButtonView("Enable heat editor", "Fzoo", Model.HeatEditor.Enable),
+                    new ButtonView("Enable heat editor", "Attaches a button to each part's right click menu to let you change their temperatures", Model.HeatEditor.Enable),
                     new TextBoxView<KeyCode[]>("Boost button key", "Sets the keybinding used for the boost button",
                         Model.MiscEditor.BoostButtonKey, Extensions.KeyCodeTryParse, Extensions.KeyCodeToString, v => Model.MiscEditor.BoostButtonKey = v),
                     new TextBoxView<double>("Boost button speed", "Sets the dV applied per frame when the boost button is held down",

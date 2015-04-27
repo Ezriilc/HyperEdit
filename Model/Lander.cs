@@ -16,9 +16,9 @@ namespace HyperEdit.Model
             return FlightGlobals.ActiveVessel.GetComponent<LanderAttachment>() != null;
         }
 
-        public static void ToggleLanding(double latitude, double longitude, double altitude)
+        public static void ToggleLanding(double latitude, double longitude, double altitude, CelestialBody body)
         {
-            if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null)
+            if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null || body == null)
                 return;
             var lander = FlightGlobals.ActiveVessel.GetComponent<LanderAttachment>();
             if (lander == null)
@@ -27,6 +27,7 @@ namespace HyperEdit.Model
                 lander.Latitude = latitude;
                 lander.Longitude = longitude;
                 lander.Altitude = altitude;
+                lander.Body = body;
             }
             else
             {
@@ -62,23 +63,25 @@ namespace HyperEdit.Model
             }
         }
 
-        public static void AddSavedCoords(double latitude, double longitude)
+        public static void AddSavedCoords(double latitude, double longitude, CelestialBody body)
         {
-            View.WindowHelper.Prompt("Save as...", s => AddSavedCoords(s, latitude, longitude));
+            if (body == null)
+                return;
+            View.WindowHelper.Prompt("Save as...", s => AddSavedCoords(s, latitude, longitude, body));
         }
 
-        private static void AddSavedCoords(string name, double latitude, double longitude)
+        private static void AddSavedCoords(string name, double latitude, double longitude, CelestialBody body)
         {
             var saved = SavedCoords;
-            saved.Add(new LandingCoordinates(name, latitude, longitude));
+            saved.Add(new LandingCoordinates(name, latitude, longitude, body));
             SavedCoords = saved;
         }
 
-        public static void Load(Action<double, double> onLoad)
+        public static void Load(Action<double, double, CelestialBody> onLoad)
         {
             View.WindowHelper.Selector("Load...", SavedCoords, c => c.Name, c =>
                 {
-                    onLoad(c.Lat, c.Lon);
+                    onLoad(c.Lat, c.Lon, c.Body);
                 });
         }
 
@@ -92,11 +95,11 @@ namespace HyperEdit.Model
                 });
         }
 
-        public static void SetToCurrent(Action<double, double> onLoad)
+        public static void SetToCurrent(Action<double, double, CelestialBody> onLoad)
         {
             if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null)
                 return;
-            onLoad(FlightGlobals.ActiveVessel.latitude, FlightGlobals.ActiveVessel.longitude);
+            onLoad(FlightGlobals.ActiveVessel.latitude, FlightGlobals.ActiveVessel.longitude, FlightGlobals.ActiveVessel.mainBody);
         }
 
         public static IEnumerable<Vessel> LandedVessels()
@@ -104,14 +107,14 @@ namespace HyperEdit.Model
             return FlightGlobals.fetch == null ? null : FlightGlobals.Vessels.Where(v => v.Landed);
         }
 
-        public static void SetToLanded(Action<double, double> onLoad, Vessel landingBeside)
+        public static void SetToLanded(Action<double, double, CelestialBody> onLoad, Vessel landingBeside)
         {
             if (landingBeside == null)
                 return;
 
             //work out Logitude + 50m
             double FiftyMOfLong = (360 * 40) / (landingBeside.orbit.referenceBody.Radius * 2 * Math.PI);
-            onLoad(landingBeside.latitude, landingBeside.longitude + FiftyMOfLong);
+            onLoad(landingBeside.latitude, landingBeside.longitude + FiftyMOfLong, landingBeside.mainBody);
         }
 
         struct LandingCoordinates
@@ -121,43 +124,50 @@ namespace HyperEdit.Model
             public double Lat { get; set; }
 
             public double Lon { get; set; }
+            public CelestialBody Body { get; set; }
 
-            public LandingCoordinates(string name, double lat, double lon)
+            public LandingCoordinates(string name, double lat, double lon, CelestialBody body)
                 : this()
             {
                 Name = name;
                 Lat = lat;
                 Lon = lon;
+                Body = body;
             }
 
             public LandingCoordinates(string value)
                 : this()
             {
                 var split = value.Split(',');
-                if (split.Length < 3)
+                if (split.Length < 4)
                 {
                     Name = null;
                     Lat = 0;
                     Lon = 0;
+                    Body = null;
+                    return;
                 }
                 double dlat, dlon;
-                if (double.TryParse(split[1], out dlat) && double.TryParse(split[2], out dlon))
+                CelestialBody body;
+                if (double.TryParse(split[1], out dlat) && double.TryParse(split[2], out dlon) && Extensions.CbTryParse(split[3], out body))
                 {
                     Name = split[0];
                     Lat = dlat;
                     Lon = dlon;
+                    Body = body;
                 }
                 else
                 {
                     Name = null;
                     Lat = 0;
                     Lon = 0;
+                    Body = null;
                 }
             }
 
             public override string ToString()
             {
-                return Name + "," + Lat + "," + Lon;
+                return Name + "," + Lat + "," + Lon + "," + Body.CbToString();
             }
         }
     }
@@ -165,6 +175,7 @@ namespace HyperEdit.Model
     public class LanderAttachment : MonoBehaviour
     {
         public bool AlreadyTeleported { get; set; }
+        public CelestialBody Body { get; set; }
         public double Latitude { get; set; }
         public double Longitude { get; set; }
         public double Altitude { get; set; }
@@ -191,7 +202,7 @@ namespace HyperEdit.Model
             }
             else
             {
-                var pqs = vessel.mainBody.pqsController;
+                var pqs = Body.pqsController;
                 if (pqs == null)
                 {
                     Destroy(this);
@@ -210,16 +221,16 @@ namespace HyperEdit.Model
                     part.Die();
                 TimeWarp.SetRate(0, true); // HoldVesselUnpack is in display frames, not physics frames
 
-                var teleportPosition = vessel.mainBody.GetWorldSurfacePosition(Latitude, Longitude, alt + Altitude);
-                var teleportVelocity = vessel.mainBody.getRFrmVel(teleportPosition);
-                // convert from world space to "normal" space
-                teleportPosition = (teleportPosition - vessel.GetWorldPos3D()).xzy + vessel.orbit.pos;
-                teleportVelocity = (teleportVelocity - vessel.GetObtVelocity()).xzy + vessel.orbit.vel;
+                var teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt + Altitude);
+                var teleportVelocity = Body.getRFrmVel(teleportPosition + Body.position);
+                // convert from world space to orbit space
+                teleportPosition = teleportPosition.xzy;
+                teleportVelocity = teleportVelocity.xzy;
                 // counter for the momentary fall when on rails (about one second)
-                teleportVelocity += teleportPosition.normalized * (vessel.mainBody.gravParameter / teleportPosition.sqrMagnitude);
+                teleportVelocity += teleportPosition.normalized * (Body.gravParameter / teleportPosition.sqrMagnitude);
 
                 var orbit = vessel.orbitDriver.orbit.Clone();
-                orbit.UpdateFromStateVectors(teleportPosition, teleportVelocity, orbit.referenceBody, Planetarium.GetUniversalTime());
+                orbit.UpdateFromStateVectors(teleportPosition, teleportVelocity, Body, Planetarium.GetUniversalTime());
                 vessel.SetOrbit(orbit);
 
                 AlreadyTeleported = true;
