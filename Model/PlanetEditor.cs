@@ -216,6 +216,13 @@ namespace HyperEdit.Model
             PlanetSettings.GetConfig(body).Save();
         }
 
+        public static void TryApplyFileDefaults()
+        {
+            if (haveAppliedDefaults)
+                return;
+            ApplyFileDefaults();
+        }
+
         public static void ApplyFileDefaults()
         {
             if (FlightGlobals.fetch == null || FlightGlobals.Bodies == null)
@@ -223,8 +230,6 @@ namespace HyperEdit.Model
                 Extensions.Log("Could not apply planet defaults: FlightGlobals.Bodies was null");
                 return;
             }
-            if (haveAppliedDefaults)
-                return;
             haveAppliedDefaults = true;
             foreach (var body in FlightGlobals.Bodies)
             {

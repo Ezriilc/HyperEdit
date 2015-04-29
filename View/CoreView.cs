@@ -8,7 +8,7 @@ namespace HyperEdit.View
         public static Action Create()
         {
             var view = View();
-			return () => Window.Create("HyperEdit", true, true, 100, -1, w => view.Draw());
+            return () => Window.Create("HyperEdit", true, true, 100, -1, w => view.Draw());
         }
 
         public static IView View()

@@ -34,28 +34,21 @@ namespace HyperEdit
     public class HyperEditBehaviour : MonoBehaviour
     {
         ApplicationLauncherButton _appLauncherButton;
-		Action createCoreView = null;
+        Action createCoreView = null;
 
-		private void CreateCoreView()
-		{
-			if (createCoreView == null)
-			{
-				createCoreView = View.CoreView.Create();
-			}
-			createCoreView();
-		}
+        private void CreateCoreView()
+        {
+            if (createCoreView == null)
+            {
+                createCoreView = View.CoreView.Create();
+            }
+            createCoreView();
+        }
 
         public void Awake()
         {
-            GameEvents.OnFlightGlobalsReady.Add(FlightGlobalsReady);
             GameEvents.onGUIApplicationLauncherReady.Add(AddAppLauncher);
             GameEvents.onGUIApplicationLauncherDestroyed.Add(RemoveAppLauncher);
-        }
-
-        private void FlightGlobalsReady(bool ready)
-        {
-            if (ready)
-                Model.PlanetEditor.ApplyFileDefaults();
         }
 
         private void AddAppLauncher()
@@ -93,7 +86,7 @@ namespace HyperEdit
             tex.Apply();
             _appLauncherButton = applauncher.AddModApplication(() =>
                 {
-					CreateCoreView();
+                    CreateCoreView();
                 }, () =>
                 {
                     View.Window.CloseAll();
@@ -122,6 +115,11 @@ namespace HyperEdit
             }
             applauncher.RemoveModApplication(_appLauncherButton);
             _appLauncherButton = null;
+        }
+
+        public void FixedUpdate()
+        {
+            Model.PlanetEditor.TryApplyFileDefaults();
         }
 
         public void Update()
