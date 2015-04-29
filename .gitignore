@@ -14,9 +14,7 @@ TestResults
 *.suo
 *.user
 *.sln.docstates
-*.sln
 *.suo
-*.csproj
 
 # Build results
 [Dd]ebug/
@@ -114,3 +112,5 @@ UpgradeLog*.XML
 
 # Monodevelop
 *.userprefs
+
+.vs/

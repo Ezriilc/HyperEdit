@@ -59,7 +59,7 @@ namespace HyperEdit.Model
             set
             {
                 var path = IoExt.GetPath(Filename);
-                System.IO.File.WriteAllText(string.Join(Environment.NewLine, value.Select(l => l.ToString()).ToArray()), path);
+                System.IO.File.WriteAllText(path, string.Join(Environment.NewLine, value.Select(l => l.ToString()).ToArray()));
             }
         }
 
@@ -139,7 +139,7 @@ namespace HyperEdit.Model
                 : this()
             {
                 var split = value.Split(',');
-                if (split.Length < 4)
+                if (split.Length < 3)
                 {
                     Name = null;
                     Lat = 0;
@@ -149,12 +149,19 @@ namespace HyperEdit.Model
                 }
                 double dlat, dlon;
                 CelestialBody body;
-                if (double.TryParse(split[1], out dlat) && double.TryParse(split[2], out dlon) && Extensions.CbTryParse(split[3], out body))
+                if (double.TryParse(split[1], out dlat) && double.TryParse(split[2], out dlon))
                 {
                     Name = split[0];
                     Lat = dlat;
                     Lon = dlon;
-                    Body = body;
+                    if (split.Length >= 4 && Extensions.CbTryParse(split[3], out body))
+                    {
+                        Body = body;
+                    }
+                    else
+                    {
+                        Body = FlightGlobals.Bodies[1];
+                    }
                 }
                 else
                 {
