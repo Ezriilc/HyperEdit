@@ -47,8 +47,17 @@ namespace HyperEdit
 
         public void Awake()
         {
+            View.Window.AreWindowsOpenChange += AreWindowsOpenChange;
             GameEvents.onGUIApplicationLauncherReady.Add(AddAppLauncher);
             GameEvents.onGUIApplicationLauncherDestroyed.Add(RemoveAppLauncher);
+        }
+
+        private void AreWindowsOpenChange(bool isOpen)
+        {
+            if (isOpen)
+                _appLauncherButton.SetTrue(false);
+            else
+                _appLauncherButton.SetFalse(false);
         }
 
         private void AddAppLauncher()
@@ -128,12 +137,10 @@ namespace HyperEdit
             {
                 if (View.Window.GameObject.GetComponents<View.Window>().Any(w => w._title == "HyperEdit"))
                 {
-                    View.Window.CloseAll();
                     _appLauncherButton.SetFalse();
                 }
                 else
                 {
-                    View.CoreView.Create();
                     _appLauncherButton.SetTrue();
                 }
             }
@@ -153,6 +160,8 @@ namespace HyperEdit
 
         public static string GetPath(string path)
         {
+            if (path == null)
+                return RootDir;
             return System.IO.Path.Combine(RootDir, path);
         }
 
@@ -203,7 +212,14 @@ namespace HyperEdit
         public static void RealCbUpdate(this CelestialBody body)
         {
             body.CBUpdate();
-            body.resetTimeWarpLimits();
+            try
+            {
+                body.resetTimeWarpLimits();
+            }
+            catch (NullReferenceException)
+            {
+                Log("resetTimeWarpLimits threw NRE " + (TimeWarp.fetch == null ? "as expected" : "unexpectedly"));
+            }
 
             // CBUpdate doesn't update hillSphere
             // http://en.wikipedia.org/wiki/Hill_sphere

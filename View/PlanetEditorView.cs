@@ -104,11 +104,11 @@ namespace HyperEdit.View
                                        () => new Model.PlanetEditor.PlanetSettings(body).CopyTo(Model.PlanetEditor.Kerbin, false)));
 
             var savePlanet = new ConditionalView(() => body != null,
-                                 new ButtonView("Save planet to config file", "Saves the current configuration of the planet to a file, so it stays edited even after a restart. Delete the file named the planet's name in ./GameData/Kerbaltek/HyperEdit/ to undo.",
+                                 new ButtonView("Save planet to config file", "Saves the current configuration of the planet to a file, so it stays edited even after a restart. Delete the file named the planet's name in " + IoExt.GetPath(null) + " to undo.",
                                      () => Model.PlanetEditor.SavePlanet(body)));
 
             var reloadDefaults = new ConditionalView(() => FlightGlobals.fetch != null && FlightGlobals.Bodies != null,
-                                     new ButtonView("Reload config files", "Reloads the planet .cfg files in ./GameData/Kerbaltek/HyperEdit/",
+                                     new ButtonView("Reload config files", "Reloads the planet .cfg files in " + IoExt.GetPath(null),
                                          Model.PlanetEditor.ApplyFileDefaults));
 
             return new VerticalView(new IView[]

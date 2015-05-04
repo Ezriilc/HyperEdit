@@ -242,7 +242,7 @@ namespace HyperEdit.View
             }
             #endregion
 
-            var savePlanet = new ButtonView("Save planet", "Saves the current orbit of the planet to a file, so it stays edited even after a restart. Delete the file named the planet's name in ./GameData/Kerbaltek/HyperEdit/ to undo.",
+            var savePlanet = new ButtonView("Save planet", "Saves the current orbit of the planet to a file, so it stays edited even after a restart. Delete the file named the planet's name in " + IoExt.GetPath(null) + " to undo.",
                                  () => Model.PlanetEditor.SavePlanet(currentlyEditing.CurrentlySelected.celestialBody));
             var resetPlanet = new ButtonView("Reset to defaults", "Reset the selected planet to defaults",
                                   () => Model.PlanetEditor.ResetToDefault(currentlyEditing.CurrentlySelected.celestialBody));

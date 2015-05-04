@@ -284,7 +284,7 @@ namespace HyperEdit.Model
                 oldBody.orbitingBodies.Remove(body);
                 newOrbit.referenceBody.orbitingBodies.Add(body);
             }
-            body.CBUpdate();
+            body.RealCbUpdate();
         }
 
         private static void HardsetOrbit(OrbitDriver orbitDriver, Orbit newOrbit)

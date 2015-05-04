@@ -84,16 +84,20 @@ namespace HyperEdit.View
             return WindowPos.Save();
         }
 
+        public static event Action<bool> AreWindowsOpenChange;
+
         private string _tempTooltip;
         private string _oldTooltip;
         internal string _title;
         private bool _shrinkHeight;
         private Rect _windowRect;
         private Action<Window> _drawFunc;
+        private bool _isOpen;
 
         public static void Create(string title, bool savepos, bool ensureUniqueTitle, int width, int height, Action<Window> drawFunc)
         {
-            if (ensureUniqueTitle && GameObject.GetComponents<Window>().Any(w => w._title == title))
+            var allOpenWindows = GameObject.GetComponents<Window>();
+            if (ensureUniqueTitle && allOpenWindows.Any(w => w._title == title))
             {
                 Extensions.Log("Not opening window \"" + title + "\", already open");
                 return;
@@ -121,12 +125,15 @@ namespace HyperEdit.View
             }
 
             var window = GameObject.AddComponent<Window>();
+            window._isOpen = true;
             window._shrinkHeight = height == -1;
             if (window._shrinkHeight)
                 height = 5;
             window._title = title;
             window._windowRect = new Rect(winx, winy, width, height);
             window._drawFunc = drawFunc;
+            if (allOpenWindows.Length == 0 && AreWindowsOpenChange != null)
+                AreWindowsOpenChange(true);
         }
 
         private Window()
@@ -174,7 +181,10 @@ namespace HyperEdit.View
             if (WindowPos.SetNode(node.name, node) == false)
                 WindowPos.AddNode(node);
             SaveWindowPos();
+            _isOpen = false;
             Destroy(this);
+            if (GameObject.GetComponents<Window>().Any(w => w._isOpen) == false && AreWindowsOpenChange != null)
+                AreWindowsOpenChange(false);
         }
 
         internal static void CloseAll()

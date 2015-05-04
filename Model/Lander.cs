@@ -47,14 +47,31 @@ namespace HyperEdit.Model
             }
         }
 
+        private static List<LandingCoordinates> DefaultSavedCoords
+        {
+            get
+            {
+                if (FlightGlobals.fetch == null || FlightGlobals.Bodies == null)
+                    return new List<LandingCoordinates>();
+                var kerbin = FlightGlobals.Bodies[1];
+                return new List<LandingCoordinates>
+                {
+                    new LandingCoordinates("Airstrip Island Beach - Wet", -1.498, -72.088, kerbin),
+                    new LandingCoordinates("KSC Launch Pad", -0.097210087, 285.442335999, kerbin),
+                    new LandingCoordinates("KSC Runway", -0.04862627, 285.2766345, kerbin),
+                    new LandingCoordinates("KSC Beach - Wet", -0.04862627, -74.39, kerbin)
+                };
+            }
+        }
+
         private static List<LandingCoordinates> SavedCoords
         {
             get
             {
                 var path = IoExt.GetPath(Filename);
                 return System.IO.File.Exists(path)
-                    ? System.IO.File.ReadAllLines(path).Select(x => new LandingCoordinates(x)).Where(l => string.IsNullOrEmpty(l.Name) == false).ToList()
-                        : new List<LandingCoordinates>();
+                    ? System.IO.File.ReadAllLines(path).Select(x => new LandingCoordinates(x)).Where(l => string.IsNullOrEmpty(l.Name) == false).Union(DefaultSavedCoords).ToList()
+                        : DefaultSavedCoords;
             }
             set
             {
@@ -73,6 +90,7 @@ namespace HyperEdit.Model
         private static void AddSavedCoords(string name, double latitude, double longitude, CelestialBody body)
         {
             var saved = SavedCoords;
+            saved.RemoveAll(match => match.Name == name);
             saved.Add(new LandingCoordinates(name, latitude, longitude, body));
             SavedCoords = saved;
         }
@@ -117,7 +135,7 @@ namespace HyperEdit.Model
             onLoad(landingBeside.latitude, landingBeside.longitude + FiftyMOfLong, landingBeside.mainBody);
         }
 
-        struct LandingCoordinates
+        struct LandingCoordinates : IEquatable<LandingCoordinates>
         {
             public string Name { get; set; }
 
@@ -170,6 +188,21 @@ namespace HyperEdit.Model
                     Lon = 0;
                     Body = null;
                 }
+            }
+
+            public override int GetHashCode()
+            {
+                return Name.GetHashCode();
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is LandingCoordinates ? Equals((LandingCoordinates)obj) : false;
+            }
+
+            public bool Equals(LandingCoordinates other)
+            {
+                return Name.Equals(other.Name);
             }
 
             public override string ToString()
