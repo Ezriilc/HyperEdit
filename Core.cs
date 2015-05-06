@@ -33,14 +33,16 @@ namespace HyperEdit
 
     public class HyperEditBehaviour : MonoBehaviour
     {
-        ApplicationLauncherButton _appLauncherButton;
-        Action createCoreView = null;
+        private ConfigNode _hyperEditConfig;
+        private bool _useAppLauncherButton;
+        private ApplicationLauncherButton _appLauncherButton;
+        private Action createCoreView = null;
 
         private void CreateCoreView()
         {
             if (createCoreView == null)
             {
-                createCoreView = View.CoreView.Create();
+                createCoreView = View.CoreView.Create(this);
             }
             createCoreView();
         }
@@ -50,18 +52,66 @@ namespace HyperEdit
             View.Window.AreWindowsOpenChange += AreWindowsOpenChange;
             GameEvents.onGUIApplicationLauncherReady.Add(AddAppLauncher);
             GameEvents.onGUIApplicationLauncherDestroyed.Add(RemoveAppLauncher);
+            ReloadConfig();
+        }
+
+        private void ReloadConfig()
+        {
+            var hypereditCfg = IoExt.GetPath("hyperedit.cfg");
+            if (System.IO.File.Exists(hypereditCfg))
+            {
+                _hyperEditConfig = ConfigNode.Load(hypereditCfg);
+                _hyperEditConfig.name = "hyperedit";
+            }
+            else
+            {
+                _hyperEditConfig = new ConfigNode("hyperedit");
+            }
+
+            var value = true;
+            _hyperEditConfig.TryGetValue("UseAppLauncherButton", ref value, bool.TryParse);
+            UseAppLauncherButton = value;
         }
 
         private void AreWindowsOpenChange(bool isOpen)
         {
-            if (isOpen)
-                _appLauncherButton.SetTrue(false);
-            else
-                _appLauncherButton.SetFalse(false);
+            if (_appLauncherButton != null)
+            {
+                if (isOpen)
+                    _appLauncherButton.SetTrue(false);
+                else
+                    _appLauncherButton.SetFalse(false);
+            }
+        }
+
+        public bool UseAppLauncherButton
+        {
+            get
+            {
+                return _useAppLauncherButton;
+            }
+            set
+            {
+                if (_useAppLauncherButton == value)
+                    return;
+                _useAppLauncherButton = value;
+                if (value)
+                {
+                    AddAppLauncher();
+                }
+                else
+                {
+                    RemoveAppLauncher();
+                }
+                _hyperEditConfig.SetValue("UseAppLauncherButton", value.ToString(), true);
+                _hyperEditConfig.Save();
+            }
         }
 
         private void AddAppLauncher()
         {
+            if (_useAppLauncherButton == false)
+                return;
             if (_appLauncherButton != null)
             {
                 Extensions.Log("Not adding to ApplicationLauncher, button already exists (yet onGUIApplicationLauncherReady was called?)");
@@ -137,11 +187,17 @@ namespace HyperEdit
             {
                 if (View.Window.GameObject.GetComponents<View.Window>().Any(w => w._title == "HyperEdit"))
                 {
-                    _appLauncherButton.SetFalse();
+                    if (_appLauncherButton == null)
+                        View.Window.CloseAll();
+                    else
+                        _appLauncherButton.SetFalse();
                 }
                 else
                 {
-                    _appLauncherButton.SetTrue();
+                    if (_appLauncherButton == null)
+                        CreateCoreView();
+                    else
+                        _appLauncherButton.SetTrue();
                 }
             }
         }

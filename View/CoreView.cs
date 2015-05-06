@@ -1,17 +1,16 @@
 ﻿using System;
-using UnityEngine;
 
 namespace HyperEdit.View
 {
     public static class CoreView
     {
-        public static Action Create()
+        public static Action Create(HyperEditBehaviour hyperedit)
         {
-            var view = View();
-            return () => Window.Create("HyperEdit", true, true, 100, -1, w => view.Draw());
+            var view = View(hyperedit);
+            return () => Window.Create("HyperEdit", true, true, 120, -1, w => view.Draw());
         }
 
-        public static IView View()
+        public static IView View(HyperEditBehaviour hyperedit)
         {
             var orbitEditorView = OrbitEditorView.Create();
             var planetEditorView = PlanetEditorView.Create();
@@ -25,6 +24,8 @@ namespace HyperEdit.View
             var shipLander = new ButtonView("Ship Lander", "Opens the Ship Lander window", landerView);
             var miscTools = new ButtonView("Misc Tools", "Opens the Misc Tools window", miscEditorView);
             var about = new ButtonView("About", "Opens the About window", aboutView);
+            var appLauncher = new DynamicToggleView("H-Button", "Enables or disables the AppLauncher button (top right H button)",
+                () => hyperedit.UseAppLauncherButton, () => true, v => hyperedit.UseAppLauncherButton = v);
 
             return new VerticalView(new IView[]
                 {
@@ -33,7 +34,8 @@ namespace HyperEdit.View
                     planetEditor,
                     shipLander,
                     miscTools,
-                    about
+                    about,
+                    appLauncher
                 });
         }
     }

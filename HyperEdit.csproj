@@ -37,12 +37,12 @@
     </CustomCommands>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\KSP_linux\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>..\..\..\Documents\prog\KSP_win\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
+    <Reference Include="System" />
     <Reference Include="UnityEngine">
-      <HintPath>..\KSP_linux\KSP_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>..\..\..\Documents\prog\KSP_win\KSP_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -82,6 +82,6 @@
     </MonoDevelop>
   </ProjectExtensions>
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetPath)" "X:\src\KSP_linux\GameData\$(ProjectName)\"</PostBuildEvent>
+    <PostBuildEvent>copy "$(TargetPath)" "C:\Users\Evan\Documents\prog\KSP_win\GameData\$(ProjectName)\"</PostBuildEvent>
   </PropertyGroup>
 </Project>
