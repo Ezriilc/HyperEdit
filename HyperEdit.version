@@ -1,7 +1,7 @@
 {
   "NAME": "HyperEdit",
   "URL": "https://raw.githubusercontent.com/Ezriilc/HyperEdit/master/HyperEdit.version",
-  "DOWNLOAD": "http://www.kerbaltek.com/hyperedit"
+  "DOWNLOAD": "http://www.kerbaltek.com/hyperedit",
   "VERSION": {
     "MAJOR": 1,
     "MINOR": 4,
