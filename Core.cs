@@ -239,6 +239,12 @@ namespace HyperEdit
             var strvalue = node.GetValue(key);
             if (strvalue == null)
                 return;
+            if (tryParse == null)
+            {
+                // `T` better be `string`...
+                value = (T)(object)strvalue;
+                return;
+            }
             T temp;
             if (tryParse(strvalue, out temp) == false)
                 return;

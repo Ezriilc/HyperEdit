@@ -7,7 +7,8 @@ namespace HyperEdit.Model
 {
     public static class DoLander
     {
-        private const string Filename = "landcoords.txt";
+        private const string OldFilename = "landcoords.txt";
+        private const string FilenameNoExt = "landcoords";
 
         public static bool IsLanding()
         {
@@ -47,7 +48,7 @@ namespace HyperEdit.Model
             }
         }
 
-        private static List<LandingCoordinates> DefaultSavedCoords
+        private static IEnumerable<LandingCoordinates> DefaultSavedCoords
         {
             get
             {
@@ -68,15 +69,32 @@ namespace HyperEdit.Model
         {
             get
             {
-                var path = IoExt.GetPath(Filename);
-                return System.IO.File.Exists(path)
-                    ? System.IO.File.ReadAllLines(path).Select(x => new LandingCoordinates(x)).Where(l => string.IsNullOrEmpty(l.Name) == false).Union(DefaultSavedCoords).ToList()
-                        : DefaultSavedCoords;
+                var path = IoExt.GetPath(FilenameNoExt + ".cfg");
+                var oldPath = IoExt.GetPath(OldFilename);
+                IEnumerable<LandingCoordinates> query;
+                if (System.IO.File.Exists(path))
+                {
+                    query = ConfigNode.Load(path).nodes.OfType<ConfigNode>().Select(c => new LandingCoordinates(c));
+                }
+                else if (System.IO.File.Exists(oldPath))
+                {
+                    query = System.IO.File.ReadAllLines(oldPath).Select(x => new LandingCoordinates(x)).Where(l => string.IsNullOrEmpty(l.Name) == false);
+                }
+                else
+                {
+                    query = new LandingCoordinates[0];
+                }
+                query = query.Union(DefaultSavedCoords);
+                return query.ToList();
             }
             set
             {
-                var path = IoExt.GetPath(Filename);
-                System.IO.File.WriteAllText(path, string.Join(Environment.NewLine, value.Select(l => l.ToString()).ToArray()));
+                var cfg = new ConfigNode(FilenameNoExt);
+                foreach (var coord in value)
+                {
+                    cfg.AddNode(coord.ToConfigNode());
+                }
+                cfg.Save();
             }
         }
 
@@ -190,6 +208,21 @@ namespace HyperEdit.Model
                 }
             }
 
+            public LandingCoordinates(ConfigNode node)
+            {
+                CelestialBody body = null;
+                node.TryGetValue("body", ref body, Extensions.CbTryParse);
+                Body = body;
+                double temp = 0.0;
+                node.TryGetValue("lat", ref temp, double.TryParse);
+                Lat = temp;
+                node.TryGetValue("lon", ref temp, double.TryParse);
+                Lon = temp;
+                string name = null;
+                node.TryGetValue("name", ref name, null);
+                Name = name;
+            }
+
             public override int GetHashCode()
             {
                 return Name.GetHashCode();
@@ -208,6 +241,16 @@ namespace HyperEdit.Model
             public override string ToString()
             {
                 return Name + "," + Lat + "," + Lon + "," + Body.CbToString();
+            }
+
+            public ConfigNode ToConfigNode()
+            {
+                var node = new ConfigNode("coordinate");
+                node.AddValue("body", Body.CbToString());
+                node.AddValue("lat", Lat);
+                node.AddValue("lon", Lon);
+                node.AddValue("name", Name);
+                return node;
             }
         }
     }
