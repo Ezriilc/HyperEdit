@@ -57,6 +57,7 @@ namespace HyperEdit.Model
                 var kerbin = FlightGlobals.Bodies[1];
                 return new List<LandingCoordinates>
                 {
+                    new LandingCoordinates("Airstrip Island Runway", -1.5179, 288.032, kerbin),
                     new LandingCoordinates("Airstrip Island Beach - Wet", -1.498, -72.088, kerbin),
                     new LandingCoordinates("KSC Launch Pad", -0.097210087, 285.442335999, kerbin),
                     new LandingCoordinates("KSC Runway", -0.04862627, 285.2766345, kerbin),
