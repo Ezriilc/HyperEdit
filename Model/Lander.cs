@@ -61,7 +61,8 @@ namespace HyperEdit.Model
                     new LandingCoordinates("Airstrip Island Beach - Wet", -1.498, -72.088, kerbin),
                     new LandingCoordinates("KSC Launch Pad", -0.097210087, 285.442335999, kerbin),
                     new LandingCoordinates("KSC Runway", -0.04862627, 285.2766345, kerbin),
-                    new LandingCoordinates("KSC Beach - Wet", -0.04862627, -74.39, kerbin)
+                    new LandingCoordinates("KSC Beach - Wet", -0.04862627, -74.39, kerbin),
+                    new LandingCoordinates("Minmus Flats", 0.562859, 175.968846, minmus)
                 };
             }
         }
