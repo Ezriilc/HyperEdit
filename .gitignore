@@ -3,6 +3,7 @@
 [Oo]bj/
 BuildOutput/
 Properties/
+lib/
 
 # mstest test results
 TestResults

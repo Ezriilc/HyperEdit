@@ -13,7 +13,7 @@ namespace HyperEdit.View
         public static IView View()
         {
             var bodySelector = new ListSelectView<CelestialBody>("Planet", () => FlightGlobals.fetch == null ? null : FlightGlobals.fetch.bodies, null, Extensions.CbToString);
-            bodySelector.CurrentlySelected = FlightGlobals.fetch == null ? null : FlightGlobals.ActiveVessel == null ? FlightGlobals.Bodies[1] : FlightGlobals.ActiveVessel.mainBody;
+            bodySelector.CurrentlySelected = FlightGlobals.fetch == null ? null : FlightGlobals.ActiveVessel == null ? Planetarium.fetch.Home : FlightGlobals.ActiveVessel.mainBody;
             var lat = new TextBoxView<double>("Lat", "Latitude of landing coordinates", 0, double.TryParse);
             var lon = new TextBoxView<double>("Lon", "Longitude of landing coordinates", 0, double.TryParse);
             var alt = new TextBoxView<double>("Alt", "Altitude of landing coordinates", 20, SiSuffix.TryParse);

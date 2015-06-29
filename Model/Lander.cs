@@ -52,18 +52,24 @@ namespace HyperEdit.Model
         {
             get
             {
-                if (FlightGlobals.fetch == null || FlightGlobals.Bodies == null)
+                if (FlightGlobals.fetch == null || FlightGlobals.Bodies == null ||
+                    Planetarium.fetch == null || Planetarium.fetch.Home == null)
                     return new List<LandingCoordinates>();
-                var kerbin = FlightGlobals.Bodies[1];
-                return new List<LandingCoordinates>
+                var kerbin = Planetarium.fetch.Home;
+                var minmus = FlightGlobals.Bodies.FirstOrDefault(b => b.bodyName == "Minmus");
+                var list = new List<LandingCoordinates>
                 {
                     new LandingCoordinates("Airstrip Island Runway", -1.5179, 288.032, kerbin),
                     new LandingCoordinates("Airstrip Island Beach - Wet", -1.498, -72.088, kerbin),
                     new LandingCoordinates("KSC Launch Pad", -0.097210087, 285.442335999, kerbin),
                     new LandingCoordinates("KSC Runway", -0.04862627, 285.2766345, kerbin),
-                    new LandingCoordinates("KSC Beach - Wet", -0.04862627, -74.39, kerbin),
-                    new LandingCoordinates("Minmus Flats", 0.562859, 175.968846, minmus)
+                    new LandingCoordinates("KSC Beach - Wet", -0.04862627, -74.39, kerbin)
                 };
+                if (minmus != null)
+                {
+                    list.Add(new LandingCoordinates("Minmus Flats", 0.562859, 175.968846, minmus));
+                }
+                return list;
             }
         }
 
@@ -198,7 +204,7 @@ namespace HyperEdit.Model
                     }
                     else
                     {
-                        Body = FlightGlobals.Bodies[1];
+                        Body = Planetarium.fetch.Home;
                     }
                 }
                 else
