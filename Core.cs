@@ -302,6 +302,14 @@ namespace HyperEdit
             return radius;
         }
 
+        public static double Mod(this double x, double y)
+        {
+            var result = x % y;
+            if (result < 0)
+                result += y;
+            return result;
+        }
+
         private static Dictionary<string, KeyCode> _keyCodeNames;
 
         public static Dictionary<string, KeyCode> KeyCodeNames

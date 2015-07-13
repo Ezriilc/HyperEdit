@@ -27,8 +27,16 @@ namespace HyperEdit.Model
 
         public static void GetSimple(OrbitDriver currentlyEditing, out double altitude, out CelestialBody body)
         {
+            const int min = 1000;
+            const int defaultAlt = 100000;
             body = currentlyEditing.orbit.referenceBody;
-            altitude = Math.Max(currentlyEditing.orbit.semiMajorAxis - body.Radius, 1000);
+            altitude = currentlyEditing.orbit.semiMajorAxis - body.Radius;
+            if (altitude > min)
+                return;
+            altitude = currentlyEditing.orbit.ApA;
+            if (altitude > min)
+                return;
+            altitude = defaultAlt;
         }
 
         public static void Complex(OrbitDriver currentlyEditing, double inclination, double eccentricity,
@@ -65,14 +73,13 @@ namespace HyperEdit.Model
 
             eccentricity *= Math.PI / 2 - 0.001;
 
-            var e = Math.Tan(eccentricity);
-            var semimajor = periapsis / (1 - e);
+            eccentricity = Math.Tan(eccentricity);
+            var semimajor = periapsis / (1 - eccentricity);
 
             if (semimajor < 0)
             {
-                meanAnomaly /= Math.PI;
-                meanAnomaly -= 1;
-                meanAnomaly *= 5;
+                meanAnomaly -= 0.5;
+                meanAnomaly *= eccentricity * 4; // 4 is arbitrary constant
             }
 
             inclination *= 360;
@@ -80,7 +87,7 @@ namespace HyperEdit.Model
             argumentOfPeriapsis *= 360;
             meanAnomaly *= 2 * Math.PI;
 
-            SetOrbit(currentlyEditing, CreateOrbit(inclination, e, semimajor, longitudeAscendingNode, argumentOfPeriapsis, meanAnomaly, epoch, body));
+            SetOrbit(currentlyEditing, CreateOrbit(inclination, eccentricity, semimajor, longitudeAscendingNode, argumentOfPeriapsis, meanAnomaly, epoch, body));
         }
 
         public static void GetGraphical(OrbitDriver currentlyEditing, out double inclination, out double eccentricity,
@@ -88,8 +95,11 @@ namespace HyperEdit.Model
             out double meanAnomaly, out double epoch)
         {
             inclination = currentlyEditing.orbit.inclination / 360;
+            inclination = inclination.Mod(1);
             longitudeAscendingNode = currentlyEditing.orbit.LAN / 360;
+            longitudeAscendingNode = longitudeAscendingNode.Mod(1);
             argumentOfPeriapsis = currentlyEditing.orbit.argumentOfPeriapsis / 360;
+            argumentOfPeriapsis = argumentOfPeriapsis.Mod(1);
             var eTemp = Math.Atan(currentlyEditing.orbit.eccentricity);
             eccentricity = eTemp / (Math.PI / 2 - 0.001);
             var soi = currentlyEditing.orbit.referenceBody.Soi();
@@ -103,9 +113,8 @@ namespace HyperEdit.Model
             meanAnomaly /= (2 * Math.PI);
             if (currentlyEditing.orbit.semiMajorAxis < 0)
             {
-                meanAnomaly /= 5;
-                meanAnomaly += 1;
-                meanAnomaly *= (float)Math.PI;
+                meanAnomaly /= currentlyEditing.orbit.eccentricity * 4;
+                meanAnomaly += 0.5;
             }
             epoch = currentlyEditing.orbit.epoch;
         }

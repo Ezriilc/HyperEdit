@@ -15,6 +15,10 @@ namespace HyperEdit.View
         public static IView View()
         {
             ListSelectView<OrbitDriver> currentlyEditing = null;
+            Action<OrbitDriver> onCurrentlyEditingChange = null;
+
+            var setToCurrentOrbit = new ButtonView("Set to current orbit", "Sets all the fields of the editor to reflect the orbit of the currently selected vessel",
+                () => onCurrentlyEditingChange(currentlyEditing.CurrentlySelected));
 
             var referenceSelector = new ListSelectView<CelestialBody>("Reference body", () => FlightGlobals.fetch == null ? null : FlightGlobals.fetch.bodies, null, Extensions.CbToString);
 
@@ -31,7 +35,8 @@ namespace HyperEdit.View
                 {
                     simpleAltitude,
                     referenceSelector,
-                    simpleApply
+                    simpleApply,
+                    setToCurrentOrbit
                 });
             #endregion
 
@@ -77,7 +82,8 @@ namespace HyperEdit.View
                     complexEpoch,
                     complexEpochNow,
                     referenceSelector,
-                    complexApply
+                    complexApply,
+                    setToCurrentOrbit
                 });
             #endregion
 
@@ -111,32 +117,6 @@ namespace HyperEdit.View
             graphicalArgumentOfPeriapsis = new SliderView("Argument of periapsis", "Rotation of the orbit around the normal", graphicalOnChange);
             graphicalMeanAnomaly = new SliderView("Mean anomaly", "Position along the orbit", graphicalOnChange);
 
-            Action<OrbitDriver> graphicalUpdate = newEditing =>
-            {
-                if (newEditing == null)
-                    return;
-                double inclination;
-                double eccentricity;
-                double periapsis;
-                double longitudeAscendingNode;
-                double argumentOfPeriapsis;
-                double meanAnomaly;
-                Model.OrbitEditor.GetGraphical(newEditing,
-                    out inclination,
-                    out eccentricity,
-                    out periapsis,
-                    out longitudeAscendingNode,
-                    out argumentOfPeriapsis,
-                    out meanAnomaly,
-                    out graphicalEpoch);
-                graphicalInclination.Value = inclination;
-                graphicalEccentricity.Value = eccentricity;
-                graphicalPeriapsis.Value = periapsis;
-                graphicalLongitudeAscendingNode.Value = longitudeAscendingNode;
-                graphicalArgumentOfPeriapsis.Value = argumentOfPeriapsis;
-                graphicalMeanAnomaly.Value = meanAnomaly;
-            };
-
             var graphical = new VerticalView(new IView[]
                 {
                     graphicalInclination,
@@ -145,7 +125,7 @@ namespace HyperEdit.View
                     graphicalLongitudeAscendingNode,
                     graphicalArgumentOfPeriapsis,
                     graphicalMeanAnomaly,
-                    new CustomView(() => graphicalUpdate(currentlyEditing.CurrentlySelected))
+                    setToCurrentOrbit
                 });
             #endregion
 
@@ -184,7 +164,7 @@ namespace HyperEdit.View
             #endregion
 
             #region CurrentlyEditing
-            Action<OrbitDriver> onCurrentlyEditingChange = newEditing =>
+            onCurrentlyEditingChange = newEditing =>
             {
                 if (newEditing == null)
                 {
@@ -224,7 +204,28 @@ namespace HyperEdit.View
                     complexEpoch.Object = epoch;
                     referenceSelector.CurrentlySelected = body;
                 }
-                graphicalUpdate(newEditing);
+                {
+                    double inclination;
+                    double eccentricity;
+                    double periapsis;
+                    double longitudeAscendingNode;
+                    double argumentOfPeriapsis;
+                    double meanAnomaly;
+                    Model.OrbitEditor.GetGraphical(newEditing,
+                        out inclination,
+                        out eccentricity,
+                        out periapsis,
+                        out longitudeAscendingNode,
+                        out argumentOfPeriapsis,
+                        out meanAnomaly,
+                        out graphicalEpoch);
+                    graphicalInclination.Value = inclination;
+                    graphicalEccentricity.Value = eccentricity;
+                    graphicalPeriapsis.Value = periapsis;
+                    graphicalLongitudeAscendingNode.Value = longitudeAscendingNode;
+                    graphicalArgumentOfPeriapsis.Value = argumentOfPeriapsis;
+                    graphicalMeanAnomaly.Value = meanAnomaly;
+                }
                 {
                     Model.OrbitEditor.VelocityChangeDirection direction;
                     double speed;
