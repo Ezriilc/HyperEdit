@@ -22,7 +22,7 @@ namespace HyperEdit.View
                     foreach (var vessel in Model.SmaAligner.AvailableVessels)
                     {
                         var alreadyIn = vesselsToAlign.Contains(vessel);
-                        var newIn = GUILayout.Toggle(alreadyIn, vessel.name);
+                        var newIn = GUILayout.Toggle(alreadyIn, vessel.vesselName);
                         if (alreadyIn == false && newIn == true)
                             vesselsToAlign.Add(vessel);
                         if (alreadyIn == true && newIn == false)

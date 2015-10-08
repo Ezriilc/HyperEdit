@@ -271,6 +271,8 @@ namespace HyperEdit.Model
         public double Longitude { get; set; }
         public double Altitude { get; set; }
 
+        private readonly object accelLogObject = new object();
+
         public void FixedUpdate()
         {
             var vessel = GetComponent<Vessel>();
@@ -289,6 +291,9 @@ namespace HyperEdit.Model
                 {
                     var accel = (vessel.srf_velocity + vessel.upAxis) * -0.5;
                     vessel.ChangeWorldVelocity(accel);
+                    RateLimitedLogger.Log(accelLogObject,
+                        string.Format("(Happening every frame) Soft-lander changed ship velocity this frame by vector {0},{1},{2} (mag {3})",
+                        accel.x, accel.y, accel.z, accel.magnitude));
                 }
             }
             else
@@ -304,13 +309,12 @@ namespace HyperEdit.Model
                     QuaternionD.AngleAxis(Latitude, Vector3d.forward) * Vector3d.right) -
                     pqs.radius;
                 alt = Math.Max(alt, 0); // Underwater!
-                if (vessel.Landed)
-                    vessel.Landed = false;
-                else if (vessel.Splashed)
-                    vessel.Splashed = false;
-                foreach (var part in vessel.parts.Where(part => part.Modules.OfType<LaunchClamp>().Any()).ToList())
-                    part.Die();
-                TimeWarp.SetRate(0, true); // HoldVesselUnpack is in display frames, not physics frames
+                if (TimeWarp.CurrentRateIndex != 0)
+                {
+                    TimeWarp.SetRate(0, true);
+                    Extensions.Log("Set time warp to index 0");
+                }
+                // HoldVesselUnpack is in display frames, not physics frames
 
                 var teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt + Altitude);
                 var teleportVelocity = Body.getRFrmVel(teleportPosition + Body.position);

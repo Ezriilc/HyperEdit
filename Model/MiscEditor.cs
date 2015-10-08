@@ -11,13 +11,13 @@ namespace HyperEdit.Model
             if (FlightGlobals.fetch == null || FlightGlobals.Vessels == null)
                 Extensions.ErrorPopup("Could not get list of vessels");
             else
-                View.WindowHelper.Selector("Destroy...", FlightGlobals.Vessels, v => v.name, v => v.Die());
+                View.WindowHelper.Selector("Destroy...", FlightGlobals.Vessels, v => v.vesselName, v => v.Die());
         }
 
         public static double UniversalTime
         {
             get { return Planetarium.GetUniversalTime(); }
-            set { Planetarium.SetUniversalTime(value); }
+            set { Planetarium.SetUniversalTime(value); Extensions.Log("Set Planetarium.UniversalTime to " + value); }
         }
 
         public static void AlignSemiMajorAxis()
@@ -56,14 +56,22 @@ namespace HyperEdit.Model
             SetResource(FlightGlobals.ActiveVessel, key, value);
         }
 
+        private static readonly object SetResourceLogObject = new object();
         private static void SetResource(Vessel vessel, string key, double value)
         {
             if (vessel.parts == null)
                 return;
             foreach (var part in vessel.parts)
+            {
                 foreach (PartResource resource in part.Resources)
+                {
                     if (resource.resourceName == key)
+                    {
                         part.TransferResource(resource.info.id, resource.maxAmount * value - resource.amount);
+                        RateLimitedLogger.Log(SetResourceLogObject, string.Format("Set part \"{0}\"'s resource \"{1}\" to {2}% by requesting {3} from it", part.partName, resource.resourceName, value * 100, resource.maxAmount * value - resource.amount));
+                    }
+                }
+            }
         }
 
         public static void RefillVesselResources(Vessel vessel)
@@ -71,8 +79,13 @@ namespace HyperEdit.Model
             if (vessel.parts == null)
                 return;
             foreach (var part in vessel.parts)
+            {
                 foreach (PartResource resource in part.Resources)
+                {
                     part.TransferResource(resource.info.id, resource.maxAmount - resource.amount);
+                    Extensions.Log(string.Format("Refilled part \"{0}\"'s resource \"{1}\" by requesting {2} from it", part.partName, resource.resourceName, resource.maxAmount - resource.amount));
+                }
+            }
         }
 
         public static KeyCode[] BoostButtonKey
@@ -107,6 +120,7 @@ namespace HyperEdit.Model
         }
 
         private bool _doBoost = false;
+        private readonly object boostLogObject = new object();
 
         KeyCode[] _keys = new[] { KeyCode.LeftControl, KeyCode.B };
 
@@ -136,6 +150,7 @@ namespace HyperEdit.Model
             var toAdd = vessel.transform.up;
             toAdd *= (float)Speed;
             vessel.ChangeWorldVelocity(toAdd);
+            RateLimitedLogger.Log(boostLogObject, string.Format("Booster changed vessel's velocity by {0},{1},{2} (mag {3})", toAdd.x, toAdd.y, toAdd.z, toAdd.magnitude));
         }
     }
 }

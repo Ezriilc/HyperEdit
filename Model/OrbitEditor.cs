@@ -245,16 +245,7 @@ namespace HyperEdit.Model
                 return;
             }
 
-            vessel.Landed = false;
-            vessel.Splashed = false;
-            vessel.landedAt = string.Empty;
-            var parts = vessel.parts;
-            if (parts != null)
-            {
-                var clamps = parts.Where(p => p.Modules != null && p.Modules.OfType<LaunchClamp>().Any()).ToList();
-                foreach (var clamp in clamps)
-                    clamp.Die();
-            }
+            vessel.PrepVesselTeleport();
 
             try
             {
@@ -296,6 +287,8 @@ namespace HyperEdit.Model
             body.RealCbUpdate();
         }
 
+        private static readonly object HardsetOrbitLogObject = new object();
+
         private static void HardsetOrbit(OrbitDriver orbitDriver, Orbit newOrbit)
         {
             var orbit = orbitDriver.orbit;
@@ -314,39 +307,16 @@ namespace HyperEdit.Model
                 if (orbitDriver.OnReferenceBodyChange != null)
                     orbitDriver.OnReferenceBodyChange(newOrbit.referenceBody);
             }
+            RateLimitedLogger.Log(HardsetOrbitLogObject,
+                string.Format("Orbit \"{0}\" changed to: inc={1} ecc={2} sma={3} lan={4} argpe={5} mep={6} epoch={7} refbody={8}",
+                orbitDriver.OrbitDriverToString(), orbit.inclination, orbit.eccentricity, orbit.semiMajorAxis,
+                orbit.LAN, orbit.argumentOfPeriapsis, orbit.meanAnomalyAtEpoch, orbit.epoch, orbit.referenceBody.CbToString()));
         }
-
-        //public static void Teleport(this Krakensbane krakensbane, Vector3d offset)
-        //{
-        //    foreach (var vessel in FlightGlobals.Vessels.Where(v => v.packed == false && v != FlightGlobals.ActiveVessel))
-        //        vessel.GoOnRails();
-        //    krakensbane.setOffset(offset);
-        //}
-
-        //public static Rect Set(this Rect rect, int width, int height)
-        //{
-        //    return new Rect(rect.xMin, rect.yMin, width, height);
-        //}
 
         public static Orbit Clone(this Orbit o)
         {
             return new Orbit(o.inclination, o.eccentricity, o.semiMajorAxis, o.LAN,
                 o.argumentOfPeriapsis, o.meanAnomalyAtEpoch, o.epoch, o.referenceBody);
-        }
-
-    }
-
-    public struct SliderRange
-    {
-        public float Min { get; private set; }
-
-        public float Max { get; private set; }
-
-        public SliderRange(float min, float max)
-            : this()
-        {
-            Min = min;
-            Max = max;
         }
     }
 }

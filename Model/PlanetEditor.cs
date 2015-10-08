@@ -118,6 +118,8 @@ namespace HyperEdit.Model
                     body.SetOrbit(orbit);
 
                 body.RealCbUpdate();
+
+                Extensions.Log(string.Format("Set body \"{0}\"'s parameters to:\n{1}", body.bodyName, GetConfig(body).ToString()));
             }
 
             public static ConfigNode GetConfig(CelestialBody body)
@@ -183,6 +185,8 @@ namespace HyperEdit.Model
                 }
 
                 body.RealCbUpdate();
+
+                Extensions.Log(string.Format("Set body \"{0}\"'s parameters to:\n{1}", body.bodyName, GetConfig(body).ToString()));
             }
         }
 
