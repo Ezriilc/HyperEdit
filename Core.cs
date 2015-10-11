@@ -414,6 +414,26 @@ namespace HyperEdit
             return result;
         }
 
+        public static string VesselToString(this Vessel vessel)
+        {
+            if (FlightGlobals.fetch != null && FlightGlobals.ActiveVessel == vessel)
+                return "Active vessel";
+            return vessel.vesselName;
+        }
+
+        public static string OrbitDriverToString(this OrbitDriver driver)
+        {
+            if (driver == null)
+                return null;
+            if (driver.celestialBody != null)
+                return driver.celestialBody.bodyName;
+            if (driver.vessel != null)
+                return driver.vessel.VesselToString();
+            if (!string.IsNullOrEmpty(driver.name))
+                return driver.name;
+            return "Unknown";
+        }
+
         private static Dictionary<string, KeyCode> _keyCodeNames;
 
         public static Dictionary<string, KeyCode> KeyCodeNames
@@ -444,31 +464,9 @@ namespace HyperEdit
             return true;
         }
 
-        public static string VesselToString(this Vessel vessel)
-        {
-            if (FlightGlobals.fetch != null && FlightGlobals.ActiveVessel == vessel)
-                return "Active vessel";
-            return vessel.vesselName;
-        }
-
         public static string KeyCodeToString(this KeyCode[] values)
         {
             return string.Join("-", values.Select(v => v.ToString()).ToArray());
-        }
-
-        public static string OrbitDriverToString(this OrbitDriver driver)
-        {
-            if (driver == null)
-                return null;
-            var body = FlightGlobals.Bodies.FirstOrDefault(cb => cb.orbitDriver != null && cb.orbitDriver == driver);
-            if (body != null)
-                return body.bodyName;
-            var vessel = FlightGlobals.Vessels.FirstOrDefault(v => v.orbitDriver != null && v.orbitDriver == driver);
-            if (vessel != null)
-                return vessel.VesselToString();
-            if (string.IsNullOrEmpty(driver.name) == false)
-                return driver.name;
-            return "Unknown";
         }
 
         public static string CbToString(this CelestialBody body)
@@ -480,6 +478,11 @@ namespace HyperEdit
         {
             body = FlightGlobals.Bodies == null ? null : FlightGlobals.Bodies.FirstOrDefault(cb => cb.name == bodyName);
             return body != null;
+        }
+
+        public static void ClearGuiFocus()
+        {
+            GUIUtility.keyboardControl = 0;
         }
 
         private static string TrimUnityColor(string value)

@@ -93,6 +93,7 @@ namespace HyperEdit.View
             if (GUILayout.Button(label))
             {
                 onChange();
+                Extensions.ClearGuiFocus();
             }
         }
     }
@@ -116,7 +117,10 @@ namespace HyperEdit.View
             var oldValue = Value;
             Value = GUILayout.Toggle(oldValue, label);
             if (oldValue != Value && onChange != null)
+            {
                 onChange(Value);
+                Extensions.ClearGuiFocus();
+            }
         }
     }
 
@@ -140,7 +144,10 @@ namespace HyperEdit.View
             var oldValue = getValue();
             var newValue = GUILayout.Toggle(oldValue, label);
             if (oldValue != newValue && isValid())
+            {
                 onChange(newValue);
+                Extensions.ClearGuiFocus();
+            }
         }
     }
 
@@ -166,7 +173,10 @@ namespace HyperEdit.View
             if (Math.Abs(newValue - oldValue) > 0.001)
             {
                 if (onChange != null)
+                {
                     onChange(newValue);
+                }
+                Extensions.ClearGuiFocus();
             }
             GUILayout.EndHorizontal();
         }
@@ -195,7 +205,10 @@ namespace HyperEdit.View
             {
                 Value = newValue;
                 if (onChange != null)
+                {
                     onChange(Value);
+                }
+                Extensions.ClearGuiFocus();
             }
             GUILayout.EndHorizontal();
         }
@@ -241,6 +254,7 @@ namespace HyperEdit.View
             GUILayout.Label(prefix + (currentlySelected == null ? "<none>" : toString(currentlySelected)));
             if (GUILayout.Button("Select"))
             {
+                Extensions.ClearGuiFocus();
                 var realList = list();
                 if (realList != null)
                     WindowHelper.Selector("Select", realList, toString, t => CurrentlySelected = t);
@@ -306,7 +320,10 @@ namespace HyperEdit.View
             if (label != null || onSet != null)
             {
                 if (onSet != null && Valid && GUILayout.Button("Set"))
+                {
                     onSet(Object);
+                    Extensions.ClearGuiFocus();
+                }
                 GUILayout.EndHorizontal();
             }
         }
@@ -335,7 +352,10 @@ namespace HyperEdit.View
                 else
                 {
                     if (GUILayout.Button(view.Key))
+                    {
                         current = view;
+                        Extensions.ClearGuiFocus();
+                    }
                 }
             }
             GUILayout.EndHorizontal();
