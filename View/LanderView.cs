@@ -35,7 +35,8 @@ namespace HyperEdit.View
                         new LabelView("Landing on a body other than the current one is not recommended.",
                         "This causes lots of explosions, it's advisable to teleport to an orbit above the planet, then land on it directly")),
                     new DynamicToggleView("Landing", "Land the ship (or stop landing)", Model.DoLander.IsLanding,
-                        isValid, b => Model.DoLander.ToggleLanding(lat.Object, lon.Object, alt.Object, bodySelector.CurrentlySelected)),
+                        isValid, b => Model.DoLander.ToggleLanding(lat.Object, lon.Object, alt.Object, bodySelector.CurrentlySelected, load)),
+                    new ConditionalView(() => Model.DoLander.IsLanding(), new LabelView(HelpString(), "Moves the landing vessel's coordinates slightly")),
                     new ConditionalView(() => !Model.DoLander.IsLanding(), new ButtonView("Land here", "Stops the vessel and slowly lowers it to the ground (without teleporting)", () => Model.DoLander.LandHere())),
                     new ConditionalView(isValid, new ButtonView("Save", "Save the entered location", () => Model.DoLander.AddSavedCoords(lat.Object, lon.Object, bodySelector.CurrentlySelected))),
                     new ButtonView("Load", "Load a previously-saved location", () => Model.DoLander.Load(load)),
@@ -43,6 +44,15 @@ namespace HyperEdit.View
                     new ButtonView("Set to current", "Set lat/lon to the current position", () => Model.DoLander.SetToCurrent(load)),
                     new ListSelectView<Vessel>("Set lat/lon to", Model.DoLander.LandedVessels, select => Model.DoLander.SetToLanded(load, select), Extensions.VesselToString),
                 });
+        }
+
+        private static string HelpString()
+        {
+            return string.Format("Use {0},{1},{2},{3} to fine-tune landing coordinates",
+                GameSettings.TRANSLATE_UP.primary,
+                GameSettings.TRANSLATE_DOWN.primary,
+                GameSettings.TRANSLATE_LEFT.primary,
+                GameSettings.TRANSLATE_RIGHT.primary);
         }
     }
 }

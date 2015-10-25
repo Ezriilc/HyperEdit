@@ -17,7 +17,7 @@ namespace HyperEdit.Model
             return FlightGlobals.ActiveVessel.GetComponent<LanderAttachment>() != null;
         }
 
-        public static void ToggleLanding(double latitude, double longitude, double altitude, CelestialBody body)
+        public static void ToggleLanding(double latitude, double longitude, double altitude, CelestialBody body, Action<double, double, CelestialBody> onManualEdit)
         {
             if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null || body == null)
                 return;
@@ -29,6 +29,7 @@ namespace HyperEdit.Model
                 lander.Longitude = longitude;
                 lander.Altitude = altitude;
                 lander.Body = body;
+                lander.OnManualEdit = onManualEdit;
             }
             else
             {
@@ -266,12 +267,45 @@ namespace HyperEdit.Model
     public class LanderAttachment : MonoBehaviour
     {
         public bool AlreadyTeleported { get; set; }
+        public Action<double, double, CelestialBody> OnManualEdit { get; set; }
         public CelestialBody Body { get; set; }
         public double Latitude { get; set; }
         public double Longitude { get; set; }
         public double Altitude { get; set; }
 
         private readonly object accelLogObject = new object();
+
+        public void Update()
+        {
+            // 0.2 meters per frame
+            var degrees = 0.2 / Body.Radius * (180 / Math.PI);
+            var changed = false;
+            if (GameSettings.TRANSLATE_UP.GetKey())
+            {
+                Latitude -= degrees;
+                changed = true;
+            }
+            if (GameSettings.TRANSLATE_DOWN.GetKey())
+            {
+                Latitude += degrees;
+                changed = true;
+            }
+            if (GameSettings.TRANSLATE_LEFT.GetKey())
+            {
+                Longitude -= degrees / Math.Cos(Latitude * (Math.PI / 180));
+                changed = true;
+            }
+            if (GameSettings.TRANSLATE_RIGHT.GetKey())
+            {
+                Longitude += degrees / Math.Cos(Latitude * (Math.PI / 180));
+                changed = true;
+            }
+            if (changed)
+            {
+                AlreadyTeleported = false;
+                OnManualEdit(Latitude, Longitude, Body);
+            }
+        }
 
         public void FixedUpdate()
         {
