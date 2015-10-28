@@ -43,6 +43,7 @@
     <Compile Include="Model\OrbitEditor.cs" />
     <Compile Include="Model\PlanetEditor.cs" />
     <Compile Include="Model\SmaAligner.cs" />
+    <Compile Include="Model\Tetris.cs" />
     <Compile Include="View\AboutWindow.cs" />
     <Compile Include="View\CoreView.cs" />
     <Compile Include="View\LanderView.cs" />

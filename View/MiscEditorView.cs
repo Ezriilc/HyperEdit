@@ -27,6 +27,7 @@ namespace HyperEdit.View
                     GUILayout.EndHorizontal();
                 }
             };
+            var tetris = TetrisView.Create();
             return new VerticalView(new IView[]
                 {
                     new LabelView("Resources", "Set amounts of various resources contained on the active vessel"),
@@ -40,7 +41,46 @@ namespace HyperEdit.View
                         Model.MiscEditor.BoostButtonKey, Extensions.KeyCodeTryParse, Extensions.KeyCodeToString, v => Model.MiscEditor.BoostButtonKey = v),
                     new TextBoxView<double>("Boost button speed", "Sets the dV applied per frame when the boost button is held down",
                         Model.MiscEditor.BoostButtonSpeed, SiSuffix.TryParse, null, v => Model.MiscEditor.BoostButtonSpeed = v),
+                    new ButtonView("Tetris", "Use QE to rotate, AD to move, S to move down, W to drop", tetris)
                 });
+        }
+    }
+
+    public static class TetrisView
+    {
+        public static Action Create()
+        {
+            var view = View();
+            return () => Window.Create("Tetris", true, true, 300, -1, w => view.Draw());
+        }
+
+        private static bool tetrisViewed;
+        private static Model.Tetris keyboardDrivenTetris;
+
+        public static void UpdateTetris()
+        {
+            if (!tetrisViewed || keyboardDrivenTetris == null)
+                return;
+            var moveLeft = Input.GetKeyDown(KeyCode.A);
+            var moveRight = Input.GetKeyDown(KeyCode.D);
+            var rotLeft = Input.GetKeyDown(KeyCode.Q);
+            var rotRight = Input.GetKeyDown(KeyCode.E);
+            var down = Input.GetKeyDown(KeyCode.S);
+            var drop = Input.GetKeyDown(KeyCode.W);
+            keyboardDrivenTetris.RunUpdate(moveLeft, moveRight, rotLeft, rotRight, down, drop);
+            tetrisViewed = false;
+        }
+
+        public static IView View()
+        {
+            var texture = new Texture2D(200, 300, TextureFormat.RGB24, false);
+            var tetris = new Model.Tetris(texture, 10);
+            keyboardDrivenTetris = tetris;
+            return new CustomView(() =>
+            {
+                tetrisViewed = true;
+                GUILayout.Box(tetris.Render());
+            });
         }
     }
 }
