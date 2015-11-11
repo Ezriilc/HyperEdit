@@ -184,7 +184,6 @@ namespace HyperEdit
         public void Update()
         {
             RateLimitedLogger.Update();
-            View.TetrisView.UpdateTetris();
             if ((Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)) && Input.GetKeyDown(KeyCode.H))
             {
                 if (View.Window.GameObject.GetComponents<View.Window>().Any(w => w._title == "HyperEdit"))

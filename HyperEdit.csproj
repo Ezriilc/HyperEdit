@@ -10,7 +10,9 @@
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <NoConfig>true</NoConfig>
     <NoStdLib>true</NoStdLib>
-    <KspOutputPath>..\KSP_linux\GameData\Kerbaltek</KspOutputPath>
+    <KspInstallDir Condition=" '$(KspInstallDir)' == '' ">..\KSP_linux</KspInstallDir>
+    <KspOutputPath>$(KspInstallDir)\GameData\Kerbaltek</KspOutputPath>
+    <KspLibPath>$(KspInstallDir)\KSP_Data\Managed</KspLibPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -30,10 +32,10 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="lib\mscorlib.dll"/>
-    <Reference Include="lib\System.Core.dll"/>
-    <Reference Include="lib\UnityEngine.dll"/>
-    <Reference Include="lib\Assembly-CSharp.dll"/>
+    <Reference Include="$(KspLibPath)\mscorlib.dll"/>
+    <Reference Include="$(KspLibPath)\System.Core.dll"/>
+    <Reference Include="$(KspLibPath)\UnityEngine.dll"/>
+    <Reference Include="$(KspLibPath)\Assembly-CSharp.dll"/>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core.cs" />
@@ -43,7 +45,6 @@
     <Compile Include="Model\OrbitEditor.cs" />
     <Compile Include="Model\PlanetEditor.cs" />
     <Compile Include="Model\SmaAligner.cs" />
-    <Compile Include="Model\Tetris.cs" />
     <Compile Include="View\AboutWindow.cs" />
     <Compile Include="View\CoreView.cs" />
     <Compile Include="View\LanderView.cs" />
@@ -61,6 +62,6 @@
     <None Include="README.md" />
   </ItemGroup>
   <Target Name="AfterBuild">
-    <Copy SourceFiles="$(OutputPath)\HyperEdit.dll" DestinationFolder="$(KspOutputPath)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(KspOutputPath)" />
   </Target>
 </Project>
