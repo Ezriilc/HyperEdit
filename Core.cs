@@ -48,19 +48,19 @@ namespace HyperEdit
 		// The function first calls the hideHyperEditAPI to be sure
 		// that no other HyperEdit windows are open
 		//
-		public  void showHyperEditAPI(bool activeVesselOnly)
+		public  void showHyperEditAPI(bool activeVesselOnly, bool showOrbit = true, bool showPlanet = true, bool showShipLander = true, bool showMisc = true, bool showAbout = true, bool showApplauncher = true)
 		{
 			Extensions.Log("showHyperEdit");
 			// First call the hideHyperEditAPI() to delete the old views, if they exist
 			hideHyperEditAPI();
-			CreateAPICoreView();
+			CreateAPICoreView(showOrbit, showPlanet, showShipLander, showMisc, showAbout, showApplauncher);
 			_appLauncherButton.SetTrue();
 			activeVesselOnlyAPI = activeVesselOnly;
 		}
 		//
 		// This function will hide HyperEdit and all it's windows
 		//
-		public void hideHyperEditAPI(bool noop = false)
+		public void hideHyperEditAPI()
 		{
 			if (createCoreView != null) {
 				View.Window.CloseAll ();
@@ -72,12 +72,12 @@ namespace HyperEdit
 		// This is called by the API when showing HyperEdit as called from another mod
 		// This will open and make available a subset of the HyperEdit windows
 		//
-		private void CreateAPICoreView()
+		private void CreateAPICoreView(bool showOrbit = true, bool showPlanet = true, bool showShipLander = true, bool showMisc = true, bool showAbout = true, bool showApplauncher = true)
 		{
 			Extensions.Log("CreateHolodeckCoreView");
 			if (createCoreView == null)
 			{
-				createCoreView = View.CoreView.Create (this, true, false, true, false, false, false);
+				createCoreView = View.CoreView.Create (this, showOrbit, showPlanet, showShipLander, showMisc, showAbout, showApplauncher);
 			}
 			createCoreView();
 		}
