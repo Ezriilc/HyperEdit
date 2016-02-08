@@ -216,10 +216,10 @@ namespace HyperEdit.Model
                     Body = null;
                 }
             }
-			//
-			// For some reason Linuxgurugamer needed to add the :this() to get a good compile
-			//
-			public LandingCoordinates(ConfigNode node):this()
+            //
+            // For some reason Linuxgurugamer needed to add the :this() to get a good compile
+            //
+            public LandingCoordinates(ConfigNode node):this()
             {
                 CelestialBody body = null;
                 node.TryGetValue("body", ref body, Extensions.CbTryParse);

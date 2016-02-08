@@ -13,14 +13,14 @@ namespace HyperEdit.Model
                     ? new OrbitDriver[0]
                     : new[] { FlightGlobals.ActiveVessel.orbitDriver });
 
-			//
-			// Changes to support API by LinuxGuruGamer
-			// If specified that only active vessel be displayed
-			// then return query here
-			//
-			if (HyperEditBehaviour.activeVesselOnlyAPI)   
-				return query;
-			
+            //
+            // Changes to support API by LinuxGuruGamer
+            // If specified that only active vessel be displayed
+            // then return query here
+            //
+            if (HyperEditBehaviour.activeVesselOnlyAPI)   
+                return query;
+            
             if (FlightGlobals.fetch != null)
                 query = query
                     .Concat(FlightGlobals.Vessels.Select(v => v.orbitDriver))
