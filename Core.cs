@@ -31,6 +31,7 @@ namespace HyperEdit
         }
     }
 
+
     public class HyperEditBehaviour : MonoBehaviour
     {
         private ConfigNode _hyperEditConfig;
@@ -38,8 +39,52 @@ namespace HyperEdit
         private ApplicationLauncherButton _appLauncherButton;
         private Action createCoreView = null;
 
+        // Following is a minimal API added by Linuxgurugamer
+        // This is used to call HyperEdit from other mods
+        public static bool activeVesselOnlyAPI = false;
+        //
+        // This function shows Hyperedit.  If activeVesselOnly is true
+        // then HyperEdit will only work on the active vessel
+        // The function first calls the hideHyperEditAPI to be sure
+        // that no other HyperEdit windows are open
+        //
+        public  void showHyperEditAPI(bool activeVesselOnly, bool showOrbit = true, bool showPlanet = true, bool showShipLander = true, bool showMisc = true, bool showAbout = true, bool showApplauncher = true)
+        {
+            Extensions.Log("showHyperEdit");
+            // First call the hideHyperEditAPI() to delete the old views, if they exist
+            hideHyperEditAPI();
+            CreateAPICoreView(showOrbit, showPlanet, showShipLander, showMisc, showAbout, showApplauncher);
+            _appLauncherButton.SetTrue();
+            activeVesselOnlyAPI = activeVesselOnly;
+        }
+        //
+        // This function will hide HyperEdit and all it's windows
+        //
+        public void hideHyperEditAPI()
+        {
+            if (createCoreView != null) {
+                View.Window.CloseAll ();
+                createCoreView = null;
+            }
+            activeVesselOnlyAPI = false;
+        }
+        //
+        // This is called by the API when showing HyperEdit as called from another mod
+        // This will open and make available a subset of the HyperEdit windows
+        //
+        private void CreateAPICoreView(bool showOrbit = true, bool showPlanet = true, bool showShipLander = true, bool showMisc = true, bool showAbout = true, bool showApplauncher = true)
+        {
+            Extensions.Log("CreateHolodeckCoreView");
+            if (createCoreView == null)
+            {
+                createCoreView = View.CoreView.Create (this, showOrbit, showPlanet, showShipLander, showMisc, showAbout, showApplauncher);
+            }
+            createCoreView();
+        }
+
         private void CreateCoreView()
         {
+            Extensions.Log("CreateCoreView");
             if (createCoreView == null)
             {
                 createCoreView = View.CoreView.Create(this);
@@ -184,22 +229,23 @@ namespace HyperEdit
         public void Update()
         {
             RateLimitedLogger.Update();
-            if ((Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)) && Input.GetKeyDown(KeyCode.H))
-            {
-                if (View.Window.GameObject.GetComponents<View.Window>().Any(w => w._title == "HyperEdit"))
-                {
-                    if (_appLauncherButton == null)
-                        View.Window.CloseAll();
-                    else
-                        _appLauncherButton.SetFalse();
+            // Linuxgurugamer added following to make sure HyperEdit is not visible in the editors.  Following the logic in the AddAppLauncher function above
+            if (HighLogic.LoadedScene == GameScenes.FLIGHT || HighLogic.LoadedScene == GameScenes.TRACKSTATION || HighLogic.LoadedScene == GameScenes.TRACKSTATION) {
+                if ((Input.GetKey (KeyCode.LeftAlt) || Input.GetKey (KeyCode.RightAlt)) && Input.GetKeyDown (KeyCode.H)) {
+                    if (View.Window.GameObject.GetComponents<View.Window> ().Any (w => w._title == "HyperEdit")) {
+                        if (_appLauncherButton == null)
+                            View.Window.CloseAll ();
+                        else
+                            _appLauncherButton.SetFalse ();
+                    } else {
+                        if (_appLauncherButton == null)
+                            CreateCoreView ();
+                        else
+                            _appLauncherButton.SetTrue ();
+                    }
                 }
-                else
-                {
-                    if (_appLauncherButton == null)
-                        CreateCoreView();
-                    else
-                        _appLauncherButton.SetTrue();
-                }
+            } else {
+                hideHyperEditAPI ();
             }
         }
     }

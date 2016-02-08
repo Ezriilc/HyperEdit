@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+using System.Linq;
+
 namespace HyperEdit.View
 {
     public interface IView
@@ -251,14 +253,29 @@ namespace HyperEdit.View
         public void Draw()
         {
             GUILayout.BeginHorizontal();
-            GUILayout.Label(prefix + (currentlySelected == null ? "<none>" : toString(currentlySelected)));
-            if (GUILayout.Button("Select"))
-            {
-                Extensions.ClearGuiFocus();
-                var realList = list();
-                if (realList != null)
-                    WindowHelper.Selector("Select", realList, toString, t => CurrentlySelected = t);
+
+            //
+            // Changes to support API by LinuxGuruGamer
+            // If the list only has a single entry, just set the value and
+            // don't display the button or selection window
+            //
+            var realList = list ();
+
+            if (realList != null && realList.Count () == 1 && currentlySelected == null) {
+                CurrentlySelected = realList.First ();
+                Extensions.Log (realList.First().ToString ());
             }
+            GUILayout.Label(prefix + (currentlySelected == null ? "<none>" : toString(currentlySelected)));
+
+            if (realList == null || realList.Count () > 1) {
+                if (GUILayout.Button ("Select")) {
+                    Extensions.ClearGuiFocus ();
+
+                    if (realList != null)
+                        WindowHelper.Selector ("Select", realList, toString, t => CurrentlySelected = t);
+                }
+            } 
+
             GUILayout.EndHorizontal();
         }
     }
