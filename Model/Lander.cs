@@ -37,15 +37,21 @@ namespace HyperEdit.Model
             }
         }
 
-        public static void LandHere()
+        public static void LandHere(Action<double, double, CelestialBody> onManualEdit)
         {
             if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null)
                 return;
-            var lander = FlightGlobals.ActiveVessel.GetComponent<LanderAttachment>();
+            var vessel = FlightGlobals.ActiveVessel;
+            var lander = vessel.GetComponent<LanderAttachment>();
             if (lander == null)
             {
-                lander = FlightGlobals.ActiveVessel.gameObject.AddComponent<LanderAttachment>();
+                lander = vessel.gameObject.AddComponent<LanderAttachment>();
+                lander.Latitude = vessel.latitude;
+                lander.Longitude = vessel.longitude;
+                lander.Body = vessel.mainBody;
+                lander.OnManualEdit = onManualEdit;
                 lander.AlreadyTeleported = true;
+                lander.SetAltitudeToCurrent();
             }
         }
 
@@ -274,6 +280,22 @@ namespace HyperEdit.Model
         public double Altitude { get; set; }
 
         private readonly object accelLogObject = new object();
+
+        public void SetAltitudeToCurrent()
+        {
+            var pqs = Body.pqsController;
+            if (pqs == null)
+            {
+                Destroy(this);
+                return;
+            }
+            var alt = pqs.GetSurfaceHeight(
+                QuaternionD.AngleAxis(Longitude, Vector3d.down) *
+                QuaternionD.AngleAxis(Latitude, Vector3d.forward) * Vector3d.right) -
+                pqs.radius;
+            alt = Math.Max(alt, 0); // Underwater!
+            Altitude = GetComponent<Vessel>().altitude - alt;
+        }
 
         public void Update()
         {
