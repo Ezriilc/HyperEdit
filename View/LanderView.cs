@@ -16,7 +16,7 @@ namespace HyperEdit.View
             bodySelector.CurrentlySelected = FlightGlobals.fetch == null ? null : FlightGlobals.ActiveVessel == null ? Planetarium.fetch.Home : FlightGlobals.ActiveVessel.mainBody;
             var lat = new TextBoxView<double>("Lat", "Latitude of landing coordinates", 0, double.TryParse);
             var lon = new TextBoxView<double>("Lon", "Longitude of landing coordinates", 0, double.TryParse);
-            var alt = new TextBoxView<double>("Alt", "Altitude of landing coordinates", 20, SiSuffix.TryParse);
+            var alt = new TextBoxView<double>("Alt", "Altitude of landing coordinates", 20, Model.SiSuffix.TryParse);
             Func<bool> isValid = () => lat.Valid && lon.Valid && alt.Valid;
             Action<double, double, CelestialBody> load = (latVal, lonVal, body) =>
             {
@@ -48,11 +48,8 @@ namespace HyperEdit.View
 
         private static string HelpString()
         {
-            return string.Format("Use {0},{1},{2},{3} to fine-tune landing coordinates",
-                GameSettings.TRANSLATE_UP.primary,
-                GameSettings.TRANSLATE_DOWN.primary,
-                GameSettings.TRANSLATE_LEFT.primary,
-                GameSettings.TRANSLATE_RIGHT.primary);
+            return
+                $"Use {GameSettings.TRANSLATE_UP.primary},{GameSettings.TRANSLATE_DOWN.primary},{GameSettings.TRANSLATE_LEFT.primary},{GameSettings.TRANSLATE_RIGHT.primary} to fine-tune landing coordinates";
         }
     }
 }

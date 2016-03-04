@@ -164,18 +164,16 @@ namespace HyperEdit.Model
                 return;
 
             //work out Logitude + 50m
-            double FiftyMOfLong = (360 * 40) / (landingBeside.orbit.referenceBody.Radius * 2 * Math.PI);
-            onLoad(landingBeside.latitude, landingBeside.longitude + FiftyMOfLong, landingBeside.mainBody);
+            var fiftyMOfLong = (360 * 40) / (landingBeside.orbit.referenceBody.Radius * 2 * Math.PI);
+            onLoad(landingBeside.latitude, landingBeside.longitude + fiftyMOfLong, landingBeside.mainBody);
         }
 
-        struct LandingCoordinates : IEquatable<LandingCoordinates>
+        private struct LandingCoordinates : IEquatable<LandingCoordinates>
         {
-            public string Name { get; set; }
-
-            public double Lat { get; set; }
-
-            public double Lon { get; set; }
-            public CelestialBody Body { get; set; }
+            public string Name { get; }
+            public double Lat { get; }
+            public double Lon { get; }
+            public CelestialBody Body { get; }
 
             public LandingCoordinates(string name, double lat, double lon, CelestialBody body)
                 : this()
@@ -199,12 +197,12 @@ namespace HyperEdit.Model
                     return;
                 }
                 double dlat, dlon;
-                CelestialBody body;
                 if (double.TryParse(split[1], out dlat) && double.TryParse(split[2], out dlon))
                 {
                     Name = split[0];
                     Lat = dlat;
                     Lon = dlon;
+                    CelestialBody body;
                     if (split.Length >= 4 && Extensions.CbTryParse(split[3], out body))
                     {
                         Body = body;
@@ -228,7 +226,7 @@ namespace HyperEdit.Model
                 CelestialBody body = null;
                 node.TryGetValue("body", ref body, Extensions.CbTryParse);
                 Body = body;
-                double temp = 0.0;
+                var temp = 0.0;
                 node.TryGetValue("lat", ref temp, double.TryParse);
                 Lat = temp;
                 node.TryGetValue("lon", ref temp, double.TryParse);
@@ -245,7 +243,7 @@ namespace HyperEdit.Model
 
             public override bool Equals(object obj)
             {
-                return obj is LandingCoordinates ? Equals((LandingCoordinates)obj) : false;
+                return obj is LandingCoordinates && Equals((LandingCoordinates)obj);
             }
 
             public bool Equals(LandingCoordinates other)
@@ -279,7 +277,7 @@ namespace HyperEdit.Model
         public double Longitude { get; set; }
         public double Altitude { get; set; }
 
-        private readonly object accelLogObject = new object();
+        private readonly object _accelLogObject = new object();
 
         public void SetAltitudeToCurrent()
         {
@@ -347,9 +345,8 @@ namespace HyperEdit.Model
                 {
                     var accel = (vessel.srf_velocity + vessel.upAxis) * -0.5;
                     vessel.ChangeWorldVelocity(accel);
-                    RateLimitedLogger.Log(accelLogObject,
-                        string.Format("(Happening every frame) Soft-lander changed ship velocity this frame by vector {0},{1},{2} (mag {3})",
-                        accel.x, accel.y, accel.z, accel.magnitude));
+                    RateLimitedLogger.Log(_accelLogObject,
+                        $"(Happening every frame) Soft-lander changed ship velocity this frame by vector {accel.x},{accel.y},{accel.z} (mag {accel.magnitude})");
                 }
             }
             else

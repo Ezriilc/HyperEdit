@@ -23,7 +23,7 @@ namespace HyperEdit.View
             var referenceSelector = new ListSelectView<CelestialBody>("Reference body", () => FlightGlobals.fetch == null ? null : FlightGlobals.fetch.bodies, null, Extensions.CbToString);
 
             #region Simple
-            var simpleAltitude = new TextBoxView<double>("Altitude", "Altitude of circular orbit", 110000, SiSuffix.TryParse);
+            var simpleAltitude = new TextBoxView<double>("Altitude", "Altitude of circular orbit", 110000, Model.SiSuffix.TryParse);
             var simpleApply = new ConditionalView(() => simpleAltitude.Valid && referenceSelector.CurrentlySelected != null,
                                   new ButtonView("Apply", "Sets the orbit", () =>
                     {
@@ -43,11 +43,11 @@ namespace HyperEdit.View
             #region Complex
             var complexInclination = new TextBoxView<double>("Inclination", "How close to the equator the orbit plane is", 0, double.TryParse);
             var complexEccentricity = new TextBoxView<double>("Eccentricity", "How circular the orbit is (0=circular, 0.5=elliptical, 1=parabolic)", 0, double.TryParse);
-            var complexSemiMajorAxis = new TextBoxView<double>("Semi-major axis", "Mean radius of the orbit (ish)", 10000000, SiSuffix.TryParse);
+            var complexSemiMajorAxis = new TextBoxView<double>("Semi-major axis", "Mean radius of the orbit (ish)", 10000000, Model.SiSuffix.TryParse);
             var complexLongitudeAscendingNode = new TextBoxView<double>("Lon. of asc. node", "Longitude of the place where you cross the equator northwards", 0, double.TryParse);
             var complexArgumentOfPeriapsis = new TextBoxView<double>("Argument of periapsis", "Rotation of the orbit around the normal", 0, double.TryParse);
             var complexMeanAnomalyAtEpoch = new TextBoxView<double>("Mean anomaly at epoch", "Position along the orbit at the epoch", 0, double.TryParse);
-            var complexEpoch = new TextBoxView<double>("Epoch", "Epoch at which mEp is measured", 0, SiSuffix.TryParse);
+            var complexEpoch = new TextBoxView<double>("Epoch", "Epoch at which mEp is measured", 0, Model.SiSuffix.TryParse);
             var complexEpochNow = new ButtonView("Set epoch to now", "Sets the Epoch field to the current time", () => complexEpoch.Object = Planetarium.GetUniversalTime());
             var complexApply = new ConditionalView(() => complexInclination.Valid &&
                                    complexEccentricity.Valid &&
@@ -130,7 +130,7 @@ namespace HyperEdit.View
             #endregion
 
             #region Velocity
-            var velocitySpeed = new TextBoxView<double>("Speed", "dV to apply", 0, SiSuffix.TryParse);
+            var velocitySpeed = new TextBoxView<double>("Speed", "dV to apply", 0, Model.SiSuffix.TryParse);
             var velocityDirection = new ListSelectView<Model.OrbitEditor.VelocityChangeDirection>("Direction", () => Model.OrbitEditor.AllVelocityChanges);
             var velocityApply = new ConditionalView(() => velocitySpeed.Valid,
                                     new ButtonView("Apply", "Adds the selected velocity to the orbit", () =>
@@ -146,7 +146,7 @@ namespace HyperEdit.View
             #endregion
 
             #region Rendezvous
-            var rendezvousLeadTime = new TextBoxView<double>("Lead time", "How many seconds off to rendezvous at (zero = on top of each other, bad)", 1, SiSuffix.TryParse);
+            var rendezvousLeadTime = new TextBoxView<double>("Lead time", "How many seconds off to rendezvous at (zero = on top of each other, bad)", 1, Model.SiSuffix.TryParse);
             var rendezvousVessel = new ListSelectView<Vessel>("Target vessel", () => FlightGlobals.fetch == null ? null : FlightGlobals.fetch.vessels, null, Extensions.VesselToString);
             var rendezvousApply = new ConditionalView(() => rendezvousLeadTime.Valid && rendezvousVessel.CurrentlySelected != null,
                                       new ButtonView("Apply", "Rendezvous", () =>
@@ -248,7 +248,7 @@ namespace HyperEdit.View
             var resetPlanet = new ButtonView("Reset to defaults", "Reset the selected planet to defaults",
                                   () => Model.PlanetEditor.ResetToDefault(currentlyEditing.CurrentlySelected.celestialBody));
 
-            var planetButtons = new ConditionalView(() => currentlyEditing.CurrentlySelected != null && currentlyEditing.CurrentlySelected.celestialBody != null,
+            var planetButtons = new ConditionalView(() => currentlyEditing.CurrentlySelected?.celestialBody != null,
                                     new VerticalView(new IView[]
                     {
                         savePlanet,

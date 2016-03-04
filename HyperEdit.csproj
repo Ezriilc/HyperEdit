@@ -32,14 +32,13 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="$(KspLibPath)\mscorlib.dll"/>
-    <Reference Include="$(KspLibPath)\System.Core.dll"/>
-    <Reference Include="$(KspLibPath)\UnityEngine.dll"/>
-    <Reference Include="$(KspLibPath)\Assembly-CSharp.dll"/>
+    <Reference Include="$(KspLibPath)\mscorlib.dll" />
+    <Reference Include="$(KspLibPath)\System.Core.dll" />
+    <Reference Include="$(KspLibPath)\UnityEngine.dll" />
+    <Reference Include="$(KspLibPath)\Assembly-CSharp.dll" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core.cs" />
-    <Compile Include="Model\HeatEditor.cs" />
     <Compile Include="Model\Lander.cs" />
     <Compile Include="Model\MiscEditor.cs" />
     <Compile Include="Model\OrbitEditor.cs" />

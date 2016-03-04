@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace HyperEdit
+namespace HyperEdit.Model
 {
     public static class SiSuffix
     {

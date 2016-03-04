@@ -186,7 +186,7 @@ namespace HyperEdit
             RateLimitedLogger.Update();
             if ((Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)) && Input.GetKeyDown(KeyCode.H))
             {
-                if (View.Window.GameObject.GetComponents<View.Window>().Any(w => w._title == "HyperEdit"))
+                if (View.Window.GameObject.GetComponents<View.Window>().Any(w => w.Title == "HyperEdit"))
                 {
                     if (_appLauncherButton == null)
                         View.Window.CloseAll();
@@ -222,9 +222,9 @@ namespace HyperEdit
             return System.IO.Path.Combine(RootDir, path);
         }
 
-        public static bool Save(this ConfigNode config)
+        public static void Save(this ConfigNode config)
         {
-            return config.Save(GetPath(config.name + ".cfg"));
+            config.Save(GetPath(config.name + ".cfg"));
         }
     }
 
@@ -393,7 +393,7 @@ namespace HyperEdit
                 }
                 if (killcount != 0)
                 {
-                    Extensions.Log(string.Format("Removed {0} launch clamps from {1}", killcount, vessel.vesselName));
+                    Extensions.Log($"Removed {killcount} launch clamps from {vessel.vesselName}");
                 }
             }
         }

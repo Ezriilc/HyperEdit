@@ -5,8 +5,8 @@ namespace HyperEdit.Model
 {
     public static class PlanetEditor
     {
-        private static bool haveAppliedDefaults = false;
-        private static Dictionary<string, PlanetSettings> _defaultSettings = new Dictionary<string, PlanetSettings>();
+        private static bool _haveAppliedDefaults;
+        private static readonly Dictionary<string, PlanetSettings> DefaultSettings = new Dictionary<string, PlanetSettings>();
 
         public struct PlanetSettings
         {
@@ -90,11 +90,11 @@ namespace HyperEdit.Model
                 rotationPeriod = body.rotationPeriod;
                 initialRotation = body.initialRotation;
                 tidallyLocked = body.tidallyLocked;
-                orbit = body.orbitDriver == null ? null : body.orbitDriver.orbit.Clone();
+                orbit = body.orbitDriver?.orbit.Clone();
 
-                if (_defaultSettings.ContainsKey(body.bodyName) == false)
+                if (DefaultSettings.ContainsKey(body.bodyName) == false)
                 {
-                    _defaultSettings.Add(body.bodyName, this);
+                    DefaultSettings.Add(body.bodyName, this);
                 }
             }
 
@@ -119,7 +119,7 @@ namespace HyperEdit.Model
 
                 body.RealCbUpdate();
 
-                Extensions.Log(string.Format("Set body \"{0}\"'s parameters to:\n{1}", body.bodyName, GetConfig(body).ToString()));
+                Extensions.Log($"Set body \"{body.bodyName}\"'s parameters to:\n{GetConfig(body)}");
             }
 
             public static ConfigNode GetConfig(CelestialBody body)
@@ -186,7 +186,7 @@ namespace HyperEdit.Model
 
                 body.RealCbUpdate();
 
-                Extensions.Log(string.Format("Set body \"{0}\"'s parameters to:\n{1}", body.bodyName, GetConfig(body).ToString()));
+                Extensions.Log($"Set body \"{body.bodyName}\"'s parameters to:\n{GetConfig(body)}");
             }
         }
 
@@ -206,7 +206,7 @@ namespace HyperEdit.Model
         {
             try
             {
-                var defaultCb = _defaultSettings[body.bodyName];
+                var defaultCb = DefaultSettings[body.bodyName];
                 defaultCb.CopyTo(body, true);
             }
             catch (KeyNotFoundException)
@@ -222,7 +222,7 @@ namespace HyperEdit.Model
 
         public static void TryApplyFileDefaults()
         {
-            if (haveAppliedDefaults)
+            if (_haveAppliedDefaults)
                 return;
             ApplyFileDefaults();
         }
@@ -234,7 +234,7 @@ namespace HyperEdit.Model
                 Extensions.Log("Could not apply planet defaults: FlightGlobals.Bodies was null");
                 return;
             }
-            haveAppliedDefaults = true;
+            _haveAppliedDefaults = true;
             foreach (var body in FlightGlobals.Bodies)
             {
                 new PlanetSettings(body); // trigger default settings check

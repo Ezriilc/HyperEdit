@@ -115,3 +115,7 @@ UpgradeLog*.XML
 *.userprefs
 
 .vs/
+
+# JetBrains Rider
+.idea/
+HyperEdit.sln.iml

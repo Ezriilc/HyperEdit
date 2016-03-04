@@ -13,8 +13,8 @@ namespace HyperEdit.View
 
         public static IView View()
         {
-            Vector2 scrollPos = new Vector2(0, 0);
-            List<Vessel> vesselsToAlign = new List<Vessel>();
+            var scrollPos = new Vector2(0, 0);
+            var vesselsToAlign = new List<Vessel>();
             var vesselList = new CustomView(() =>
                 {
                     scrollPos = GUILayout.BeginScrollView(scrollPos, GUILayout.MinHeight(300));
@@ -23,9 +23,9 @@ namespace HyperEdit.View
                     {
                         var alreadyIn = vesselsToAlign.Contains(vessel);
                         var newIn = GUILayout.Toggle(alreadyIn, vessel.vesselName);
-                        if (alreadyIn == false && newIn == true)
+                        if (!alreadyIn && newIn)
                             vesselsToAlign.Add(vessel);
-                        if (alreadyIn == true && newIn == false)
+                        if (alreadyIn && !newIn)
                             vesselsToAlign.Remove(vessel);
                     }
                     GUILayout.EndScrollView();

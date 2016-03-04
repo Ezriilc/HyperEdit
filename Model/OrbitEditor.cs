@@ -304,13 +304,10 @@ namespace HyperEdit.Model
             orbit.UpdateFromUT(Planetarium.GetUniversalTime());
             if (orbit.referenceBody != newOrbit.referenceBody)
             {
-                if (orbitDriver.OnReferenceBodyChange != null)
-                    orbitDriver.OnReferenceBodyChange(newOrbit.referenceBody);
+                orbitDriver.OnReferenceBodyChange?.Invoke(newOrbit.referenceBody);
             }
             RateLimitedLogger.Log(HardsetOrbitLogObject,
-                string.Format("Orbit \"{0}\" changed to: inc={1} ecc={2} sma={3} lan={4} argpe={5} mep={6} epoch={7} refbody={8}",
-                orbitDriver.OrbitDriverToString(), orbit.inclination, orbit.eccentricity, orbit.semiMajorAxis,
-                orbit.LAN, orbit.argumentOfPeriapsis, orbit.meanAnomalyAtEpoch, orbit.epoch, orbit.referenceBody.CbToString()));
+                $"Orbit \"{orbitDriver.OrbitDriverToString()}\" changed to: inc={orbit.inclination} ecc={orbit.eccentricity} sma={orbit.semiMajorAxis} lan={orbit.LAN} argpe={orbit.argumentOfPeriapsis} mep={orbit.meanAnomalyAtEpoch} epoch={orbit.epoch} refbody={orbit.referenceBody.CbToString()}");
         }
 
         public static Orbit Clone(this Orbit o)

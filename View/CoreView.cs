@@ -23,20 +23,24 @@ namespace HyperEdit.View
             var planetEditor = new ButtonView("Planet Editor", "Opens the Planet Editor window", planetEditorView);
             var shipLander = new ButtonView("Ship Lander", "Opens the Ship Lander window", landerView);
             var miscTools = new ButtonView("Misc Tools", "Opens the Misc Tools window", miscEditorView);
+            var debugMenu = new ButtonView("KSP Debug Menu", "Opens the KSP Debug Toolbar (also available with Mod+F12)",
+                () => DebugToolbar.toolbarShown = !DebugToolbar.toolbarShown);
             var about = new ButtonView("About", "Opens the About window", aboutView);
-            var appLauncher = new DynamicToggleView("H-Button", "Enables or disables the AppLauncher button (top right H button)",
+            var appLauncher = new DynamicToggleView("H-Button",
+                "Enables or disables the AppLauncher button (top right H button)",
                 () => hyperedit.UseAppLauncherButton, () => true, v => hyperedit.UseAppLauncherButton = v);
 
             return new VerticalView(new IView[]
-                {
-                    closeAll,
-                    orbitEditor,
-                    planetEditor,
-                    shipLander,
-                    miscTools,
-                    about,
-                    appLauncher
-                });
+            {
+                closeAll,
+                orbitEditor,
+                planetEditor,
+                shipLander,
+                miscTools,
+                debugMenu,
+                about,
+                appLauncher
+            });
         }
     }
 }
