@@ -9,7 +9,7 @@ namespace HyperEdit.Model
         public static void DestroyVessel()
         {
             if (FlightGlobals.fetch == null || FlightGlobals.Vessels == null)
-                Extensions.ErrorPopup("Could not get list of vessels");
+                View.WindowHelper.Error("Could not get list of vessels");
             else
                 View.WindowHelper.Selector("Destroy...", FlightGlobals.Vessels, v => v.vesselName, v => v.Die());
         }

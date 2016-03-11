@@ -11,34 +11,47 @@ namespace HyperEdit.View
         {
             var str = "";
             Window.Create(prompt, false, false, 200, 100, w =>
+            {
+                str = GUILayout.TextField(str);
+                if (GUILayout.Button("OK"))
                 {
-                    str = GUILayout.TextField(str);
-                    if (GUILayout.Button("OK"))
-                    {
-                        complete(str);
-                        w.Close();
-                    }
-                });
+                    complete(str);
+                    w.Close();
+                }
+            });
         }
 
-        public static void Selector<T>(string title, IEnumerable<T> elements, Func<T, string> nameSelector, Action<T> onSelect)
+        public static void Error(string message)
         {
-            var collection = elements.Select(t => new { value = t, name = nameSelector(t) }).ToList();
+            Window.Create("Error", false, false, 400, -1, w =>
+            {
+                GUILayout.Label(message);
+                if (GUILayout.Button("OK"))
+                {
+                    w.Close();
+                }
+            });
+        }
+
+        public static void Selector<T>(string title, IEnumerable<T> elements, Func<T, string> nameSelector,
+            Action<T> onSelect)
+        {
+            var collection = elements.Select(t => new {value = t, name = nameSelector(t)}).ToList();
             var scrollPos = new Vector2();
             Window.Create(title, false, false, 300, 500, w =>
+            {
+                scrollPos = GUILayout.BeginScrollView(scrollPos);
+                foreach (var item in collection)
                 {
-                    scrollPos = GUILayout.BeginScrollView(scrollPos);
-                    foreach (var item in collection)
+                    if (GUILayout.Button(item.name))
                     {
-                        if (GUILayout.Button(item.name))
-                        {
-                            onSelect(item.value);
-                            w.Close();
-                            return;
-                        }
+                        onSelect(item.value);
+                        w.Close();
+                        return;
                     }
-                    GUILayout.EndScrollView();
-                });
+                }
+                GUILayout.EndScrollView();
+            });
         }
     }
 
@@ -94,7 +107,8 @@ namespace HyperEdit.View
         private Action<Window> _drawFunc;
         private bool _isOpen;
 
-        public static void Create(string title, bool savepos, bool ensureUniqueTitle, int width, int height, Action<Window> drawFunc)
+        public static void Create(string title, bool savepos, bool ensureUniqueTitle, int width, int height,
+            Action<Window> drawFunc)
         {
             var allOpenWindows = GameObject.GetComponents<Window>();
             if (ensureUniqueTitle && allOpenWindows.Any(w => w.Title == title))
@@ -120,8 +134,8 @@ namespace HyperEdit.View
             }
             else
             {
-                winx = (Screen.width - width) / 2;
-                winy = (Screen.height - height) / 2;
+                winx = (Screen.width - width)/2;
+                winy = (Screen.height - height)/2;
             }
 
             var window = GameObject.AddComponent<Window>();
@@ -161,7 +175,6 @@ namespace HyperEdit.View
         private void DrawWindow(int windowId)
         {
             GUILayout.BeginVertical();
-            //if (GUILayout.Button("Close"))
             if (GUI.Button(new Rect(_windowRect.width - 18, 2, 16, 16), "X")) // X button from mechjeb
                 Close();
             _drawFunc(this);
@@ -175,8 +188,8 @@ namespace HyperEdit.View
         public void Close()
         {
             var node = new ConfigNode(Title.Replace(' ', '_'));
-            node.AddValue("x", (int)_windowRect.x);
-            node.AddValue("y", (int)_windowRect.y);
+            node.AddValue("x", (int) _windowRect.x);
+            node.AddValue("y", (int) _windowRect.y);
             if (WindowPos.SetNode(node.name, node) == false)
                 WindowPos.AddNode(node);
             SaveWindowPos();

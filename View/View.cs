@@ -131,7 +131,8 @@ namespace HyperEdit.View
         private readonly Func<bool> _isValid;
         private readonly Action<bool> _onChange;
 
-        public DynamicToggleView(string label, string help, Func<bool> getValue, Func<bool> isValid, Action<bool> onChange)
+        public DynamicToggleView(string label, string help, Func<bool> getValue, Func<bool> isValid,
+            Action<bool> onChange)
         {
             _label = new GUIContent(label, help);
             _getValue = getValue;
@@ -169,7 +170,7 @@ namespace HyperEdit.View
             GUILayout.BeginHorizontal();
             GUILayout.Label(_label);
             var oldValue = _get();
-            var newValue = (double)GUILayout.HorizontalSlider((float)oldValue, 0, 1);
+            var newValue = (double) GUILayout.HorizontalSlider((float) oldValue, 0, 1);
             if (Math.Abs(newValue - oldValue) > 0.001)
             {
                 _onChange?.Invoke(newValue);
@@ -197,7 +198,7 @@ namespace HyperEdit.View
         {
             GUILayout.BeginHorizontal();
             GUILayout.Label(_label);
-            var newValue = (double)GUILayout.HorizontalSlider((float)Value, 0, 1);
+            var newValue = (double) GUILayout.HorizontalSlider((float) Value, 0, 1);
             if (Math.Abs(newValue - Value) > 0.001)
             {
                 Value = newValue;
@@ -222,18 +223,17 @@ namespace HyperEdit.View
             set
             {
                 _currentlySelected = value;
-                if (_onSelect != null)
-                    _onSelect(value);
+                _onSelect?.Invoke(value);
             }
         }
 
         public void ReInvokeOnSelect()
         {
-            if (_onSelect != null)
-                _onSelect(_currentlySelected);
+            _onSelect?.Invoke(_currentlySelected);
         }
 
-        public ListSelectView(string prefix, Func<IEnumerable<T>> list, Action<T> onSelect = null, Func<T, string> toString = null)
+        public ListSelectView(string prefix, Func<IEnumerable<T>> list, Action<T> onSelect = null,
+            Func<T, string> toString = null)
         {
             _prefix = prefix + ": ";
             _list = list;
@@ -278,7 +278,8 @@ namespace HyperEdit.View
             }
         }
 
-        public TextBoxView(string label, string help, T start, TryParse<T> parser, Func<T, string> toString = null, Action<T> onSet = null)
+        public TextBoxView(string label, string help, T start, TryParse<T> parser, Func<T, string> toString = null,
+            Action<T> onSet = null)
         {
             _label = label == null ? null : new GUIContent(label, help);
             _toString = toString ?? (x => x.ToString());

@@ -17,6 +17,9 @@ namespace HyperEdit.View
             var lat = new TextBoxView<double>("Lat", "Latitude of landing coordinates", 0, double.TryParse);
             var lon = new TextBoxView<double>("Lon", "Longitude of landing coordinates", 0, double.TryParse);
             var alt = new TextBoxView<double>("Alt", "Altitude of landing coordinates", 20, Model.SiSuffix.TryParse);
+            var setRot = new ToggleView("Set rotation",
+                "If set, rotates the vessel such that up on the vessel is up when landing. Otherwise, the same orientation is kept as before teleporting, relative to the planet",
+                false);
             Func<bool> isValid = () => lat.Valid && lon.Valid && alt.Valid;
             Action<double, double, CelestialBody> load = (latVal, lonVal, body) =>
             {
@@ -31,11 +34,15 @@ namespace HyperEdit.View
                     lon,
                     alt,
                     bodySelector,
+                    setRot,
                     new ConditionalView(() => FlightGlobals.fetch != null && FlightGlobals.ActiveVessel != null && FlightGlobals.ActiveVessel.mainBody != bodySelector.CurrentlySelected,
                         new LabelView("Landing on a body other than the current one is not recommended.",
-                        "This causes lots of explosions, it's advisable to teleport to an orbit above the planet, then land on it directly")),
+                            "This causes lots of explosions, it's advisable to teleport to an orbit above the planet, then land on it directly")),
+                    new ConditionalView(() => lat.Valid && (lat.Object < -89.9 || lat.Object > 89.9),
+                        new LabelView("Setting latitude to -90 or 90 degrees (or near it) is dangerous, try 89.9 degrees",
+                            "(This warning also appears when latitude is past 90 degrees)")),
                     new DynamicToggleView("Landing", "Land the ship (or stop landing)", Model.DoLander.IsLanding,
-                        isValid, b => Model.DoLander.ToggleLanding(lat.Object, lon.Object, alt.Object, bodySelector.CurrentlySelected, load)),
+                        isValid, b => Model.DoLander.ToggleLanding(lat.Object, lon.Object, alt.Object, bodySelector.CurrentlySelected, setRot.Value, load)),
                     new ConditionalView(() => Model.DoLander.IsLanding(), new LabelView(HelpString(), "Moves the landing vessel's coordinates slightly")),
                     new ConditionalView(() => !Model.DoLander.IsLanding(), new ButtonView("Land here", "Stops the vessel and slowly lowers it to the ground (without teleporting)", () => Model.DoLander.LandHere(load))),
                     new ConditionalView(isValid, new ButtonView("Save", "Save the entered location", () => Model.DoLander.AddSavedCoords(lat.Object, lon.Object, bodySelector.CurrentlySelected))),

@@ -236,12 +236,12 @@ namespace HyperEdit.Model
             var destinationMagnitude = newOrbit.getRelativePositionAtUT(Planetarium.GetUniversalTime()).magnitude;
             if (destinationMagnitude > newOrbit.referenceBody.sphereOfInfluence)
             {
-                Extensions.ErrorPopup("Destination position was above the sphere of influence");
+                View.WindowHelper.Error("Destination position was above the sphere of influence");
                 return;
             }
             if (destinationMagnitude < newOrbit.referenceBody.Radius)
             {
-                Extensions.ErrorPopup("Destination position was below the surface");
+                View.WindowHelper.Error("Destination position was below the surface");
                 return;
             }
 
@@ -256,8 +256,8 @@ namespace HyperEdit.Model
                 Extensions.Log("OrbitPhysicsManager.HoldVesselUnpack threw NullReferenceException");
             }
 
-            var allVessels = FlightGlobals.fetch == null ? (IEnumerable<Vessel>)new[] { vessel } : FlightGlobals.Vessels;
-            foreach (var v in allVessels.Where(v => v.packed == false))
+            var allVessels = FlightGlobals.fetch?.vessels ?? (IEnumerable<Vessel>)new[] { vessel };
+            foreach (var v in allVessels)
                 v.GoOnRails();
 
             var oldBody = vessel.orbitDriver.orbit.referenceBody;

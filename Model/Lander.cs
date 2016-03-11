@@ -17,7 +17,8 @@ namespace HyperEdit.Model
             return FlightGlobals.ActiveVessel.GetComponent<LanderAttachment>() != null;
         }
 
-        public static void ToggleLanding(double latitude, double longitude, double altitude, CelestialBody body, Action<double, double, CelestialBody> onManualEdit)
+        public static void ToggleLanding(double latitude, double longitude, double altitude, CelestialBody body,
+            bool setRotation, Action<double, double, CelestialBody> onManualEdit)
         {
             if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null || body == null)
                 return;
@@ -28,6 +29,7 @@ namespace HyperEdit.Model
                 lander.Latitude = latitude;
                 lander.Longitude = longitude;
                 lander.Altitude = altitude;
+                lander.SetRotation = setRotation;
                 lander.Body = body;
                 lander.OnManualEdit = onManualEdit;
             }
@@ -48,6 +50,7 @@ namespace HyperEdit.Model
                 lander = vessel.gameObject.AddComponent<LanderAttachment>();
                 lander.Latitude = vessel.latitude;
                 lander.Longitude = vessel.longitude;
+                lander.SetRotation = false;
                 lander.Body = vessel.mainBody;
                 lander.OnManualEdit = onManualEdit;
                 lander.AlreadyTeleported = true;
@@ -59,11 +62,12 @@ namespace HyperEdit.Model
         {
             get
             {
-                if (FlightGlobals.fetch == null || FlightGlobals.Bodies == null ||
-                    Planetarium.fetch == null || Planetarium.fetch.Home == null)
+                var kerbin = Planetarium.fetch?.Home;
+                var minmus = FlightGlobals.fetch?.bodies?.FirstOrDefault(b => b.bodyName == "Minmus");
+                if (kerbin == null)
+                {
                     return new List<LandingCoordinates>();
-                var kerbin = Planetarium.fetch.Home;
-                var minmus = FlightGlobals.Bodies.FirstOrDefault(b => b.bodyName == "Minmus");
+                }
                 var list = new List<LandingCoordinates>
                 {
                     new LandingCoordinates("Airstrip Island Runway", -1.5179, 288.032, kerbin),
@@ -93,7 +97,10 @@ namespace HyperEdit.Model
                 }
                 else if (System.IO.File.Exists(oldPath))
                 {
-                    query = System.IO.File.ReadAllLines(oldPath).Select(x => new LandingCoordinates(x)).Where(l => string.IsNullOrEmpty(l.Name) == false);
+                    query =
+                        System.IO.File.ReadAllLines(oldPath)
+                            .Select(x => new LandingCoordinates(x))
+                            .Where(l => string.IsNullOrEmpty(l.Name) == false);
                 }
                 else
                 {
@@ -130,27 +137,25 @@ namespace HyperEdit.Model
 
         public static void Load(Action<double, double, CelestialBody> onLoad)
         {
-            View.WindowHelper.Selector("Load...", SavedCoords, c => c.Name, c =>
-                {
-                    onLoad(c.Lat, c.Lon, c.Body);
-                });
+            View.WindowHelper.Selector("Load...", SavedCoords, c => c.Name, c => onLoad(c.Lat, c.Lon, c.Body));
         }
 
         public static void Delete()
         {
             var coords = SavedCoords;
             View.WindowHelper.Selector("Delete...", coords, c => c.Name, toDelete =>
-                {
-                    coords.Remove(toDelete);
-                    SavedCoords = coords;
-                });
+            {
+                coords.Remove(toDelete);
+                SavedCoords = coords;
+            });
         }
 
         public static void SetToCurrent(Action<double, double, CelestialBody> onLoad)
         {
             if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null)
                 return;
-            onLoad(FlightGlobals.ActiveVessel.latitude, FlightGlobals.ActiveVessel.longitude, FlightGlobals.ActiveVessel.mainBody);
+            onLoad(FlightGlobals.ActiveVessel.latitude, FlightGlobals.ActiveVessel.longitude,
+                FlightGlobals.ActiveVessel.mainBody);
         }
 
         public static IEnumerable<Vessel> LandedVessels()
@@ -164,7 +169,7 @@ namespace HyperEdit.Model
                 return;
 
             //work out Logitude + 50m
-            var fiftyMOfLong = (360 * 40) / (landingBeside.orbit.referenceBody.Radius * 2 * Math.PI);
+            var fiftyMOfLong = (360*40)/(landingBeside.orbit.referenceBody.Radius*2*Math.PI);
             onLoad(landingBeside.latitude, landingBeside.longitude + fiftyMOfLong, landingBeside.mainBody);
         }
 
@@ -243,7 +248,7 @@ namespace HyperEdit.Model
 
             public override bool Equals(object obj)
             {
-                return obj is LandingCoordinates && Equals((LandingCoordinates)obj);
+                return obj is LandingCoordinates && Equals((LandingCoordinates) obj);
             }
 
             public bool Equals(LandingCoordinates other)
@@ -276,6 +281,7 @@ namespace HyperEdit.Model
         public double Latitude { get; set; }
         public double Longitude { get; set; }
         public double Altitude { get; set; }
+        public bool SetRotation { get; set; }
 
         private readonly object _accelLogObject = new object();
 
@@ -288,9 +294,9 @@ namespace HyperEdit.Model
                 return;
             }
             var alt = pqs.GetSurfaceHeight(
-                QuaternionD.AngleAxis(Longitude, Vector3d.down) *
-                QuaternionD.AngleAxis(Latitude, Vector3d.forward) * Vector3d.right) -
-                pqs.radius;
+                QuaternionD.AngleAxis(Longitude, Vector3d.down)*
+                QuaternionD.AngleAxis(Latitude, Vector3d.forward)*Vector3d.right) -
+                      pqs.radius;
             alt = Math.Max(alt, 0); // Underwater!
             Altitude = GetComponent<Vessel>().altitude - alt;
         }
@@ -298,7 +304,7 @@ namespace HyperEdit.Model
         public void Update()
         {
             // 0.2 meters per frame
-            var degrees = 0.2 / Body.Radius * (180 / Math.PI);
+            var degrees = 0.2/Body.Radius*(180/Math.PI);
             var changed = false;
             if (GameSettings.TRANSLATE_UP.GetKey())
             {
@@ -312,12 +318,12 @@ namespace HyperEdit.Model
             }
             if (GameSettings.TRANSLATE_LEFT.GetKey())
             {
-                Longitude -= degrees / Math.Cos(Latitude * (Math.PI / 180));
+                Longitude -= degrees/Math.Cos(Latitude*(Math.PI/180));
                 changed = true;
             }
             if (GameSettings.TRANSLATE_RIGHT.GetKey())
             {
-                Longitude += degrees / Math.Cos(Latitude * (Math.PI / 180));
+                Longitude += degrees/Math.Cos(Latitude*(Math.PI/180));
                 changed = true;
             }
             if (changed)
@@ -343,7 +349,7 @@ namespace HyperEdit.Model
                 }
                 else
                 {
-                    var accel = (vessel.srf_velocity + vessel.upAxis) * -0.5;
+                    var accel = (vessel.srf_velocity + vessel.upAxis)*-0.5;
                     vessel.ChangeWorldVelocity(accel);
                     RateLimitedLogger.Log(_accelLogObject,
                         $"(Happening every frame) Soft-lander changed ship velocity this frame by vector {accel.x},{accel.y},{accel.z} (mag {accel.magnitude})");
@@ -357,10 +363,7 @@ namespace HyperEdit.Model
                     Destroy(this);
                     return;
                 }
-                var alt = pqs.GetSurfaceHeight(
-                    QuaternionD.AngleAxis(Longitude, Vector3d.down) *
-                    QuaternionD.AngleAxis(Latitude, Vector3d.forward) * Vector3d.right) -
-                    pqs.radius;
+                var alt = pqs.GetSurfaceHeight(Body.GetRelSurfaceNVector(Latitude, Longitude)) - Body.Radius;
                 alt = Math.Max(alt, 0); // Underwater!
                 if (TimeWarp.CurrentRateIndex != 0)
                 {
@@ -370,16 +373,31 @@ namespace HyperEdit.Model
                 // HoldVesselUnpack is in display frames, not physics frames
 
                 var teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt + Altitude);
-                var teleportVelocity = Body.getRFrmVel(teleportPosition + Body.position);
+                var teleportVelocity = Vector3d.Cross(Body.angularVelocity, teleportPosition);
                 // convert from world space to orbit space
                 teleportPosition = teleportPosition.xzy;
                 teleportVelocity = teleportVelocity.xzy;
                 // counter for the momentary fall when on rails (about one second)
-                teleportVelocity += teleportPosition.normalized * (Body.gravParameter / teleportPosition.sqrMagnitude);
+                teleportVelocity += teleportPosition.normalized*(Body.gravParameter/teleportPosition.sqrMagnitude);
+
+                Quaternion rotation;
+                if (SetRotation)
+                {
+                    var from = Vector3d.up;
+                    var to = teleportPosition.xzy.normalized;
+                    rotation = Quaternion.FromToRotation(from, to);
+                }
+                else
+                {
+                    var oldUp = vessel.orbit.pos.xzy.normalized;
+                    var newUp = teleportPosition.xzy.normalized;
+                    rotation = Quaternion.FromToRotation(oldUp, newUp)*vessel.vesselTransform.rotation;
+                }
 
                 var orbit = vessel.orbitDriver.orbit.Clone();
                 orbit.UpdateFromStateVectors(teleportPosition, teleportVelocity, Body, Planetarium.GetUniversalTime());
                 vessel.SetOrbit(orbit);
+                vessel.SetRotation(rotation);
 
                 AlreadyTeleported = true;
             }

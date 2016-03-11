@@ -36,15 +36,15 @@ namespace HyperEdit
         private ConfigNode _hyperEditConfig;
         private bool _useAppLauncherButton;
         private ApplicationLauncherButton _appLauncherButton;
-        private Action createCoreView = null;
+        private Action _createCoreView;
 
         private void CreateCoreView()
         {
-            if (createCoreView == null)
+            if (_createCoreView == null)
             {
-                createCoreView = View.CoreView.Create(this);
+                _createCoreView = View.CoreView.Create(this);
             }
-            createCoreView();
+            _createCoreView();
         }
 
         public void Awake()
@@ -86,10 +86,7 @@ namespace HyperEdit
 
         public bool UseAppLauncherButton
         {
-            get
-            {
-                return _useAppLauncherButton;
-            }
+            get { return _useAppLauncherButton; }
             set
             {
                 if (_useAppLauncherButton == value)
@@ -114,7 +111,8 @@ namespace HyperEdit
                 return;
             if (_appLauncherButton != null)
             {
-                Extensions.Log("Not adding to ApplicationLauncher, button already exists (yet onGUIApplicationLauncherReady was called?)");
+                Extensions.Log(
+                    "Not adding to ApplicationLauncher, button already exists (yet onGUIApplicationLauncherReady was called?)");
                 return;
             }
             var applauncher = ApplicationLauncher.Instance;
@@ -131,7 +129,9 @@ namespace HyperEdit
 
             for (var x = 0; x < tex.width; x++)
                 for (var y = 0; y < tex.height; y++)
-                    tex.SetPixel(x, y, new Color(2 * (float)Math.Abs(x - tex.width / 2) / tex.width, 0.25f, 2 * (float)Math.Abs(y - tex.height / 2) / tex.height, 0));
+                    tex.SetPixel(x, y,
+                        new Color(2*(float) Math.Abs(x - tex.width/2)/tex.width, 0.25f,
+                            2*(float) Math.Abs(y - tex.height/2)/tex.height, 0));
             for (var x = 10; x < 12; x++)
                 for (var y = 10; y < tex.height - 10; y++)
                     tex.SetPixel(x, y, new Color(1, 1, 1));
@@ -139,25 +139,18 @@ namespace HyperEdit
                 for (var y = 10; y < tex.height - 10; y++)
                     tex.SetPixel(x, y, new Color(1, 1, 1));
             for (var x = 12; x < tex.width - 12; x++)
-                for (var y = tex.height / 2; y < tex.height / 2 + 2; y++)
+                for (var y = tex.height/2; y < tex.height/2 + 2; y++)
                     tex.SetPixel(x, y, new Color(1, 1, 1));
 
             tex.Apply();
-            _appLauncherButton = applauncher.AddModApplication(() =>
-                {
-                    CreateCoreView();
-                }, () =>
-                {
-                    View.Window.CloseAll();
-                }, () =>
-                {
-                }, () =>
-                {
-                }, () =>
-                {
-                }, () =>
-                {
-                }, scenes, tex);
+            _appLauncherButton = applauncher.AddModApplication(
+                CreateCoreView,
+                View.Window.CloseAll,
+                () => { },
+                () => { },
+                () => { },
+                () => { },
+                scenes, tex);
         }
 
         private void RemoveAppLauncher()
@@ -176,10 +169,7 @@ namespace HyperEdit
             _appLauncherButton = null;
         }
 
-        public void FixedUpdate()
-        {
-            Model.PlanetEditor.TryApplyFileDefaults();
-        }
+        public void FixedUpdate() => Model.PlanetEditor.TryApplyFileDefaults();
 
         public void Update()
         {
@@ -215,51 +205,43 @@ namespace HyperEdit
             Extensions.Log("Using \"" + RootDir + "\" as root config directory");
         }
 
-        public static string GetPath(string path)
-        {
-            if (path == null)
-                return RootDir;
-            return System.IO.Path.Combine(RootDir, path);
-        }
+        public static string GetPath(string path) => path == null ? RootDir : System.IO.Path.Combine(RootDir, path);
 
-        public static void Save(this ConfigNode config)
-        {
-            config.Save(GetPath(config.name + ".cfg"));
-        }
+        public static void Save(this ConfigNode config) => config.Save(GetPath(config.name + ".cfg"));
     }
 
     public static class RateLimitedLogger
     {
         private const int MaxFrequency = 100; // measured in number of frames
 
-        class Countdown
+        private class Countdown
         {
-            public string lastMessage;
-            public int framesLeft;
-            public bool needsPrint;
+            public string LastMessage;
+            public int FramesLeft;
+            public bool NeedsPrint;
 
             public Countdown(string msg, int frames)
             {
-                lastMessage = msg;
-                framesLeft = frames;
-                needsPrint = false;
+                LastMessage = msg;
+                FramesLeft = frames;
+                NeedsPrint = false;
             }
         }
 
-        private static readonly Dictionary<object, Countdown> messages = new Dictionary<object, Countdown>();
+        private static readonly Dictionary<object, Countdown> Messages = new Dictionary<object, Countdown>();
 
         public static void Update()
         {
             List<object> toRemove = null;
-            foreach (var kvp in messages)
+            foreach (var kvp in Messages)
             {
-                if (kvp.Value.framesLeft == 0)
+                if (kvp.Value.FramesLeft == 0)
                 {
-                    if (kvp.Value.needsPrint)
+                    if (kvp.Value.NeedsPrint)
                     {
-                        kvp.Value.needsPrint = false;
-                        kvp.Value.framesLeft = MaxFrequency;
-                        Extensions.Log(kvp.Value.lastMessage);
+                        kvp.Value.NeedsPrint = false;
+                        kvp.Value.FramesLeft = MaxFrequency;
+                        Extensions.Log(kvp.Value.LastMessage);
                     }
                     else
                     {
@@ -270,14 +252,14 @@ namespace HyperEdit
                 }
                 else
                 {
-                    kvp.Value.framesLeft--;
+                    kvp.Value.FramesLeft--;
                 }
             }
             if (toRemove != null)
             {
                 foreach (var key in toRemove)
                 {
-                    messages.Remove(key);
+                    Messages.Remove(key);
                 }
             }
         }
@@ -285,15 +267,15 @@ namespace HyperEdit
         public static void Log(object key, string message)
         {
             Countdown countdown;
-            if (messages.TryGetValue(key, out countdown))
+            if (Messages.TryGetValue(key, out countdown))
             {
-                countdown.needsPrint = true;
-                countdown.lastMessage = message;
+                countdown.NeedsPrint = true;
+                countdown.LastMessage = message;
             }
             else
             {
                 Extensions.Log(message);
-                messages[key] = new Countdown(message, MaxFrequency);
+                Messages[key] = new Countdown(message, MaxFrequency);
             }
         }
     }
@@ -313,7 +295,7 @@ namespace HyperEdit
             if (tryParse == null)
             {
                 // `T` better be `string`...
-                value = (T)(object)strvalue;
+                value = (T) (object) strvalue;
                 return;
             }
             T temp;
@@ -322,25 +304,14 @@ namespace HyperEdit
             value = temp;
         }
 
-        public static void ErrorPopup(string message)
-        {
-            PopupDialog.SpawnPopupDialog("Error", message, "Close", true, HighLogic.Skin);
-        }
-
         private static GUIStyle _pressedButton;
 
-        public static GUIStyle PressedButton
+        public static GUIStyle PressedButton => _pressedButton ?? (_pressedButton = new GUIStyle(HighLogic.Skin.button)
         {
-            get
-            {
-                return _pressedButton ?? (_pressedButton = new GUIStyle(HighLogic.Skin.button)
-                {
-                    normal = HighLogic.Skin.button.active,
-                    hover = HighLogic.Skin.button.active,
-                    active = HighLogic.Skin.button.normal
-                });
-            }
-        }
+            normal = HighLogic.Skin.button.active,
+            hover = HighLogic.Skin.button.active,
+            active = HighLogic.Skin.button.normal
+        });
 
         public static void RealCbUpdate(this CelestialBody body)
         {
@@ -357,12 +328,12 @@ namespace HyperEdit
             // CBUpdate doesn't update hillSphere
             // http://en.wikipedia.org/wiki/Hill_sphere
             var orbit = body.orbit;
-            var cubedRoot = Math.Pow(body.Mass / orbit.referenceBody.Mass, 1.0 / 3.0);
-            body.hillSphere = orbit.semiMajorAxis * (1.0 - orbit.eccentricity) * cubedRoot;
+            var cubedRoot = Math.Pow(body.Mass/orbit.referenceBody.Mass, 1.0/3.0);
+            body.hillSphere = orbit.semiMajorAxis*(1.0 - orbit.eccentricity)*cubedRoot;
 
             // Nor sphereOfInfluence
             // http://en.wikipedia.org/wiki/Sphere_of_influence_(astrodynamics)
-            body.sphereOfInfluence = orbit.semiMajorAxis * Math.Pow(body.Mass / orbit.referenceBody.Mass, 2.0 / 5.0);
+            body.sphereOfInfluence = orbit.semiMajorAxis*Math.Pow(body.Mass/orbit.referenceBody.Mass, 2.0/5.0);
         }
 
         public static void PrepVesselTeleport(this Vessel vessel)
@@ -370,22 +341,22 @@ namespace HyperEdit
             if (vessel.Landed)
             {
                 vessel.Landed = false;
-                Extensions.Log("Set ActiveVessel.Landed = false");
+                Log("Set ActiveVessel.Landed = false");
             }
             if (vessel.Splashed)
             {
                 vessel.Splashed = false;
-                Extensions.Log("Set ActiveVessel.Splashed = false");
+                Log("Set ActiveVessel.Splashed = false");
             }
             if (vessel.landedAt != string.Empty)
             {
                 vessel.landedAt = string.Empty;
-                Extensions.Log("Set ActiveVessel.landedAt = \"\"");
+                Log("Set ActiveVessel.landedAt = \"\"");
             }
             var parts = vessel.parts;
             if (parts != null)
             {
-                int killcount = 0;
+                var killcount = 0;
                 foreach (var part in parts.Where(part => part.Modules.OfType<LaunchClamp>().Any()).ToList())
                 {
                     killcount++;
@@ -393,14 +364,14 @@ namespace HyperEdit
                 }
                 if (killcount != 0)
                 {
-                    Extensions.Log($"Removed {killcount} launch clamps from {vessel.vesselName}");
+                    Log($"Removed {killcount} launch clamps from {vessel.vesselName}");
                 }
             }
         }
 
         public static double Soi(this CelestialBody body)
         {
-            var radius = body.sphereOfInfluence * 0.95;
+            var radius = body.sphereOfInfluence*0.95;
             if (double.IsNaN(radius) || double.IsInfinity(radius) || radius < 0 || radius > 200000000000)
                 radius = 200000000000; // jool apo = 72,212,238,387
             return radius;
@@ -408,7 +379,7 @@ namespace HyperEdit
 
         public static double Mod(this double x, double y)
         {
-            var result = x % y;
+            var result = x%y;
             if (result < 0)
                 result += y;
             return result;
@@ -441,7 +412,9 @@ namespace HyperEdit
             get
             {
                 return _keyCodeNames ?? (_keyCodeNames =
-                    Enum.GetNames(typeof(KeyCode)).Distinct().ToDictionary(k => k, k => (KeyCode)Enum.Parse(typeof(KeyCode), k)));
+                    Enum.GetNames(typeof(KeyCode))
+                        .Distinct()
+                        .ToDictionary(k => k, k => (KeyCode) Enum.Parse(typeof(KeyCode), k)));
             }
         }
 
@@ -500,7 +473,7 @@ namespace HyperEdit
             string parseValue = TrimUnityColor(value);
             if (parseValue == null)
                 return false;
-            string[] values = parseValue.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] values = parseValue.Split(new[] {',', ' '}, StringSplitOptions.RemoveEmptyEntries);
             if (values.Length == 3 || values.Length == 4)
             {
                 if (!float.TryParse(values[0], out color.r) ||
@@ -521,7 +494,7 @@ public class KSPAddonFixed : KSPAddon, IEquatable<KSPAddonFixed>
 {
     private readonly Type type;
 
-    public KSPAddonFixed(KSPAddon.Startup startup, bool once, Type type)
+    public KSPAddonFixed(Startup startup, bool once, Type type)
         : base(startup, once)
     {
         this.type = type;
