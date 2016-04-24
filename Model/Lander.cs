@@ -374,6 +374,10 @@ namespace HyperEdit.Model
 
                 var teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt + Altitude);
                 var teleportVelocity = Vector3d.Cross(Body.angularVelocity, teleportPosition);
+                //var teleportVelocity = Vector3d.Cross(Vector3d.down, teleportPosition.normalized)*
+                //                       (Math.Cos(Latitude*(Math.PI/180))*teleportPosition.magnitude*
+                //                        (Math.PI*2)/(Body.rotationPeriod));
+
                 // convert from world space to orbit space
                 teleportPosition = teleportPosition.xzy;
                 teleportVelocity = teleportVelocity.xzy;

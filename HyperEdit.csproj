@@ -32,7 +32,10 @@
     <Reference Include="$(KspLibPath)\mscorlib.dll" />
     <Reference Include="$(KspLibPath)\System.Core.dll" />
     <Reference Include="$(KspLibPath)\UnityEngine.dll" />
+    <Reference Include="$(KspLibPath)\UnityEngine.UI.dll" />
     <Reference Include="$(KspLibPath)\Assembly-CSharp.dll" />
+    <Reference Include="$(KspLibPath)\Assembly-CSharp-firstpass.dll" />
+    <Reference Include="$(KspLibPath)\KSPUtil.dll" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core.cs" />

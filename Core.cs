@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using KSP.UI.Screens;
+
+[assembly: System.Reflection.AssemblyVersion("1.5.0.0")]
 
 [KSPAddonFixed(KSPAddon.Startup.MainMenu, true, typeof(HyperEditModule))]
 public class HyperEditModule : MonoBehaviour

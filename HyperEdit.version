@@ -4,23 +4,23 @@
   "DOWNLOAD": "http://www.kerbaltek.com/hyperedit",
   "VERSION": {
     "MAJOR": 1,
-    "MINOR": 4,
-    "PATCH": 2,
+    "MINOR": 5,
+    "PATCH": 0,
     "BUILD": 0
   },
   "KSP_VERSION": {
     "MAJOR": 1,
-    "MINOR": 0,
-    "PATCH": 5
+    "MINOR": 1,
+    "PATCH": 0
   },
   "KSP_VERSION_MIN": {
     "MAJOR": 1,
-    "MINOR": 0,
+    "MINOR": 1,
     "PATCH": 0
   },
   "KSP_VERSION_MAX": {
     "MAJOR": 1,
-    "MINOR": 0,
+    "MINOR": 1,
     "PATCH": 99
   }
 }
