@@ -9,13 +9,26 @@ namespace HyperEdit.View
             var view = View();
             return () => Window.Create("Lander", true, true, 200, -1, w => view.Draw());
         }
-
+		// Use myTryParse to validate the string, and, if it is 0, to set it to 0.001f
+		static bool myTryParse(string str, out double d)
+		{
+			double d1;
+			bool b = double.TryParse (str, out d1);
+			if (!b) {
+				d = 0.001f;
+				return false;
+			}
+			if (d1 == 0)
+				d1 = 0.001d;
+			d = d1;
+			return true;
+		}
         public static IView View()
         {
             var bodySelector = new ListSelectView<CelestialBody>("Planet", () => FlightGlobals.fetch == null ? null : FlightGlobals.fetch.bodies, null, Extensions.CbToString);
             bodySelector.CurrentlySelected = FlightGlobals.fetch == null ? null : FlightGlobals.ActiveVessel == null ? Planetarium.fetch.Home : FlightGlobals.ActiveVessel.mainBody;
-            var lat = new TextBoxView<double>("Lat", "Latitude of landing coordinates", 0, double.TryParse);
-            var lon = new TextBoxView<double>("Lon", "Longitude of landing coordinates", 0, double.TryParse);
+			var lat = new TextBoxView<double>("Lat", "Latitude of landing coordinates", 0.001d, myTryParse);
+			var lon = new TextBoxView<double>("Lon", "Longitude of landing coordinates", 0.001d, myTryParse);
             var alt = new TextBoxView<double>("Alt", "Altitude of landing coordinates", 20, Model.SiSuffix.TryParse);
             var setRot = new ToggleView("Set rotation",
                 "If set, rotates the vessel such that up on the vessel is up when landing. Otherwise, the same orientation is kept as before teleporting, relative to the planet",
