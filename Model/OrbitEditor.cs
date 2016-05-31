@@ -22,7 +22,7 @@ namespace HyperEdit.Model
 
         public static void Simple(OrbitDriver currentlyEditing, double altitude, CelestialBody body)
         {
-            SetOrbit(currentlyEditing, CreateOrbit(0, 0, altitude + body.Radius, 0, 0, 0, 0, body));
+            SetOrbit(currentlyEditing, CreateOrbit(0 , 0, altitude + body.Radius, 0, 0, 0, 0, body));
         }
 
         public static void GetSimple(OrbitDriver currentlyEditing, out double altitude, out CelestialBody body)
@@ -190,14 +190,16 @@ namespace HyperEdit.Model
 
         private static Orbit CreateOrbit(double inc, double e, double sma, double lan, double w, double mEp, double epoch, CelestialBody body)
         {
+			if (inc == 0)
+				inc = 0.000001d;
             if (double.IsNaN(inc))
-                inc = 0;
+				inc = 0.000001d;
             if (double.IsNaN(e))
                 e = 0;
             if (double.IsNaN(sma))
                 sma = body.Radius + body.atmosphereDepth + 10000;
             if (double.IsNaN(lan))
-                lan = 0;
+                lan = 0; 
             if (double.IsNaN(w))
                 w = 0;
             if (double.IsNaN(mEp))
@@ -215,6 +217,14 @@ namespace HyperEdit.Model
                 while (mEp > Math.PI * 2)
                     mEp -= Math.PI * 2;
             }
+
+			// "inc" is probably inclination
+			// "e" is probably eccentricity
+			// "sma" is probably semi-major axis
+			// "lan" is probably longitude of the ascending node
+			// "w" is probably the argument of periapsis (omega)
+			// mEp is probably a mean anomaly at some time, like epoch
+			// t is probably current time
 
             return new Orbit(inc, e, sma, lan, w, mEp, epoch, body);
         }
