@@ -172,28 +172,44 @@ namespace HyperEdit
             _appLauncherButton = null;
         }
 
+		//
+		// This function will hide HyperEdit and all it's windows
+		// Added by Linuxgurugamer
+		//
+		public void hideHyperEditAPI(bool noop = false)
+		{
+			if (_createCoreView != null) {
+				View.Window.CloseAll ();
+				_createCoreView = null;
+			}
+		}
+		
         public void FixedUpdate() => Model.PlanetEditor.TryApplyFileDefaults();
 
-        public void Update()
-        {
-            RateLimitedLogger.Update();
-            if ((Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)) && Input.GetKeyDown(KeyCode.H))
-            {
-                if (View.Window.GameObject.GetComponents<View.Window>().Any(w => w.Title == "HyperEdit"))
-                {
-                    if (_appLauncherButton == null)
-                        View.Window.CloseAll();
-                    else
-                        _appLauncherButton.SetFalse();
-                }
-                else
-                {
-                    if (_appLauncherButton == null)
-                        CreateCoreView();
-                    else
-                        _appLauncherButton.SetTrue();
-                }
-            }
+		public void Update ()
+		{
+			RateLimitedLogger.Update ();
+
+			// Linuxgurugamer added following to make sure HyperEdit is not visible in the editors.  Following the logic in the AddAppLauncher function above
+			if (HighLogic.LoadedScene == GameScenes.FLIGHT || HighLogic.LoadedScene == GameScenes.TRACKSTATION || HighLogic.LoadedScene == GameScenes.TRACKSTATION) {
+				if ((Input.GetKey (KeyCode.LeftAlt) || Input.GetKey (KeyCode.RightAlt)) && Input.GetKeyDown (KeyCode.H)) {
+					if (View.Window.GameObject.GetComponents<View.Window> ().Any (w => w.Title == "HyperEdit")) {
+						if (_appLauncherButton == null)
+							View.Window.CloseAll ();
+						else
+							_appLauncherButton.SetFalse ();
+					} else {
+						if (_appLauncherButton == null)
+							CreateCoreView ();
+						else
+							_appLauncherButton.SetTrue ();
+					}
+				}
+			} else {
+				hideHyperEditAPI ();
+			}
+			// End of changes for the visibility bug
+
         }
     }
 
