@@ -22,13 +22,24 @@ namespace HyperEdit.Model
         {
             if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null || body == null)
                 return;
+			
+			//Debug.Log ("HyperEdit.Model.ToggleLanding");
             var lander = FlightGlobals.ActiveVessel.GetComponent<LanderAttachment>();
             if (lander == null)
             {
                 lander = FlightGlobals.ActiveVessel.gameObject.AddComponent<LanderAttachment>();
+				//Debug.Log ("ToggleLanding Latitude: " + latitude.ToString () + "   Longitude: " + longitude.ToString() + "   Altitude: " + altitude.ToString());
+			
+				if (latitude == 0.0f)
+					latitude = 0.001;
+				if (longitude == 0.0f)
+					longitude = 0.001;
                 lander.Latitude = latitude;
                 lander.Longitude = longitude;
-                lander.Altitude = altitude;
+
+				lander.intermAltitude = body.Radius + body.atmosphereDepth + 10000d;
+				                        
+				lander.Altitude = altitude;
                 lander.SetRotation = setRotation;
                 lander.Body = body;
                 lander.OnManualEdit = onManualEdit;
@@ -47,13 +58,14 @@ namespace HyperEdit.Model
             var lander = vessel.GetComponent<LanderAttachment>();
             if (lander == null)
             {
+				//Debug.Log ("LandHere Latitude: " + vessel.latitude.ToString () + "   Longitude: " + vessel.longitude.ToString());
                 lander = vessel.gameObject.AddComponent<LanderAttachment>();
                 lander.Latitude = vessel.latitude;
                 lander.Longitude = vessel.longitude;
                 lander.SetRotation = false;
                 lander.Body = vessel.mainBody;
                 lander.OnManualEdit = onManualEdit;
-                lander.AlreadyTeleported = true;
+                lander.AlreadyTeleported = false;
                 lander.SetAltitudeToCurrent();
             }
         }
@@ -284,6 +296,9 @@ namespace HyperEdit.Model
         public bool SetRotation { get; set; }
 
         private readonly object _accelLogObject = new object();
+		private bool teleportedToLandingAlt = false;
+		public double intermAltitude { get; set; }
+		private double lastUpdate = 0;
 
         public void SetAltitudeToCurrent()
         {
@@ -303,6 +318,7 @@ namespace HyperEdit.Model
 
         public void Update()
         {
+			//Debug.Log ("LanderAttachment.Update");
             // 0.2 meters per frame
             var degrees = 0.2/Body.Radius*(180/Math.PI);
             var changed = false;
@@ -326,15 +342,22 @@ namespace HyperEdit.Model
                 Longitude += degrees/Math.Cos(Latitude*(Math.PI/180));
                 changed = true;
             }
+			if (Latitude == 0)
+				Latitude = 0.0001;
+			if (Longitude == 0)
+				Longitude = 0.0001;
             if (changed)
             {
                 AlreadyTeleported = false;
+				teleportedToLandingAlt = false;
                 OnManualEdit(Latitude, Longitude, Body);
             }
         }
 
         public void FixedUpdate()
         {
+			//Debug.Log ("LanderAttachment.FixedUpdate");
+
             var vessel = GetComponent<Vessel>();
             if (vessel != FlightGlobals.ActiveVessel)
             {
@@ -343,6 +366,7 @@ namespace HyperEdit.Model
             }
             if (AlreadyTeleported)
             {
+				//Debug.Log ("FixedUpdate: AlreadyTeleported");
                 if (vessel.LandedOrSplashed)
                 {
                     Destroy(this);
@@ -357,6 +381,7 @@ namespace HyperEdit.Model
             }
             else
             {
+				//Debug.Log ("FixedUpdate: not AlreadyTeleported");
                 var pqs = Body.pqsController;
                 if (pqs == null)
                 {
@@ -371,11 +396,40 @@ namespace HyperEdit.Model
                     Extensions.Log("Set time warp to index 0");
                 }
                 // HoldVesselUnpack is in display frames, not physics frames
+				//Debug.Log("alt: " + alt.ToString() + "   Altitude: " + Altitude.ToString());
+				//Debug.Log ("Latitude: " + Latitude.ToString () + "   Longitude: " + Longitude.ToString ());
 
-                var teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt + Altitude);
+				//var teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt +Altitude);
+				Vector3d teleportPosition;
+				if (!teleportedToLandingAlt) {
+					//Debug.Log("teleportedToLandingAlt == false, intermAltitude: " + intermAltitude.ToString() + "  Altitude: " + Altitude.ToString());
+					if (intermAltitude > Altitude) {
+						if (Planetarium.GetUniversalTime () - lastUpdate >= 0.5 ) {
+							intermAltitude = intermAltitude / 10;
+							//Debug.Log("Planetarium.GetUniversalTime (): " + Planetarium.GetUniversalTime ().ToString() + "   lastUpdate: " + lastUpdate.ToString());
+							//Debug.Log("intermAltitude: " + intermAltitude.ToString());
+							teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt + intermAltitude);
+							if (lastUpdate != 0)
+								intermAltitude = Altitude;
+							lastUpdate = Planetarium.GetUniversalTime();
+							
+						} else {
+							//Debug.Log("teleportPositionAltitude (no time change): alt: " + alt.ToString() + "   intermAltitude: " + intermAltitude.ToString());
+							teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt + intermAltitude);
+						}
+					}
+					else {
+						//Debug.Log("teleportedToLandingAlt set to true");
+						teleportedToLandingAlt = true;
+						teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt +Altitude);
+					}
+				}
+				else
+					teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt +Altitude);
+				
                 var teleportVelocity = Vector3d.Cross(Body.angularVelocity, teleportPosition);
                 //var teleportVelocity = Vector3d.Cross(Vector3d.down, teleportPosition.normalized)*
-                //                       (Math.Cos(Latitude*(Math.PI/180))*teleportPosition.magnitude*
+                //                       (Math.Cos(L atitude*(Math.PI/180))*teleportPosition.magnitude*
                 //                        (Math.PI*2)/(Body.rotationPeriod));
 
                 // convert from world space to orbit space
@@ -402,8 +456,8 @@ namespace HyperEdit.Model
                 orbit.UpdateFromStateVectors(teleportPosition, teleportVelocity, Body, Planetarium.GetUniversalTime());
                 vessel.SetOrbit(orbit);
                 vessel.SetRotation(rotation);
-
-                AlreadyTeleported = true;
+				if (teleportedToLandingAlt)
+	                AlreadyTeleported = true;
             }
         }
     }
