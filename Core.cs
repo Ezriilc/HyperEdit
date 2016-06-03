@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using KSP.UI.Screens;
+using System.Diagnostics;
 
 [assembly: System.Reflection.AssemblyVersion("1.5.0.0")]
 
@@ -301,6 +302,7 @@ namespace HyperEdit
 
     public static class Extensions
     {
+		[ConditionalAttribute("DEBUG")]
         public static void Log(string message)
         {
             Debug.Log("HyperEdit: " + message);
