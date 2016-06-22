@@ -5,7 +5,11 @@ using UnityEngine;
 using KSP.UI.Screens;
 using System.Diagnostics;
 
-[assembly: System.Reflection.AssemblyVersion("1.5.0.0")]
+[assembly: System.Reflection.AssemblyTitle("HyperEdit")]
+[assembly: System.Reflection.AssemblyDescription("A plugin mod for Kerbal Space Program")]
+[assembly: System.Reflection.AssemblyCompany("Kerbaltek")]
+[assembly: System.Reflection.AssemblyCopyright("Ezriilc Swifthawk")]
+[assembly: System.Reflection.AssemblyVersion("1.5.2.1")]
 
 [KSPAddonFixed(KSPAddon.Startup.MainMenu, true, typeof(HyperEditModule))]
 public class HyperEditModule : MonoBehaviour
@@ -305,7 +309,7 @@ namespace HyperEdit
 		[ConditionalAttribute("DEBUG")]
         public static void Log(string message)
         {
-            Debug.Log("HyperEdit: " + message);
+            UnityEngine.Debug.Log("HyperEdit: " + message);
         }
 
         public static void TryGetValue<T>(this ConfigNode node, string key, ref T value, TryParse<T> tryParse)
