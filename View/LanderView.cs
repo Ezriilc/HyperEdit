@@ -34,12 +34,17 @@ namespace HyperEdit.View
                 "If set, rotates the vessel such that up on the vessel is up when landing. Otherwise, the same orientation is kept as before teleporting, relative to the planet",
                 false);
             Func<bool> isValid = () => lat.Valid && lon.Valid && alt.Valid;
-            Action<double, double, CelestialBody> load = (latVal, lonVal, body) =>
+            Action<double, double, double, CelestialBody> load = (latVal, lonVal, altVal, body) =>
             {
                 lat.Object = latVal;
                 lon.Object = lonVal;
+                alt.Object = altVal;
                 bodySelector.CurrentlySelected = body;
+//                Model.DoLander.AddLastCoords(lat.Object, lon.Object, alt.Object, bodySelector.CurrentlySelected);
             };
+
+            // Load last entered values.
+            Model.DoLander.LoadLast(load);
 
             return new VerticalView(new IView[]
                 {
@@ -54,11 +59,11 @@ namespace HyperEdit.View
                     new ConditionalView(() => lat.Valid && (lat.Object < -89.9 || lat.Object > 89.9),
                         new LabelView("Setting latitude to -90 or 90 degrees (or near it) is dangerous, try 89.9 degrees",
                             "(This warning also appears when latitude is past 90 degrees)")),
-                    new DynamicToggleView("Landing", "Land the ship (or stop landing)", Model.DoLander.IsLanding,
+                    new DynamicToggleView("Land/Drop", "Land the ship or release it to gravity", Model.DoLander.IsLanding,
                         isValid, b => Model.DoLander.ToggleLanding(lat.Object, lon.Object, alt.Object, bodySelector.CurrentlySelected, setRot.Value, load)),
                     new ConditionalView(() => Model.DoLander.IsLanding(), new LabelView(HelpString(), "Moves the landing vessel's coordinates slightly")),
                     new ConditionalView(() => !Model.DoLander.IsLanding(), new ButtonView("Land here", "Stops the vessel and slowly lowers it to the ground (without teleporting)", () => Model.DoLander.LandHere(load))),
-                    new ConditionalView(isValid, new ButtonView("Save", "Save the entered location", () => Model.DoLander.AddSavedCoords(lat.Object, lon.Object, bodySelector.CurrentlySelected))),
+                    new ConditionalView(isValid, new ButtonView("Save", "Save the entered location", () => Model.DoLander.AddSavedCoords(lat.Object, lon.Object, alt.Object, bodySelector.CurrentlySelected))),
                     new ButtonView("Load", "Load a previously-saved location", () => Model.DoLander.Load(load)),
                     new ButtonView("Delete", "Delete a previously-saved location", Model.DoLander.Delete),
                     new ButtonView("Set to current", "Set lat/lon to the current position", () => Model.DoLander.SetToCurrent(load)),

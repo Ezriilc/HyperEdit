@@ -9,6 +9,7 @@ namespace HyperEdit.Model
     {
         private const string OldFilename = "landcoords.txt";
         private const string FilenameNoExt = "landcoords";
+        private const string RecentEntryName = "Most Recent";
 
         public static bool IsLanding()
         {
@@ -18,7 +19,7 @@ namespace HyperEdit.Model
         }
 
         public static void ToggleLanding(double latitude, double longitude, double altitude, CelestialBody body,
-            bool setRotation, Action<double, double, CelestialBody> onManualEdit)
+            bool setRotation, Action<double, double, double, CelestialBody> onManualEdit)
         {
             if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null || body == null)
                 return;
@@ -27,6 +28,7 @@ namespace HyperEdit.Model
             var lander = FlightGlobals.ActiveVessel.GetComponent<LanderAttachment>();
             if (lander == null)
             {
+                Model.DoLander.AddLastCoords(latitude, longitude, altitude, body);
                 lander = FlightGlobals.ActiveVessel.gameObject.AddComponent<LanderAttachment>();
 				//Debug.Log ("ToggleLanding Latitude: " + latitude.ToString () + "   Longitude: " + longitude.ToString() + "   Altitude: " + altitude.ToString());
 			
@@ -50,7 +52,7 @@ namespace HyperEdit.Model
             }
         }
 
-        public static void LandHere(Action<double, double, CelestialBody> onManualEdit)
+        public static void LandHere(Action<double, double, double, CelestialBody> onManualEdit)
         {
             if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null)
                 return;
@@ -82,15 +84,15 @@ namespace HyperEdit.Model
                 }
                 var list = new List<LandingCoordinates>
                 {
-                    new LandingCoordinates("Airstrip Island Runway", -1.5179, 288.032, kerbin),
-                    new LandingCoordinates("Airstrip Island Beach - Wet", -1.498, -72.088, kerbin),
-                    new LandingCoordinates("KSC Launch Pad", -0.097210087, 285.442335999, kerbin),
-                    new LandingCoordinates("KSC Runway", -0.04862627, 285.2766345, kerbin),
-                    new LandingCoordinates("KSC Beach - Wet", -0.04862627, -74.39, kerbin)
+                    new LandingCoordinates("Airstrip Island Runway", -1.5179, 288.032, 20, kerbin),
+                    new LandingCoordinates("Airstrip Island Beach - Wet", -1.498, -72.088, 20, kerbin),
+                    new LandingCoordinates("KSC Launch Pad", -0.097210087, 285.442335999, 20, kerbin),
+                    new LandingCoordinates("KSC Runway", -0.04862627, 285.2766345, 20, kerbin),
+                    new LandingCoordinates("KSC Beach - Wet", -0.04862627, -74.39, 20, kerbin)
                 };
                 if (minmus != null)
                 {
-                    list.Add(new LandingCoordinates("Minmus Flats", 0.562859, 175.968846, minmus));
+                    list.Add(new LandingCoordinates("Minmus Flats", 0.562859, 175.968846, 20, minmus));
                 }
                 return list;
             }
@@ -132,24 +134,37 @@ namespace HyperEdit.Model
             }
         }
 
-        public static void AddSavedCoords(double latitude, double longitude, CelestialBody body)
+        public static void AddLastCoords(double latitude, double longitude, double altitude, CelestialBody body)
         {
             if (body == null)
                 return;
-            View.WindowHelper.Prompt("Save as...", s => AddSavedCoords(s, latitude, longitude, body));
+            AddSavedCoords(RecentEntryName, latitude, longitude, altitude, body);
         }
 
-        private static void AddSavedCoords(string name, double latitude, double longitude, CelestialBody body)
+        public static void AddSavedCoords(double latitude, double longitude, double altitude, CelestialBody body)
+        {
+            if (body == null)
+                return;
+            View.WindowHelper.Prompt("Save as...", s => AddSavedCoords(s, latitude, longitude, altitude, body));
+        }
+
+        private static void AddSavedCoords(string name, double latitude, double longitude, double altitude, CelestialBody body)
         {
             var saved = SavedCoords;
             saved.RemoveAll(match => match.Name == name);
-            saved.Add(new LandingCoordinates(name, latitude, longitude, body));
+            saved.Add(new LandingCoordinates(name, latitude, longitude, altitude, body));
             SavedCoords = saved;
         }
 
-        public static void Load(Action<double, double, CelestialBody> onLoad)
+        public static void LoadLast(Action<double, double, double, CelestialBody> onLoad)
         {
-            View.WindowHelper.Selector("Load...", SavedCoords, c => c.Name, c => onLoad(c.Lat, c.Lon, c.Body));
+            var lastC = SavedCoords.Find(c => c.Name == RecentEntryName);
+            onLoad(lastC.Lat, lastC.Lon, lastC.Alt, lastC.Body);
+        }
+
+        public static void Load(Action<double, double, double, CelestialBody> onLoad)
+        {
+            View.WindowHelper.Selector("Load...", SavedCoords, c => c.Name, c => onLoad(c.Lat, c.Lon, c.Alt, c.Body));
         }
 
         public static void Delete()
@@ -162,11 +177,11 @@ namespace HyperEdit.Model
             });
         }
 
-        public static void SetToCurrent(Action<double, double, CelestialBody> onLoad)
+        public static void SetToCurrent(Action<double, double, double, CelestialBody> onLoad)
         {
             if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null)
                 return;
-            onLoad(FlightGlobals.ActiveVessel.latitude, FlightGlobals.ActiveVessel.longitude,
+            onLoad(FlightGlobals.ActiveVessel.latitude, FlightGlobals.ActiveVessel.longitude, FlightGlobals.ActiveVessel.altitude,
                 FlightGlobals.ActiveVessel.mainBody);
         }
 
@@ -175,14 +190,14 @@ namespace HyperEdit.Model
             return FlightGlobals.fetch == null ? null : FlightGlobals.Vessels.Where(v => v.Landed);
         }
 
-        public static void SetToLanded(Action<double, double, CelestialBody> onLoad, Vessel landingBeside)
+        public static void SetToLanded(Action<double, double, double, CelestialBody> onLoad, Vessel landingBeside)
         {
             if (landingBeside == null)
                 return;
 
             //work out Logitude + 50m
             var fiftyMOfLong = (360*40)/(landingBeside.orbit.referenceBody.Radius*2*Math.PI);
-            onLoad(landingBeside.latitude, landingBeside.longitude + fiftyMOfLong, landingBeside.mainBody);
+            onLoad(landingBeside.latitude, landingBeside.longitude + fiftyMOfLong, landingBeside.altitude, landingBeside.mainBody);
         }
 
         private struct LandingCoordinates : IEquatable<LandingCoordinates>
@@ -190,14 +205,16 @@ namespace HyperEdit.Model
             public string Name { get; }
             public double Lat { get; }
             public double Lon { get; }
+            public double Alt { get; }
             public CelestialBody Body { get; }
 
-            public LandingCoordinates(string name, double lat, double lon, CelestialBody body)
+            public LandingCoordinates(string name, double lat, double lon, double alt, CelestialBody body)
                 : this()
             {
                 Name = name;
                 Lat = lat;
                 Lon = lon;
+                Alt = alt;
                 Body = body;
             }
 
@@ -210,15 +227,17 @@ namespace HyperEdit.Model
                     Name = null;
                     Lat = 0;
                     Lon = 0;
+                    Alt = 20;
                     Body = null;
                     return;
                 }
-                double dlat, dlon;
-                if (double.TryParse(split[1], out dlat) && double.TryParse(split[2], out dlon))
+                double dlat, dlon, dalt;
+                if (double.TryParse(split[1], out dlat) && double.TryParse(split[2], out dlon) && double.TryParse(split[2], out dalt))
                 {
                     Name = split[0];
                     Lat = dlat;
                     Lon = dlon;
+                    Alt = dalt;
                     CelestialBody body;
                     if (split.Length >= 4 && Extensions.CbTryParse(split[3], out body))
                     {
@@ -234,6 +253,7 @@ namespace HyperEdit.Model
                     Name = null;
                     Lat = 0;
                     Lon = 0;
+                    Alt = 20;
                     Body = null;
                 }
             }
@@ -244,10 +264,13 @@ namespace HyperEdit.Model
                 node.TryGetValue("body", ref body, Extensions.CbTryParse);
                 Body = body;
                 var temp = 0.0;
+                var tempAlt = 20.0;
                 node.TryGetValue("lat", ref temp, double.TryParse);
                 Lat = temp;
                 node.TryGetValue("lon", ref temp, double.TryParse);
                 Lon = temp;
+                node.TryGetValue("alt", ref tempAlt, double.TryParse);
+                Alt = tempAlt;
                 string name = null;
                 node.TryGetValue("name", ref name, null);
                 Name = name;
@@ -270,16 +293,17 @@ namespace HyperEdit.Model
 
             public override string ToString()
             {
-                return Name + "," + Lat + "," + Lon + "," + Body.CbToString();
+                return Name + "," + Lat + "," + Lon + "," + Alt + "," + Body.CbToString();
             }
 
             public ConfigNode ToConfigNode()
             {
                 var node = new ConfigNode("coordinate");
+                node.AddValue("name", Name);
                 node.AddValue("body", Body.CbToString());
                 node.AddValue("lat", Lat);
                 node.AddValue("lon", Lon);
-                node.AddValue("name", Name);
+                node.AddValue("alt", Alt);
                 return node;
             }
         }
@@ -288,7 +312,7 @@ namespace HyperEdit.Model
     public class LanderAttachment : MonoBehaviour
     {
         public bool AlreadyTeleported { get; set; }
-        public Action<double, double, CelestialBody> OnManualEdit { get; set; }
+        public Action<double, double, double, CelestialBody> OnManualEdit { get; set; }
         public CelestialBody Body { get; set; }
         public double Latitude { get; set; }
         public double Longitude { get; set; }
@@ -350,7 +374,7 @@ namespace HyperEdit.Model
             {
                 AlreadyTeleported = false;
 				teleportedToLandingAlt = false;
-                OnManualEdit(Latitude, Longitude, Body);
+                OnManualEdit(Latitude, Longitude, Altitude, Body);
             }
         }
 
