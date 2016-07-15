@@ -11,7 +11,8 @@ using System.Diagnostics;
 [assembly: System.Reflection.AssemblyCopyright("Ezriilc Swifthawk")]
 [assembly: System.Reflection.AssemblyVersion("1.5.2.1")]
 
-[KSPAddonFixed(KSPAddon.Startup.MainMenu, true, typeof(HyperEditModule))]
+[KSPAddon(KSPAddon.Startup.MainMenu, true)]
+
 public class HyperEditModule : MonoBehaviour
 {
     public HyperEditModule()
@@ -511,33 +512,5 @@ namespace HyperEdit
             }
             return false;
         }
-    }
-}
-
-// Credit to "Majiir" for "KSPAddonFixed" : KSPAddon with equality checking using an additional type parameter. Fixes the issue where AddonLoader prevents multiple start-once addons with the same start scene.
-public class KSPAddonFixed : KSPAddon, IEquatable<KSPAddonFixed>
-{
-    private readonly Type type;
-
-    public KSPAddonFixed(Startup startup, bool once, Type type)
-        : base(startup, once)
-    {
-        this.type = type;
-    }
-
-    public override bool Equals(object obj)
-    {
-        var other = obj as KSPAddonFixed;
-        return other != null && Equals(other);
-    }
-
-    public bool Equals(KSPAddonFixed other)
-    {
-        return once == other.once && startup == other.startup && type == other.type;
-    }
-
-    public override int GetHashCode()
-    {
-        return startup.GetHashCode() ^ once.GetHashCode() ^ type.GetHashCode();
     }
 }
