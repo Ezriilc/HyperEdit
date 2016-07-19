@@ -14,8 +14,10 @@ TestResults
 # User-specific files
 *.suo
 *.user
+*.sln
 *.sln.docstates
 *.suo
+*.csproj
 
 # Build results
 [Dd]ebug/
