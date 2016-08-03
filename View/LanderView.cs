@@ -40,7 +40,6 @@ namespace HyperEdit.View
                 lon.Object = lonVal;
                 alt.Object = altVal;
                 bodySelector.CurrentlySelected = body;
-//                Model.DoLander.AddLastCoords(lat.Object, lon.Object, alt.Object, bodySelector.CurrentlySelected);
             };
 
             // Load last entered values.
