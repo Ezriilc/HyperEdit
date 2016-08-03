@@ -58,8 +58,13 @@ namespace HyperEdit.View
                     new ConditionalView(() => lat.Valid && (lat.Object < -89.9 || lat.Object > 89.9),
                         new LabelView("Setting latitude to -90 or 90 degrees (or near it) is dangerous, try 89.9 degrees",
                             "(This warning also appears when latitude is past 90 degrees)")),
-                    new DynamicToggleView("Land/Drop", "Land the ship or release it to gravity", Model.DoLander.IsLanding,
-                        isValid, b => Model.DoLander.ToggleLanding(lat.Object, lon.Object, alt.Object, bodySelector.CurrentlySelected, setRot.Value, load)),
+
+// Ezriilc attempting to change the "Land/Drop" radio button to a real button.
+                    new ConditionalView(() => !Model.DoLander.IsLanding(), new ButtonView("Land", "Teleport, then slowly lower to surface.", () => Model.DoLander.ToggleLanding(lat.Object, lon.Object, alt.Object, bodySelector.CurrentlySelected, setRot.Value, load))),
+                    new ConditionalView(() => Model.DoLander.IsLanding(), new ButtonView("Drop", "Release the vessel to gravity.", () => Model.DoLander.ToggleLanding(lat.Object, lon.Object, alt.Object, bodySelector.CurrentlySelected, setRot.Value, load))),
+// ...
+                    
+//                    new DynamicToggleView("Land/Drop", "Land the ship or release it to gravity", Model.DoLander.IsLanding, isValid, b => Model.DoLander.ToggleLanding(lat.Object, lon.Object, alt.Object, bodySelector.CurrentlySelected, setRot.Value, load)),
                     new ConditionalView(() => Model.DoLander.IsLanding(), new LabelView(HelpString(), "Moves the landing vessel's coordinates slightly")),
                     new ConditionalView(() => !Model.DoLander.IsLanding(), new ButtonView("Land here", "Stops the vessel and slowly lowers it to the ground (without teleporting)", () => Model.DoLander.LandHere(load))),
                     new ConditionalView(isValid, new ButtonView("Save", "Save the entered location", () => Model.DoLander.AddSavedCoords(lat.Object, lon.Object, alt.Object, bodySelector.CurrentlySelected))),
@@ -73,7 +78,7 @@ namespace HyperEdit.View
         private static string HelpString()
         {
             return
-                $"Use {GameSettings.TRANSLATE_UP.primary},{GameSettings.TRANSLATE_DOWN.primary},{GameSettings.TRANSLATE_LEFT.primary},{GameSettings.TRANSLATE_RIGHT.primary} to fine-tune landing coordinates";
+                $"Landing in progress.  Use {GameSettings.TRANSLATE_UP.primary},{GameSettings.TRANSLATE_DOWN.primary},{GameSettings.TRANSLATE_LEFT.primary},{GameSettings.TRANSLATE_RIGHT.primary} to fine-tune landing coordinates";
         }
     }
 }
