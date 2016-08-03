@@ -25,13 +25,13 @@ namespace HyperEdit.View
 		}
         public static IView View()
         {
-            var bodySelector = new ListSelectView<CelestialBody>("Planet", () => FlightGlobals.fetch == null ? null : FlightGlobals.fetch.bodies, null, Extensions.CbToString);
+            var bodySelector = new ListSelectView<CelestialBody>("Body", () => FlightGlobals.fetch == null ? null : FlightGlobals.fetch.bodies, null, Extensions.CbToString);
             bodySelector.CurrentlySelected = FlightGlobals.fetch == null ? null : FlightGlobals.ActiveVessel == null ? Planetarium.fetch.Home : FlightGlobals.ActiveVessel.mainBody;
-			var lat = new TextBoxView<double>("Lat", "Latitude of landing coordinates", 0.001d, myTryParse);
-			var lon = new TextBoxView<double>("Lon", "Longitude of landing coordinates", 0.001d, myTryParse);
-            var alt = new TextBoxView<double>("Alt", "Altitude of landing coordinates", 20, Model.SiSuffix.TryParse);
-            var setRot = new ToggleView("Set rotation",
-                "If set, rotates the vessel such that up on the vessel is up when landing. Otherwise, the same orientation is kept as before teleporting, relative to the planet",
+			var lat = new TextBoxView<double>("Lat", "Latitude (North/South).", 0.001d, myTryParse);
+			var lon = new TextBoxView<double>("Lon", "Longitude (East/West). Converts to less than 360 degrees.", 0.001d, myTryParse);
+            var alt = new TextBoxView<double>("Alt", "Altitude (Up/Down).", 20, Model.SiSuffix.TryParse);
+            var setRot = new ToggleView("Force Rotation",
+                "Rotates vessel such that up on the vessel is up when landing. Otherwise, the current orientation is kept relative to the body.",
                 false);
             Func<bool> isValid = () => lat.Valid && lon.Valid && alt.Valid;
             Action<double, double, double, CelestialBody> load = (latVal, lonVal, altVal, body) =>
@@ -47,38 +47,31 @@ namespace HyperEdit.View
 
             return new VerticalView(new IView[]
                 {
+                    bodySelector,
+                    new ConditionalView(() => FlightGlobals.fetch != null && FlightGlobals.ActiveVessel != null && FlightGlobals.ActiveVessel.mainBody != bodySelector.CurrentlySelected, new LabelView("Landing on a different body is not recommended.", "This may destroy the vessel. Use the Orbit Editor to orbit the body first, then land on it.")),
                     lat,
+                    new ConditionalView(() => !lat.Valid, new LabelView("Latitude must be a number from 0 to (+/-)89.9.", "Values too close to the poles ((+/-)90) can chrash KSP, values beyond that are invalid for a latitude.")),
                     lon,
                     alt,
-                    bodySelector,
                     setRot,
-                    new ConditionalView(() => FlightGlobals.fetch != null && FlightGlobals.ActiveVessel != null && FlightGlobals.ActiveVessel.mainBody != bodySelector.CurrentlySelected,
-                        new LabelView("Landing on a body other than the current one is not recommended.",
-                            "This causes lots of explosions, it's advisable to teleport to an orbit above the planet, then land on it directly")),
-                    new ConditionalView(() => lat.Valid && (lat.Object < -89.9 || lat.Object > 89.9),
-                        new LabelView("Setting latitude to -90 or 90 degrees (or near it) is dangerous, try 89.9 degrees",
-                            "(This warning also appears when latitude is past 90 degrees)")),
-
-// Ezriilc attempting to change the "Land/Drop" radio button to a real button.
-                    new ConditionalView(() => !Model.DoLander.IsLanding(), new ButtonView("Land", "Teleport, then slowly lower to surface.", () => Model.DoLander.ToggleLanding(lat.Object, lon.Object, alt.Object, bodySelector.CurrentlySelected, setRot.Value, load))),
-                    new ConditionalView(() => Model.DoLander.IsLanding(), new ButtonView("Drop", "Release the vessel to gravity.", () => Model.DoLander.ToggleLanding(lat.Object, lon.Object, alt.Object, bodySelector.CurrentlySelected, setRot.Value, load))),
-// ...
-                    
-//                    new DynamicToggleView("Land/Drop", "Land the ship or release it to gravity", Model.DoLander.IsLanding, isValid, b => Model.DoLander.ToggleLanding(lat.Object, lon.Object, alt.Object, bodySelector.CurrentlySelected, setRot.Value, load)),
-                    new ConditionalView(() => Model.DoLander.IsLanding(), new LabelView(HelpString(), "Moves the landing vessel's coordinates slightly")),
-                    new ConditionalView(() => !Model.DoLander.IsLanding(), new ButtonView("Land here", "Stops the vessel and slowly lowers it to the ground (without teleporting)", () => Model.DoLander.LandHere(load))),
-                    new ConditionalView(isValid, new ButtonView("Save", "Save the entered location", () => Model.DoLander.AddSavedCoords(lat.Object, lon.Object, alt.Object, bodySelector.CurrentlySelected))),
-                    new ButtonView("Load", "Load a previously-saved location", () => Model.DoLander.Load(load)),
-                    new ButtonView("Delete", "Delete a previously-saved location", Model.DoLander.Delete),
-                    new ButtonView("Set to current", "Set lat/lon to the current position", () => Model.DoLander.SetToCurrent(load)),
-                    new ListSelectView<Vessel>("Set lat/lon to", Model.DoLander.LandedVessels, select => Model.DoLander.SetToLanded(load, select), Extensions.VesselToString),
+                    new ConditionalView(() => !isValid(), new ButtonView("Cannot Land", "Entered location is invalid. Correct items in red.", null)),
+                    new ConditionalView(() => !Model.DoLander.IsLanding() && isValid(), new ButtonView("Land", "Teleport to entered location, then slowly lower to surface.", () => Model.DoLander.ToggleLanding(lat.Object, lon.Object, alt.Object, bodySelector.CurrentlySelected, setRot.Value, load))),
+                    new ConditionalView(() => Model.DoLander.IsLanding(), new ButtonView("Drop (CAUTION!)", "Release vessel to gravity.", () => Model.DoLander.ToggleLanding(lat.Object, lon.Object, alt.Object, bodySelector.CurrentlySelected, setRot.Value, load))),
+                    new ConditionalView(() => Model.DoLander.IsLanding(), new LabelView("LANDING IN PROGRESS.", "Vessel is being lowered to the surface.")),
+                    new ConditionalView(() => Model.DoLander.IsLanding(), new LabelView(changeHelpString(), "Change location slightly.")),
+                    new ConditionalView(() => !Model.DoLander.IsLanding(), new ButtonView("Land Here", "Stop at current location, then slowly lower to surface.", () => Model.DoLander.LandHere(load))),
+                    new ListSelectView<Vessel>("Set to vessel", Model.DoLander.LandedVessels, select => Model.DoLander.SetToLanded(load, select), Extensions.VesselToString),
+                    new ButtonView("Current", "Set to current location.", () => Model.DoLander.SetToCurrent(load)),
+                    new ConditionalView(isValid, new ButtonView("Save", "Save the entered location.", () => Model.DoLander.AddSavedCoords(lat.Object, lon.Object, alt.Object, bodySelector.CurrentlySelected))),
+                    new ButtonView("Load", "Load a saved location.", () => Model.DoLander.Load(load)),
+                    new ButtonView("Delete", "Delete a saved location.", Model.DoLander.Delete),
                 });
         }
 
-        private static string HelpString()
+        private static string changeHelpString()
         {
             return
-                $"Landing in progress.  Use {GameSettings.TRANSLATE_UP.primary},{GameSettings.TRANSLATE_DOWN.primary},{GameSettings.TRANSLATE_LEFT.primary},{GameSettings.TRANSLATE_RIGHT.primary} to fine-tune landing coordinates";
+                $"Use {GameSettings.TRANSLATE_UP.primary},{GameSettings.TRANSLATE_DOWN.primary},{GameSettings.TRANSLATE_LEFT.primary},{GameSettings.TRANSLATE_RIGHT.primary} to fine-tune location.";
         }
     }
 }
