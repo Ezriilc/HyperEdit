@@ -84,11 +84,11 @@ namespace HyperEdit.Model
                 }
                 var list = new List<LandingCoordinates>
                 {
-                    new LandingCoordinates("Airstrip Island Runway", -1.5179, 288.032, 20, kerbin),
-                    new LandingCoordinates("Airstrip Island Beach - Wet", -1.498, -72.088, 20, kerbin),
-                    new LandingCoordinates("KSC Launch Pad", -0.097210087, 285.442335999, 20, kerbin),
-                    new LandingCoordinates("KSC Runway", -0.04862627, 285.2766345, 20, kerbin),
-                    new LandingCoordinates("KSC Beach - Wet", -0.04862627, -74.39, 20, kerbin)
+                    new LandingCoordinates("KSC Launch Pad", -0.0972, 285.4423, 20, kerbin),
+                    new LandingCoordinates("KSC Runway", -0.0486, 285.2823, 20, kerbin),
+                    new LandingCoordinates("KSC Beach - Wet", -0.04862627, 285.666, 20, kerbin),
+                    new LandingCoordinates("Airstrip Island Runway", -1.518, 288.1, 35, kerbin),
+                    new LandingCoordinates("Airstrip Island Beach - Wet", -1.518, 287.9503, 20, kerbin)
                 };
                 if (minmus != null)
                 {
