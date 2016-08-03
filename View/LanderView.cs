@@ -23,13 +23,65 @@ namespace HyperEdit.View
 			d = d1;
 			return true;
 		}
+        static bool latTryParse(string str, out double d)
+        {
+            double d1;
+            double highLimit = 89.9d;
+            double lowLimit = -89.9d;
+            bool b = double.TryParse(str, out d1);
+            if (!b)
+            {
+                d = 0.001f;
+                return false;
+            }
+            if (d1 == 0)
+            {
+                d = 0.001d;
+                return true;
+            }
+            if (d1 > highLimit)
+            {
+                d = highLimit;
+                return false;
+            }
+            if (d1 < lowLimit)
+            {
+                d = lowLimit;
+                return false;
+            }
+            d = d1;
+            return true;
+        }
+        static bool altTryParse(string str, out double d)
+        {
+            double d1;
+            double lowLimit = 0.0d;
+            bool b = Model.SiSuffix.TryParse(str, out d1);
+            if (!b)
+            {
+                d = 0.001f;
+                return false;
+            }
+            if (d1 == 0)
+            {
+                d = 0.001d;
+                return true;
+            }
+            if (d1 < lowLimit)
+            {
+                d = lowLimit;
+                return false;
+            }
+            d = d1;
+            return true;
+        }
         public static IView View()
         {
             var bodySelector = new ListSelectView<CelestialBody>("Body", () => FlightGlobals.fetch == null ? null : FlightGlobals.fetch.bodies, null, Extensions.CbToString);
             bodySelector.CurrentlySelected = FlightGlobals.fetch == null ? null : FlightGlobals.ActiveVessel == null ? Planetarium.fetch.Home : FlightGlobals.ActiveVessel.mainBody;
-			var lat = new TextBoxView<double>("Lat", "Latitude (North/South).", 0.001d, myTryParse);
+			var lat = new TextBoxView<double>("Lat", "Latitude (North/South).", 0.001d, latTryParse);
 			var lon = new TextBoxView<double>("Lon", "Longitude (East/West). Converts to less than 360 degrees.", 0.001d, myTryParse);
-            var alt = new TextBoxView<double>("Alt", "Altitude (Up/Down).", 20, Model.SiSuffix.TryParse);
+            var alt = new TextBoxView<double>("Alt", "Altitude (Up/Down).", 20, altTryParse);
             var setRot = new ToggleView("Force Rotation",
                 "Rotates vessel such that up on the vessel is up when landing. Otherwise, the current orientation is kept relative to the body.",
                 false);
@@ -53,6 +105,7 @@ namespace HyperEdit.View
                     new ConditionalView(() => !lat.Valid, new LabelView("Latitude must be a number from 0 to (+/-)89.9.", "Values too close to the poles ((+/-)90) can chrash KSP, values beyond that are invalid for a latitude.")),
                     lon,
                     alt,
+                    new ConditionalView(() => alt.Object < 0, new LabelView("Altitude must be a positive number.", "This may destroy the vessel. Values less than 0 are sub-surface.")),
                     setRot,
                     new ConditionalView(() => !isValid(), new ButtonView("Cannot Land", "Entered location is invalid. Correct items in red.", null)),
                     new ConditionalView(() => !Model.DoLander.IsLanding() && isValid(), new ButtonView("Land", "Teleport to entered location, then slowly lower to surface.", () => Model.DoLander.ToggleLanding(lat.Object, lon.Object, alt.Object, bodySelector.CurrentlySelected, setRot.Value, load))),
