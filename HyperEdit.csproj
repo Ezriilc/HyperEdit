@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{2FF6FC29-02C3-489C-9EFE-B913973AF85B}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -65,29 +65,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Source\Core.cs" />
-    <Compile Include="Source\Model\Lander.cs" />
-    <Compile Include="Source\Model\MiscEditor.cs" />
-    <Compile Include="Source\Model\OrbitEditor.cs" />
-    <Compile Include="Source\Model\PlanetEditor.cs" />
-    <Compile Include="Source\Model\SmaAligner.cs" />
-    <Compile Include="Source\Model\SiSuffix.cs" />
-    <Compile Include="Source\View\AboutWindow.cs" />
-    <Compile Include="Source\View\CoreView.cs" />
-    <Compile Include="Source\View\LanderView.cs" />
-    <Compile Include="Source\View\MiscEditorView.cs" />
-    <Compile Include="Source\View\OrbitEditorView.cs" />
-    <Compile Include="Source\View\PlanetEditorView.cs" />
-    <Compile Include="Source\View\SmaAlignerView.cs" />
-    <Compile Include="Source\View\View.cs" />
-    <Compile Include="Source\View\Window.cs" />
+    <Compile Include="Source\*" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Source\HyperEdit.version" />
-    <None Include="Source\README.md" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
+    <None Include="$(AssemblyName).version" />
+    <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">
