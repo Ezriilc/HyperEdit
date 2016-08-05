@@ -4,6 +4,7 @@
 BuildOutput/
 Properties/
 lib/
+DTAR*/
 
 # mstest test results
 TestResults
@@ -16,8 +17,6 @@ TestResults
 *.user
 *.sln
 *.sln.docstates
-*.suo
-*.csproj
 
 # Build results
 [Dd]ebug/

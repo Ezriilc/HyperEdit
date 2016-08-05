@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{2FF6FC29-02C3-489C-9EFE-B913973AF85B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>HyperEdit</RootNamespace>
+    <AssemblyName>HyperEdit</AssemblyName>
+    <MyFileName>$(AssemblyName).dll</MyFileName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <NoConfig>true</NoConfig>
+    <NoStdLib>true</NoStdLib>
+    <KspInstallDir Condition=" '$(KspInstallDir)' == '' ">..\..\..\Games\Kerbal Space Program\KSP_win</KspInstallDir>
+    <KspOutputPath>$(KspInstallDir)\GameData\Kerbaltek</KspOutputPath>
+    <KspLibPath>$(KspInstallDir)\KSP_Data\Managed</KspLibPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(KspLibPath)\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>$(KspLibPath)\Assembly-CSharp-firstpass.dll</HintPath>
+    </Reference>
+    <Reference Include="KSPUtil">
+      <HintPath>$(KspLibPath)\KSPUtil.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="UnityEngine">
+      <HintPath>$(KspLibPath)\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(KspLibPath)\UnityEngine.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="mscorlib">
+      <HintPath>$(KspLibPath)\mscorlib.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <HintPath>$(KspLibPath)\System.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="KSPAssets">
+      <HintPath>$(KspLibPath)\KSPAssets.dll</HintPath>
+    </Reference>
+    <Reference Include="KSPCore">
+      <HintPath>$(KspLibPath)\KSPCore.dll</HintPath>
+    </Reference>
+    <Reference Include="Vectrosity">
+      <HintPath>$(KspLibPath)\Vectrosity.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Source\Core.cs" />
+    <Compile Include="Source\Model\Lander.cs" />
+    <Compile Include="Source\Model\MiscEditor.cs" />
+    <Compile Include="Source\Model\OrbitEditor.cs" />
+    <Compile Include="Source\Model\PlanetEditor.cs" />
+    <Compile Include="Source\Model\SmaAligner.cs" />
+    <Compile Include="Source\Model\SiSuffix.cs" />
+    <Compile Include="Source\View\AboutWindow.cs" />
+    <Compile Include="Source\View\CoreView.cs" />
+    <Compile Include="Source\View\LanderView.cs" />
+    <Compile Include="Source\View\MiscEditorView.cs" />
+    <Compile Include="Source\View\OrbitEditorView.cs" />
+    <Compile Include="Source\View\PlanetEditorView.cs" />
+    <Compile Include="Source\View\SmaAlignerView.cs" />
+    <Compile Include="Source\View\View.cs" />
+    <Compile Include="Source\View\Window.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Source\HyperEdit.version" />
+    <None Include="Source\README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Target Name="AfterBuild">
+    <Copy SourceFiles="$(OutputPath)\$(MyFileName)" DestinationFolder="$(KspOutputPath)" />
+  </Target>
+</Project>
