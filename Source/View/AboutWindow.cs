@@ -16,7 +16,7 @@ This is a highly eccentric plugin, so there may be lots of bugs and explosions -
 
 Created by:
 khyperia (original creator, code)
-Ezriilc (web)
+Ezriilc (web, code)
 sirkut (code)
 payo (code [Planet Editor])
 forecaster (graphics, logo)

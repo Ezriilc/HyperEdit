@@ -47,7 +47,7 @@ namespace HyperEdit
         private ApplicationLauncherButton _appLauncherButton;
         private Action _createCoreView;
         private Action _createLanderView;
-        private bool _autoOpenLanderValue = false;
+        private bool _autoOpenLanderValue;
 
         public HyperEditBehaviour() // Constructor.  Don't init data here cuz Unity, do so in Awake();
         {
@@ -71,6 +71,7 @@ namespace HyperEdit
 
         private void CreateCoreView()
         {
+            ReloadConfig();
             if (_createCoreView == null)
                 _createCoreView = View.CoreView.Create(this);
             _createCoreView();
@@ -83,6 +84,45 @@ namespace HyperEdit
             if (_createLanderView == null)
                 _createLanderView = View.LanderView.Create();
             _createLanderView();
+        }
+
+        // SceneUpdate() fires only when the scene changes.
+        private void SceneUpdate(GameScenes data)
+        {
+            ReloadConfig();
+            if (HighLogic.LoadedScene == GameScenes.FLIGHT || HighLogic.LoadedScene == GameScenes.TRACKSTATION)
+            {
+                if (_autoOpenLanderValue == true && !View.Window.GameObject.GetComponents<View.Window>().Any(w => w.Title == "Lander"))
+                    CreateLanderView();
+            } else {
+                View.Window.CloseAll();
+            }
+        }
+
+        // FixedUpdate() fires every physics time step.
+        public void FixedUpdate() => Model.PlanetEditor.TryApplyFileDefaults();
+
+        // Update() fires every frame.
+        public void Update ()
+		{
+			RateLimitedLogger.Update ();
+            if ((Input.GetKey (KeyCode.LeftAlt) || Input.GetKey (KeyCode.RightAlt)) && Input.GetKeyDown (KeyCode.H)) {
+                // Linuxgurugamer added this scene check to keep HyperEdit off in the editors.
+                if (HighLogic.LoadedScene == GameScenes.FLIGHT || HighLogic.LoadedScene == GameScenes.TRACKSTATION)
+                {
+                    if (View.Window.GameObject.GetComponents<View.Window>().Any(w => w.Title == "HyperEdit")) {
+                        if (_appLauncherButton == null)
+                            View.Window.CloseAll();
+                        else
+                            _appLauncherButton.SetFalse();
+					} else {
+                        if (_appLauncherButton == null)
+                            CreateCoreView();
+                        else
+                            _appLauncherButton.SetTrue();
+                    }
+				}
+			}
         }
 
         private void ReloadConfig()
@@ -101,43 +141,6 @@ namespace HyperEdit
             UseAppLauncherButton = launcherButtonValue;
 
             _hyperEditConfig.TryGetValue("AutoOpenLander", ref _autoOpenLanderValue, bool.TryParse);
-        }
-
-        // SceneUpdate() fires only when the scene changes.
-        private void SceneUpdate(GameScenes data)
-        {
-            if (HighLogic.LoadedScene == GameScenes.FLIGHT || HighLogic.LoadedScene == GameScenes.TRACKSTATION)
-            {
-                if (_autoOpenLanderValue == true && !View.Window.GameObject.GetComponents<View.Window>().Any(w => w.Title == "Lander"))
-                    CreateLanderView();
-            } else {
-                View.Window.CloseAll();
-            }
-        }
-
-        // FixedUpdate() fires every physics time step.
-        public void FixedUpdate() => Model.PlanetEditor.TryApplyFileDefaults();
-
-        // Update() fires every frame.
-        public void Update ()
-		{
-			RateLimitedLogger.Update ();
-			// Linuxgurugamer added this scene check to keep HyperEdit off in the editors.
-			if (HighLogic.LoadedScene == GameScenes.FLIGHT || HighLogic.LoadedScene == GameScenes.TRACKSTATION) {
-                if ((Input.GetKey (KeyCode.LeftAlt) || Input.GetKey (KeyCode.RightAlt)) && Input.GetKeyDown (KeyCode.H)) {
-                    if (View.Window.GameObject.GetComponents<View.Window>().Any(w => w.Title == "HyperEdit")) {
-                        if (_appLauncherButton == null)
-                            View.Window.CloseAll();
-                        else
-                            _appLauncherButton.SetFalse();
-					} else {
-                        if (_appLauncherButton == null)
-                            CreateCoreView();
-                        else
-                            _appLauncherButton.SetTrue();
-                    }
-				}
-			}
         }
 
         private void AreWindowsOpenChange(bool isOpen)

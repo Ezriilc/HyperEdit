@@ -66,6 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Source\*" />
+    <Compile Include="Source\*\*" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(AssemblyName).version" />
