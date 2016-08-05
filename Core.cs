@@ -11,7 +11,7 @@ using System.Diagnostics;
 [assembly: System.Reflection.AssemblyCopyright("Ezriilc Swifthawk")]
 [assembly: System.Reflection.AssemblyVersion("1.5.2.1")]
 
-[KSPAddon(KSPAddon.Startup.MainMenu, true)]
+[KSPAddon(KSPAddon.Startup.SpaceCentre, true)] // Determines when plugin starts.
 
 public class HyperEditModule : MonoBehaviour
 {
@@ -46,22 +46,43 @@ namespace HyperEdit
         private bool _useAppLauncherButton;
         private ApplicationLauncherButton _appLauncherButton;
         private Action _createCoreView;
+        private Action _createLanderView;
+        private bool _autoOpenLanderValue = false;
+
+        public HyperEditBehaviour() // Constructor.  Don't init data here cuz Unity, do so in Awake();
+        {
+//            Extensions.Log("[" + this.GetInstanceID().ToString("X") + "][" + Time.time.ToString("0.0000") + "]: Constructor()");
+        }
+
+        public void Awake() // Called after scene (designated w/ KSPAddon) loads, but before Start().  Init data here.
+        {
+//            Extensions.Log("[" + this.GetInstanceID().ToString("X") + "][" + Time.time.ToString("0.0000") + "]: Awake()");
+            View.Window.AreWindowsOpenChange += AreWindowsOpenChange;
+            GameEvents.onGUIApplicationLauncherReady.Add(AddAppLauncher);
+            GameEvents.onGUIApplicationLauncherDestroyed.Add(RemoveAppLauncher);
+            GameEvents.onLevelWasLoaded.Add(SceneUpdate);
+        }
+
+        public void Start() // Called after all mods are Awake().
+        {
+//            Extensions.Log("[" + this.GetInstanceID().ToString("X") + "][" + Time.time.ToString("0.0000") + "]: Start()");
+            ReloadConfig();
+        }
 
         private void CreateCoreView()
         {
             if (_createCoreView == null)
-            {
                 _createCoreView = View.CoreView.Create(this);
-            }
             _createCoreView();
+            if (_autoOpenLanderValue == true && !View.Window.GameObject.GetComponents<View.Window>().Any(w => w.Title == "Lander"))
+                CreateLanderView();
         }
 
-        public void Awake()
+        private void CreateLanderView()
         {
-            View.Window.AreWindowsOpenChange += AreWindowsOpenChange;
-            GameEvents.onGUIApplicationLauncherReady.Add(AddAppLauncher);
-            GameEvents.onGUIApplicationLauncherDestroyed.Add(RemoveAppLauncher);
-            ReloadConfig();
+            if (_createLanderView == null)
+                _createLanderView = View.LanderView.Create();
+            _createLanderView();
         }
 
         private void ReloadConfig()
@@ -73,13 +94,50 @@ namespace HyperEdit
                 _hyperEditConfig.name = "hyperedit";
             }
             else
-            {
                 _hyperEditConfig = new ConfigNode("hyperedit");
-            }
 
-            var value = true;
-            _hyperEditConfig.TryGetValue("UseAppLauncherButton", ref value, bool.TryParse);
-            UseAppLauncherButton = value;
+            var launcherButtonValue = true;
+            _hyperEditConfig.TryGetValue("UseAppLauncherButton", ref launcherButtonValue, bool.TryParse);
+            UseAppLauncherButton = launcherButtonValue;
+
+            _hyperEditConfig.TryGetValue("AutoOpenLander", ref _autoOpenLanderValue, bool.TryParse);
+        }
+
+        // SceneUpdate() fires only when the scene changes.
+        private void SceneUpdate(GameScenes data)
+        {
+            if (HighLogic.LoadedScene == GameScenes.FLIGHT || HighLogic.LoadedScene == GameScenes.TRACKSTATION)
+            {
+                if (_autoOpenLanderValue == true && !View.Window.GameObject.GetComponents<View.Window>().Any(w => w.Title == "Lander"))
+                    CreateLanderView();
+            } else {
+                View.Window.CloseAll();
+            }
+        }
+
+        // FixedUpdate() fires every physics time step.
+        public void FixedUpdate() => Model.PlanetEditor.TryApplyFileDefaults();
+
+        // Update() fires every frame.
+        public void Update ()
+		{
+			RateLimitedLogger.Update ();
+			// Linuxgurugamer added this scene check to keep HyperEdit off in the editors.
+			if (HighLogic.LoadedScene == GameScenes.FLIGHT || HighLogic.LoadedScene == GameScenes.TRACKSTATION) {
+                if ((Input.GetKey (KeyCode.LeftAlt) || Input.GetKey (KeyCode.RightAlt)) && Input.GetKeyDown (KeyCode.H)) {
+                    if (View.Window.GameObject.GetComponents<View.Window>().Any(w => w.Title == "HyperEdit")) {
+                        if (_appLauncherButton == null)
+                            View.Window.CloseAll();
+                        else
+                            _appLauncherButton.SetFalse();
+					} else {
+                        if (_appLauncherButton == null)
+                            CreateCoreView();
+                        else
+                            _appLauncherButton.SetTrue();
+                    }
+				}
+			}
         }
 
         private void AreWindowsOpenChange(bool isOpen)
@@ -139,8 +197,8 @@ namespace HyperEdit
             for (var x = 0; x < tex.width; x++)
                 for (var y = 0; y < tex.height; y++)
                     tex.SetPixel(x, y,
-                        new Color(2*(float) Math.Abs(x - tex.width/2)/tex.width, 0.25f,
-                            2*(float) Math.Abs(y - tex.height/2)/tex.height, 0));
+                        new Color(2 * (float)Math.Abs(x - tex.width / 2) / tex.width, 0.25f,
+                            2 * (float)Math.Abs(y - tex.height / 2) / tex.height, 0));
             for (var x = 10; x < 12; x++)
                 for (var y = 10; y < tex.height - 10; y++)
                     tex.SetPixel(x, y, new Color(1, 1, 1));
@@ -148,18 +206,20 @@ namespace HyperEdit
                 for (var y = 10; y < tex.height - 10; y++)
                     tex.SetPixel(x, y, new Color(1, 1, 1));
             for (var x = 12; x < tex.width - 12; x++)
-                for (var y = tex.height/2; y < tex.height/2 + 2; y++)
+                for (var y = tex.height / 2; y < tex.height / 2 + 2; y++)
                     tex.SetPixel(x, y, new Color(1, 1, 1));
 
             tex.Apply();
             _appLauncherButton = applauncher.AddModApplication(
-                CreateCoreView,
-                View.Window.CloseAll,
-                () => { },
-                () => { },
-                () => { },
-                () => { },
-                scenes, tex);
+                CreateCoreView, // onTrue
+                View.Window.CloseAll, // onFalse
+                () => { }, // onHover
+                () => { }, // onHoverOut
+                () => { }, // onEnable
+                () => { }, // onDisable
+                scenes, // visibleInScenes
+                tex // texture
+            );
         }
 
         private void RemoveAppLauncher()
@@ -171,52 +231,12 @@ namespace HyperEdit
                 return;
             }
             if (_appLauncherButton == null)
-            {
                 return;
-            }
             applauncher.RemoveModApplication(_appLauncherButton);
             _appLauncherButton = null;
         }
 
-		//
-		// This function will hide HyperEdit and all it's windows
-		// Added by Linuxgurugamer
-		//
-		public void hideHyperEditAPI(bool noop = false)
-		{
-			if (_createCoreView != null) {
-				View.Window.CloseAll ();
-				_createCoreView = null;
-			}
-		}
-		
-        public void FixedUpdate() => Model.PlanetEditor.TryApplyFileDefaults();
-
-		public void Update ()
-		{
-			RateLimitedLogger.Update ();
-
-			// Linuxgurugamer added following to make sure HyperEdit is not visible in the editors.  Following the logic in the AddAppLauncher function above
-			if (HighLogic.LoadedScene == GameScenes.FLIGHT || HighLogic.LoadedScene == GameScenes.TRACKSTATION) {
-				if ((Input.GetKey (KeyCode.LeftAlt) || Input.GetKey (KeyCode.RightAlt)) && Input.GetKeyDown (KeyCode.H)) {
-					if (View.Window.GameObject.GetComponents<View.Window> ().Any (w => w.Title == "HyperEdit")) {
-						if (_appLauncherButton == null)
-							View.Window.CloseAll ();
-						else
-							_appLauncherButton.SetFalse ();
-					} else {
-						if (_appLauncherButton == null)
-							CreateCoreView ();
-						else
-							_appLauncherButton.SetTrue ();
-					}
-				}
-			} else {
-				hideHyperEditAPI ();
-			}
-			// End of changes for the visibility bug
-
-        }
+    // End of class.
     }
 
     public static class IoExt

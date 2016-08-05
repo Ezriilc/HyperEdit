@@ -4,6 +4,10 @@ namespace HyperEdit.View
 {
     public static class LanderView
     {
+
+        private static bool _autoOpenLander;
+        private static ConfigNode _hyperEditConfig;
+
         public static Action Create()
         {
             var view = View();
@@ -75,8 +79,45 @@ namespace HyperEdit.View
             d = d1;
             return true;
         }
+
+        private static void ReloadConfig()
+        {
+            var hypereditCfg = IoExt.GetPath("hyperedit.cfg");
+            if (System.IO.File.Exists(hypereditCfg))
+            {
+                _hyperEditConfig = ConfigNode.Load(hypereditCfg);
+                _hyperEditConfig.name = "hyperedit";
+            }
+            else
+            {
+                _hyperEditConfig = new ConfigNode("hyperedit");
+            }
+
+            var autoOpenLanderValue = true;
+            _hyperEditConfig.TryGetValue("AutoOpenLander", ref autoOpenLanderValue, bool.TryParse);
+            AutoOpenLander = autoOpenLanderValue;
+        }
+
+        public static bool AutoOpenLander
+        {
+            get { return _autoOpenLander; }
+            set
+            {
+                if (_autoOpenLander == value)
+                    return;
+                _autoOpenLander = value;
+                _hyperEditConfig.SetValue("AutoOpenLander", value.ToString(), true);
+                _hyperEditConfig.Save();
+            }
+        }
+
         public static IView View()
         {
+            // Load Auto Open status.
+            ReloadConfig();
+
+            var setAutoOpen = new DynamicToggleView("Auto Open", "Open this view when entering the Flight or Tracking Center scenes.",
+                () => AutoOpenLander, () => true, v => AutoOpenLander = v);
             var bodySelector = new ListSelectView<CelestialBody>("Body", () => FlightGlobals.fetch == null ? null : FlightGlobals.fetch.bodies, null, Extensions.CbToString);
             bodySelector.CurrentlySelected = FlightGlobals.fetch == null ? null : FlightGlobals.ActiveVessel == null ? Planetarium.fetch.Home : FlightGlobals.ActiveVessel.mainBody;
 			var lat = new TextBoxView<double>("Lat", "Latitude (North/South).", 0.001d, latTryParse);
@@ -99,6 +140,7 @@ namespace HyperEdit.View
 
             return new VerticalView(new IView[]
                 {
+                    setAutoOpen,
                     bodySelector,
                     new ConditionalView(() => FlightGlobals.fetch != null && FlightGlobals.ActiveVessel != null && FlightGlobals.ActiveVessel.mainBody != bodySelector.CurrentlySelected, new LabelView("Landing on a different body is not recommended.", "This may destroy the vessel. Use the Orbit Editor to orbit the body first, then land on it.")),
                     lat,
