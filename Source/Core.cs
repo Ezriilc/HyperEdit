@@ -8,8 +8,8 @@ using System.Diagnostics;
 [assembly: System.Reflection.AssemblyTitle("HyperEdit")]
 [assembly: System.Reflection.AssemblyDescription("A plugin mod for Kerbal Space Program")]
 [assembly: System.Reflection.AssemblyCompany("Kerbaltek")]
-[assembly: System.Reflection.AssemblyCopyright("Ezriilc Swifthawk")]
-[assembly: System.Reflection.AssemblyVersion("1.5.2.1")]
+[assembly: System.Reflection.AssemblyCopyright("Erickson Swift")]
+[assembly: System.Reflection.AssemblyVersion("1.5.3.0")]
 
 [KSPAddon(KSPAddon.Startup.SpaceCentre, true)] // Determines when plugin starts.
 

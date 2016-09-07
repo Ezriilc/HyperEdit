@@ -41,12 +41,12 @@ namespace HyperEdit.Model
 
         public static IEnumerable<KeyValuePair<string, double>> GetResources(Vessel vessel)
         {
-            if (vessel.parts == null)
+            //if (vessel.parts == null)
                 return new KeyValuePair<string, double>[0];
-            return vessel.parts
-                .SelectMany(part => part.Resources.Cast<PartResource>())
-                .GroupBy(p => p.resourceName)
-                .Select(g => new KeyValuePair<string, double>(g.Key, g.Sum(x => x.amount) / g.Sum(x => x.maxAmount)));
+            //return vessel.parts
+            //    .SelectMany(part => part.Resources.Cast<PartResource>())
+            //    .GroupBy(p => p.resourceName)
+            //    .Select(g => new KeyValuePair<string, double>(g.Key, g.Sum(x => x.amount) / g.Sum(x => x.maxAmount)));
         }
 
         public static void SetResource(string key, double value)
@@ -63,9 +63,11 @@ namespace HyperEdit.Model
                 return;
             foreach (var part in vessel.parts)
             {
-                foreach (PartResource resource in part.Resources)
-                {
-                    if (resource.resourceName == key)
+                //foreach(PartResource resource in part.Resources)
+                int resourceCount = part.Resources.Count;
+                for(int i = 0; i < resourceCount; ++i) {
+                    PartResource resource = part.Resources[i];
+                   if (resource.resourceName == key)
                     {
                         part.TransferResource(resource.info.id, resource.maxAmount * value - resource.amount);
                         RateLimitedLogger.Log(SetResourceLogObject,
@@ -81,8 +83,11 @@ namespace HyperEdit.Model
                 return;
             foreach (var part in vessel.parts)
             {
-                foreach (PartResource resource in part.Resources)
-                {
+                //foreach(PartResource resource in part.Resources)
+                int resourceCount = part.Resources.Count;
+                for(int i = 0; i < resourceCount; ++i) {
+                    PartResource resource = part.Resources[i];
+
                     part.TransferResource(resource.info.id, resource.maxAmount - resource.amount);
                     Extensions.Log(
                         $"Refilled part \"{part.partName}\"'s resource \"{resource.resourceName}\" by requesting {resource.maxAmount - resource.amount} from it");

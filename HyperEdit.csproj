@@ -38,9 +38,6 @@
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>$(KspLibPath)\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
-    <Reference Include="KSPUtil">
-      <HintPath>$(KspLibPath)\KSPUtil.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="UnityEngine">
       <HintPath>$(KspLibPath)\UnityEngine.dll</HintPath>
@@ -56,12 +53,6 @@
     </Reference>
     <Reference Include="KSPAssets">
       <HintPath>$(KspLibPath)\KSPAssets.dll</HintPath>
-    </Reference>
-    <Reference Include="KSPCore">
-      <HintPath>$(KspLibPath)\KSPCore.dll</HintPath>
-    </Reference>
-    <Reference Include="Vectrosity">
-      <HintPath>$(KspLibPath)\Vectrosity.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
