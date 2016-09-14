@@ -41,12 +41,12 @@ namespace HyperEdit.Model
 
         public static IEnumerable<KeyValuePair<string, double>> GetResources(Vessel vessel)
         {
-            //if (vessel.parts == null)
+            if (vessel.parts == null)
                 return new KeyValuePair<string, double>[0];
-            //return vessel.parts
-            //    .SelectMany(part => part.Resources.Cast<PartResource>())
-            //    .GroupBy(p => p.resourceName)
-            //    .Select(g => new KeyValuePair<string, double>(g.Key, g.Sum(x => x.amount) / g.Sum(x => x.maxAmount)));
+            return vessel.parts
+                .SelectMany(part => part.Resources.Cast<PartResource>())
+                .GroupBy(p => p.resourceName)
+                .Select(g => new KeyValuePair<string, double>(g.Key, g.Sum(x => x.amount) / g.Sum(x => x.maxAmount)));
         }
 
         public static void SetResource(string key, double value)
