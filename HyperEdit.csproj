@@ -14,7 +14,7 @@
     <ConsolePause>false</ConsolePause>
     <NoConfig>true</NoConfig>
     <NoStdLib>true</NoStdLib>
-    <KspInstallDir Condition=" '$(KspInstallDir)' == '' ">..\..\..\Games\Kerbal Space Program\KSP_win</KspInstallDir>
+    <KspInstallDir Condition=" '$(KspInstallDir)' == '' ">..\..\..\Games\Kerbal Space Program\KSP_win64</KspInstallDir>
     <KspOutputPath>$(KspInstallDir)\GameData\Kerbaltek</KspOutputPath>
     <KspLibPath>$(KspInstallDir)\KSP_Data\Managed</KspLibPath>
   </PropertyGroup>
