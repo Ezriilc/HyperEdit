@@ -15,7 +15,7 @@ using System.Diagnostics;
 
 public class HyperEditModule : MonoBehaviour
 {
-    public HyperEditModule()
+    public void Awake() // Called after scene (designated w/ KSPAddon) loads, but before Start().  Init data here.
     {
         HyperEdit.Immortal.AddImmortal<HyperEdit.HyperEditBehaviour>();
     }
