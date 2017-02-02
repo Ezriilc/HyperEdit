@@ -131,6 +131,20 @@ namespace HyperEdit.View
                 {
                     Extensions.Log("No winpos found for \"" + title + "\", defaulting to " + winx + "," + winy);
                 }
+                if (winx >= Screen.width - width)
+                    winx = Screen.width - width;
+                if (height == -1)
+                {
+                    if (winy >= Screen.height - 100)
+                        winy = (Screen.height - 100) / 2;
+                }
+                else
+                {
+                    if (winy > Screen.height - height)
+                        winy = Screen.height - height;
+                }
+                Extensions.Log("Screen.width: " + Screen.width.ToString() + " width: " + width.ToString() + "   winx: " + winx.ToString());
+                Extensions.Log("Screen.height: " + Screen.height.ToString() + " height: " + height.ToString() + "   winy: " + winy.ToString());
             }
             else
             {
@@ -152,6 +166,16 @@ namespace HyperEdit.View
 
         private Window()
         {
+            GameEvents.onScreenResolutionModified.Add(OnScreenResolutionModified);
+        }
+
+        void OnScreenResolutionModified(int x, int y)
+        {
+            if (this._windowRect.y >= Screen.height)
+                _windowRect.y = Screen.height - _windowRect.height;
+            if (this._windowRect.x >= Screen.width)
+                _windowRect.x = Screen.width - _windowRect.width;
+
         }
 
         public void Update()
@@ -194,6 +218,7 @@ namespace HyperEdit.View
                 WindowPos.AddNode(node);
             SaveWindowPos();
             _isOpen = false;
+            GameEvents.onScreenResolutionModified.Remove(OnScreenResolutionModified);
             Destroy(this);
             if (GameObject.GetComponents<Window>().Any(w => w._isOpen) == false)
                 AreWindowsOpenChange?.Invoke(false);
