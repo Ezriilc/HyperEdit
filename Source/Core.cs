@@ -35,22 +35,22 @@ public class HyperEditModule : MonoBehaviour
         {
             lastScene = HighLogic.LoadedScene;
             lastTime = Time.fixedTime;
-
-            if (Time.fixedTime - lastTime < 2)
+        }
+        if (Time.fixedTime - lastTime < 2)
+        {
+            if (Time.fixedTime - lasttimecheck > .1)
             {
-                if (Time.fixedTime - lasttimecheck > .1)
+                lasttimecheck = Time.fixedTime;
+                // following fixes a stock bug
+                if (appListModHidden.Contains(HyperEdit.HyperEditBehaviour.appButton))
                 {
-                    lasttimecheck = Time.fixedTime;
-                    // following fixes a stock bug
-                    if (appListModHidden.Contains(HyperEdit.HyperEditBehaviour.appButton))
-                    {
-                        HyperEdit.HyperEditBehaviour.appButton.gameObject.SetActive(false);
-                        if (HyperEdit.HyperEditBehaviour.appButton.enabled)
-                            HyperEdit.HyperEditBehaviour.appButton.onDisable();
+                    HyperEdit.HyperEditBehaviour.appButton.gameObject.SetActive(false);
+                    if (HyperEdit.HyperEditBehaviour.appButton.enabled)
+                        HyperEdit.HyperEditBehaviour.appButton.onDisable();
 
-                    }
                 }
             }
+            
         }
     }
 }
