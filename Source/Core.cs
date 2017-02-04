@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using KSP.UI.Screens;
+using System.Reflection;
 using System.Diagnostics;
 
 [assembly: System.Reflection.AssemblyTitle("HyperEdit")]
@@ -12,12 +13,45 @@ using System.Diagnostics;
 [assembly: System.Reflection.AssemblyVersion("1.5.3.0")]
 
 [KSPAddon(KSPAddon.Startup.SpaceCentre, true)] // Determines when plugin starts.
-
 public class HyperEditModule : MonoBehaviour
 {
+    static List<ApplicationLauncherButton> appListModHidden;
     public void Awake() // Called after scene (designated w/ KSPAddon) loads, but before Start().  Init data here.
     {
-        HyperEdit.Immortal.AddImmortal<HyperEdit.HyperEditBehaviour>();
+       HyperEdit.Immortal.AddImmortal<HyperEdit.HyperEditBehaviour>();
+    }
+    private void Start()
+    {
+        // following needed to fix a stock bug
+        appListModHidden = (List<ApplicationLauncherButton>)typeof(ApplicationLauncher).GetField("appListModHidden", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(ApplicationLauncher.Instance);
+        DontDestroyOnLoad(this);
+    }
+    double lasttimecheck = 0;
+    GameScenes lastScene = GameScenes.MAINMENU;
+    double lastTime = 0;
+    private void FixedUpdate()
+    {
+      //  if (HighLogic.LoadedScene != lastScene)
+        {
+            lastScene = HighLogic.LoadedScene;
+            lastTime = Time.fixedTime;
+
+            if (Time.fixedTime - lastTime < 2)
+            {
+                if (Time.fixedTime - lasttimecheck > .1)
+                {
+                    lasttimecheck = Time.fixedTime;
+                    // following fixes a stock bug
+                    if (appListModHidden.Contains(HyperEdit.HyperEditBehaviour.appButton))
+                    {
+                        HyperEdit.HyperEditBehaviour.appButton.gameObject.SetActive(false);
+                        if (HyperEdit.HyperEditBehaviour.appButton.enabled)
+                            HyperEdit.HyperEditBehaviour.appButton.onDisable();
+
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -44,10 +78,15 @@ namespace HyperEdit
     {
         private ConfigNode _hyperEditConfig;
         private bool _useAppLauncherButton;
-        private ApplicationLauncherButton _appLauncherButton;
+        private static ApplicationLauncherButton _appLauncherButton;
         private Action _createCoreView;
         private Action _createLanderView;
         private bool _autoOpenLanderValue;
+
+        public static ApplicationLauncherButton appButton
+        {
+            get { return _appLauncherButton; }
+        }
 
         public HyperEditBehaviour() // Constructor.  Don't init data here cuz Unity, do so in Awake();
         {
