@@ -27,11 +27,11 @@ public class HyperEditModule : MonoBehaviour
         DontDestroyOnLoad(this);
     }
     double lasttimecheck = 0;
-    GameScenes lastScene = GameScenes.MAINMENU;
+    GameScenes lastScene = GameScenes.LOADING;
     double lastTime = 0;
     private void FixedUpdate()
     {
-      //  if (HighLogic.LoadedScene != lastScene)
+        if (HighLogic.LoadedScene != lastScene)
         {
             lastScene = HighLogic.LoadedScene;
             lastTime = Time.fixedTime;
