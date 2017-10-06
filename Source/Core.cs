@@ -286,12 +286,37 @@ namespace HyperEdit
 
     public static class IoExt
     {
-        private static readonly string RootDir = System.IO.Path.ChangeExtension(typeof(IoExt).Assembly.Location, null);
+        private static readonly string RootDir = System.IO.Path.Combine(KSPUtil.ApplicationRootPath, "PluginData/HyperEdit");
 
         static IoExt()
         {
             if (!System.IO.Directory.Exists(RootDir))
                 System.IO.Directory.CreateDirectory(RootDir);
+            
+            // Code to move settings from old location to new
+            // This can probably be removed in a couple of versions
+            try
+            {
+                string oldDir = System.IO.Path.ChangeExtension(typeof(IoExt).Assembly.Location, null);
+                if (System.IO.Directory.Exists(oldDir))
+                {
+                    foreach (string filePath in System.IO.Directory.GetFiles(oldDir, "*.cfg"))
+                    {
+                        string fileName = System.IO.Path.GetFileName(filePath);
+                        string newFilePath = System.IO.Path.Combine(RootDir, fileName);
+
+                        if (System.IO.File.Exists(newFilePath))
+                            System.IO.File.Delete(filePath);
+                        else
+                            System.IO.File.Move(filePath, newFilePath);
+                    }
+                }
+            }
+            catch(Exception e)
+            {
+                UnityEngine.Debug.LogException(e);
+            }
+
             Extensions.Log("Using \"" + RootDir + "\" as root config directory");
         }
 
