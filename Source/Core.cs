@@ -173,7 +173,10 @@ namespace HyperEdit
                 _hyperEditConfig.name = "hyperedit";
             }
             else
+            {
                 _hyperEditConfig = new ConfigNode("hyperedit");
+                _hyperEditConfig.SetValue("AutoOpenLander", false.ToString(), true);
+            }
 
             var launcherButtonValue = true;
             _hyperEditConfig.TryGetValue("UseAppLauncherButton", ref launcherButtonValue, bool.TryParse);
