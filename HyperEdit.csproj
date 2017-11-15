@@ -33,17 +33,17 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>$(KspLibPath)\Assembly-CSharp.dll</HintPath>
+      <HintPath>G:\KSP131.dev\KSP_x64_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>$(KspLibPath)\Assembly-CSharp-firstpass.dll</HintPath>
+      <HintPath>G:\KSP131.dev\KSP_x64_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="UnityEngine">
-      <HintPath>$(KspLibPath)\UnityEngine.dll</HintPath>
+      <HintPath>G:\KSP131.dev\KSP_x64_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>$(KspLibPath)\UnityEngine.UI.dll</HintPath>
+      <HintPath>G:\KSP131.dev\KSP_x64_Data\Managed\UnityEngine.UI.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib">
       <HintPath>$(KspLibPath)\mscorlib.dll</HintPath>
@@ -52,7 +52,7 @@
       <HintPath>$(KspLibPath)\System.Core.dll</HintPath>
     </Reference>
     <Reference Include="KSPAssets">
-      <HintPath>$(KspLibPath)\KSPAssets.dll</HintPath>
+      <HintPath>G:\KSP131.dev\KSP_x64_Data\Managed\KSPAssets.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -67,4 +67,10 @@
   <Target Name="AfterBuild">
     <Copy SourceFiles="$(OutputPath)\$(MyFileName)" DestinationFolder="$(KspOutputPath)" />
   </Target>
+  <PropertyGroup>
+    <PostBuildEvent>"G:\Utils\pdb2mdb\pdb2mdb.exe" "$(TargetFileName)"
+xcopy /Y "$(TargetPath)" "G:\KSP131.dev\GameData\$(ProjectName)\Plugins\"
+xcopy /Y "$(TargetDir)$(TargetName).pdb" "G:\KSP131.dev\GameData\$(ProjectName)\Plugins\"
+xcopy /Y "$(TargetDir)$(TargetName).dll.mdb" "G:\KSP131.dev\GameData\$(ProjectName)\Plugins\"</PostBuildEvent>
+  </PropertyGroup>
 </Project>
