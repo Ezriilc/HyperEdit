@@ -489,10 +489,17 @@ namespace HyperEdit.Model
         var alt = pqs.GetSurfaceHeight(Body.GetRelSurfaceNVector(Latitude, Longitude)) - Body.Radius;
         var tmpAlt = Body.TerrainAltitude(Latitude, Longitude);
 
+        double landHeight = 0;
+
+        landHeight = FlightGlobals.ActiveVessel.altitude - FlightGlobals.ActiveVessel.pqsAltitude;
+        var checkAlt = FlightGlobals.ActiveVessel.altitude;
+        var checkPQSAlt = FlightGlobals.ActiveVessel.pqsAltitude;
+
         Extensions.Log("m1. Body.Radius  = " + Body.Radius);
         Extensions.Log("m2. PQS SurfaceHeight = " + pqs.GetSurfaceHeight(Body.GetRelSurfaceNVector(Latitude, Longitude)) );
-        Extensions.Log(".GetRelSurfaceNVector = " + Body.GetRelSurfaceNVector(Latitude, Longitude));
         Extensions.Log("alt ( m2 - m1 ) = " + alt);
+        Extensions.Log(".GetRelSurfaceNVector = " + Body.GetRelSurfaceNVector(Latitude, Longitude));
+        Extensions.Log("Body.TerrainAltitude = " + tmpAlt);
 
         alt = Math.Max(alt, 0d); // Underwater!
 
@@ -587,10 +594,10 @@ namespace HyperEdit.Model
         //                        (Math.PI*2)/(Body.rotationPeriod));
 
         // convert from world space to orbit space
-        /*
+        
         teleportPosition = teleportPosition.xzy;
         teleportVelocity = teleportVelocity.xzy;
-        */
+        
 
         Extensions.Log("teleportPosition(xzy): " + teleportPosition);
         Extensions.Log("teleportVelocity(xzy): " + teleportVelocity);
