@@ -58,7 +58,7 @@ namespace HyperEdit.Model
         lander.Latitude = latitude;
         lander.Longitude = longitude;
 
-        lander.IntermAltitude = body.Radius + body.atmosphereDepth + 10000d;
+        lander.InterimAltitude = body.Radius + body.atmosphereDepth + 10000d;
 
         lander.Altitude = altitude;
         lander.SetRotation = setRotation;
@@ -67,7 +67,7 @@ namespace HyperEdit.Model
 
         Extensions.Log("NEW:");
         Extensions.Log("lander = " + lander.ToString());
-        Extensions.Log("intermAltitude = " + lander.IntermAltitude);
+        Extensions.Log("intermAltitude = " + lander.InterimAltitude);
 
       }
       else
@@ -374,7 +374,7 @@ namespace HyperEdit.Model
     public double Longitude { get; set; }
     public double Altitude { get; set; }
     public bool SetRotation { get; set; }
-    public double IntermAltitude { get; set; }
+    public double InterimAltitude { get; set; }
 
     private readonly object _accelLogObject = new object();
     private bool teleportedToLandingAlt = false;
@@ -525,27 +525,27 @@ namespace HyperEdit.Model
         if (!teleportedToLandingAlt)
         {
           Extensions.Log("teleportedToLandingAlt == false, ");
-          Extensions.Log("intermAltitude: " + IntermAltitude );
+          Extensions.Log("interimAltitude: " + InterimAltitude );
           Extensions.Log("Altitude: " + Altitude);
 
-          if (IntermAltitude > Altitude)
+          if (InterimAltitude > Altitude)
           {
             if (Planetarium.GetUniversalTime() - lastUpdate >= 0.5)
             {
-              IntermAltitude = IntermAltitude / 10;
+              InterimAltitude = InterimAltitude / 10;
 
               Extensions.Log("Planetarium.GetUniversalTime (): " + Planetarium.GetUniversalTime().ToString() + "   lastUpdate: " + lastUpdate.ToString());
-              Extensions.Log("intermAltitude: " + IntermAltitude.ToString());
+              Extensions.Log("intermAltitude: " + InterimAltitude.ToString());
 
-              teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt + IntermAltitude);
-              tpTest = Body.GetWorldSurfacePosition(Latitude, Longitude, alt + IntermAltitude);
+              teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt + InterimAltitude);
+              tpTest = Body.GetWorldSurfacePosition(Latitude, Longitude, alt + InterimAltitude);
 
               Extensions.Log("1. teleportPosition = " + teleportPosition);
               Extensions.Log("1. tpTest = " + tpTest);
 
               if (lastUpdate != 0)
               {
-                IntermAltitude = Altitude;
+                InterimAltitude = Altitude;
               }
               lastUpdate = Planetarium.GetUniversalTime();
 
@@ -553,10 +553,10 @@ namespace HyperEdit.Model
             else
             {
               Extensions.Log("teleportPositionAltitude (no time change):");
-              Extensions.Log("alt: " + alt.ToString() + " | intermAltitude: " + IntermAltitude.ToString());
+              Extensions.Log("alt: " + alt.ToString() + " | intermAltitude: " + InterimAltitude.ToString());
 
-              teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt + IntermAltitude);
-              tpTest = Body.GetWorldSurfacePosition(Latitude, Longitude, alt + IntermAltitude);
+              teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt + InterimAltitude);
+              tpTest = Body.GetWorldSurfacePosition(Latitude, Longitude, alt + InterimAltitude);
 
               Extensions.Log("2. teleportPosition = " + teleportPosition);
               Extensions.Log("2. tpTest = " + tpTest);
