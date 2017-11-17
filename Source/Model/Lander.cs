@@ -58,7 +58,7 @@ namespace HyperEdit.Model
         lander.Latitude = latitude;
         lander.Longitude = longitude;
 
-        lander.InterimAltitude = body.Radius + body.atmosphereDepth + 10000d;
+        lander.InterimAltitude = body.Radius + body.atmosphereDepth + 10000d; //Altitude threshold
 
         lander.Altitude = altitude;
         lander.SetRotation = setRotation;
@@ -72,6 +72,7 @@ namespace HyperEdit.Model
       }
       else
       {
+        //lander != null
         Extensions.Log("Unity destroy lander");
         UnityEngine.Object.Destroy(lander);
       }
@@ -479,6 +480,7 @@ namespace HyperEdit.Model
       else
       {
         //Debug.Log("FixedUpdate: not AlreadyTeleported");
+        //Still calculating
         var pqs = Body.pqsController;
         if (pqs == null)
         {
@@ -495,11 +497,16 @@ namespace HyperEdit.Model
         var checkAlt = FlightGlobals.ActiveVessel.altitude;
         var checkPQSAlt = FlightGlobals.ActiveVessel.pqsAltitude;
 
+        Extensions.Log("-------------------");
         Extensions.Log("m1. Body.Radius  = " + Body.Radius);
         Extensions.Log("m2. PQS SurfaceHeight = " + pqs.GetSurfaceHeight(Body.GetRelSurfaceNVector(Latitude, Longitude)) );
         Extensions.Log("alt ( m2 - m1 ) = " + alt);
         Extensions.Log(".GetRelSurfaceNVector = " + Body.GetRelSurfaceNVector(Latitude, Longitude));
         Extensions.Log("Body.TerrainAltitude = " + tmpAlt);
+        Extensions.Log("checkAlt    = " + checkAlt);
+        Extensions.Log("checkPQSAlt = " + checkPQSAlt);
+        Extensions.Log("landheight  = " + landHeight);
+        Extensions.Log("-------------------");
 
         alt = Math.Max(alt, 0d); // Underwater!
 
@@ -564,6 +571,7 @@ namespace HyperEdit.Model
           }
           else
           {
+            //InterimAltitude <= Altitude
             Extensions.Log("teleportedToLandingAlt set to true");
 
             teleportedToLandingAlt = true;
@@ -610,15 +618,15 @@ namespace HyperEdit.Model
         if (SetRotation)
         {
           var from = Vector3d.up;
-          //var to = teleportPosition.xzy.normalized;
-          var to = teleportPosition.normalized;
+          var to = teleportPosition.xzy.normalized;
+          //var to = teleportPosition.normalized;
           rotation = Quaternion.FromToRotation(from, to);
         }
         else
         {
           var oldUp = vessel.orbit.pos.xzy.normalized;
-          //var newUp = teleportPosition.xzy.normalized;
-          var newUp = teleportPosition.normalized;
+          var newUp = teleportPosition.xzy.normalized;
+          //var newUp = teleportPosition.normalized;
           rotation = Quaternion.FromToRotation(oldUp, newUp) * vessel.vesselTransform.rotation;
         }
 
