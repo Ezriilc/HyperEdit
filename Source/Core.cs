@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 using KSP.UI.Screens;
 using System.Reflection;
@@ -417,6 +418,19 @@ namespace HyperEdit
     [ConditionalAttribute("DEBUG")]
     public static void Log(string message)
     {
+      UnityEngine.Debug.Log("HyperEdit: " + message);
+    }
+
+    [ConditionalAttribute("DEBUG")]
+    public static void ALog(params object [] message)
+    {
+      StringBuilder sb = new StringBuilder();
+      for (int i = 0; i < message.Length; i++)
+      {
+        sb.Append(message[i].ToString());
+        sb.Append("\t");
+      }
+      String s = sb.ToString();
       UnityEngine.Debug.Log("HyperEdit: " + message);
     }
 
