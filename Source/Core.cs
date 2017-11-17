@@ -431,7 +431,7 @@ namespace HyperEdit
         sb.Append("\t");
       }
       String s = sb.ToString();
-      UnityEngine.Debug.Log("HyperEdit: " + message);
+      UnityEngine.Debug.Log("HyperEdit: " + s);
     }
 
     public static void TryGetValue<T>(this ConfigNode node, string key, ref T value, TryParse<T> tryParse)
