@@ -68,9 +68,9 @@
     <Copy SourceFiles="$(OutputPath)\$(MyFileName)" DestinationFolder="$(KspOutputPath)" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>"G:\Utils\pdb2mdb\pdb2mdb.exe" "$(TargetFileName)"
-xcopy /Y "$(TargetPath)" "G:\KSP131.dev\GameData\$(ProjectName)\Plugins\"
-xcopy /Y "$(TargetDir)$(TargetName).pdb" "G:\KSP131.dev\GameData\$(ProjectName)\Plugins\"
-xcopy /Y "$(TargetDir)$(TargetName).dll.mdb" "G:\KSP131.dev\GameData\$(ProjectName)\Plugins\"</PostBuildEvent>
+    <PostBuildEvent>if $(ConfigurationName) == Debug "G:\Utils\pdb2mdb\pdb2mdb.exe" "$(TargetFileName)"
+if $(ConfigurationName) == Debug xcopy /Y "$(TargetPath)" "G:\KSP131.dev\GameData\$(ProjectName)\Plugins\"
+if $(ConfigurationName) == Debug xcopy /Y "$(TargetDir)$(TargetName).pdb" "G:\KSP131.dev\GameData\$(ProjectName)\Plugins\"
+if $(ConfigurationName) == Debug xcopy /Y "$(TargetDir)$(TargetName).dll.mdb" "G:\KSP131.dev\GameData\$(ProjectName)\Plugins\"</PostBuildEvent>
   </PropertyGroup>
 </Project>

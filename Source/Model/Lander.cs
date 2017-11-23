@@ -3,18 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace HyperEdit.Model
-{
-  public static class DoLander
-  {
+namespace HyperEdit.Model {
+  public static class DoLander {
     private const string OldFilename = "landcoords.txt";
     private const string FilenameNoExt = "landcoords";
     private const string RecentEntryName = "Most Recent";
 
-    public static bool IsLanding()
-    {
-      if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null)
-      {
+    public static bool IsLanding() {
+      if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null) {
         return false;
       }
 
@@ -22,10 +18,8 @@ namespace HyperEdit.Model
     }
 
     public static void ToggleLanding(double latitude, double longitude, double altitude, CelestialBody body,
-        bool setRotation, Action<double, double, double, CelestialBody> onManualEdit)
-    {
-      if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null || body == null)
-      {
+        bool setRotation, Action<double, double, double, CelestialBody> onManualEdit) {
+      if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null || body == null) {
         return;
       }
 
@@ -33,25 +27,15 @@ namespace HyperEdit.Model
       Extensions.Log("-----------------------------");
 
       var lander = FlightGlobals.ActiveVessel.GetComponent<LanderAttachment>();
-      if (lander == null)
-      {
+      if (lander == null) {
         Model.DoLander.AddLastCoords(latitude, longitude, altitude, body);
         lander = FlightGlobals.ActiveVessel.gameObject.AddComponent<LanderAttachment>();
-
-        Extensions.Log("Latitude : " + latitude.ToString() );
-        Extensions.Log("Longitude: " + longitude.ToString() );
-        Extensions.Log("Altitude : " + altitude.ToString() );
-        Extensions.Log("Body     : " + body.ToString());
-        Extensions.Log("B-Radius : " + body.Radius.ToString());
-        Extensions.Log("B-Depth  : " + body.atmosphereDepth.ToString());
         
-        if (latitude == 0.0f)
-        {
+        if (latitude == 0.0f) {
           latitude = 0.001;
         }
 
-        if (longitude == 0.0f)
-        {
+        if (longitude == 0.0f) {
           longitude = 0.001;
         }
 
@@ -65,35 +49,37 @@ namespace HyperEdit.Model
         lander.Body = body;
         lander.OnManualEdit = onManualEdit;
 
+        Extensions.Log("Latitude : " + latitude.ToString());
+        Extensions.Log("Longitude: " + longitude.ToString());
+        Extensions.Log("Altitude : " + altitude.ToString());
+        Extensions.Log("Body     : " + body.ToString());
+        Extensions.Log("B-Radius : " + body.Radius.ToString());
+        //Extensions.Log("B-Depth  : " + body.atmosphereDepth.ToString());
         Extensions.Log("NEW:");
         Extensions.Log("lander = " + lander.ToString());
-        Extensions.Log("intermAltitude = " + lander.InterimAltitude);
+        Extensions.Log("interimAltitude = " + lander.InterimAltitude);
+        Extensions.Log("-----------------------------");
 
-      }
-      else
-      {
+      } else {
         //lander != null
         Extensions.Log("Unity destroy lander");
         UnityEngine.Object.Destroy(lander);
       }
     }
 
-    public static void LandHere(Action<double, double, double, CelestialBody> onManualEdit)
-    {
-      if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null)
-      {
+    public static void LandHere(Action<double, double, double, CelestialBody> onManualEdit) {
+      if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null) {
         return;
       }
 
       var vessel = FlightGlobals.ActiveVessel;
       var lander = vessel.GetComponent<LanderAttachment>();
-      if (lander == null)
-      {
+      if (lander == null) {
         Extensions.Log("LandHere");
-        Extensions.Log("--------");
-
-        Extensions.Log("Vessel Latitude : " + vessel.latitude.ToString() );
-        Extensions.Log("Vessel Longitude: " + vessel.longitude.ToString() );
+        Extensions.Log("-----------------------------");
+        
+        Extensions.Log("Vessel Latitude : " + vessel.latitude.ToString());
+        Extensions.Log("Vessel Longitude: " + vessel.longitude.ToString());
         Extensions.Log("Vessel Altitude : " + vessel.altitude.ToString());
 
         lander = vessel.gameObject.AddComponent<LanderAttachment>();
@@ -107,18 +93,16 @@ namespace HyperEdit.Model
 
         Extensions.Log("UPDATE: lander:");
         Extensions.Log("lander = " + lander);
+        Extensions.Log("-----------------------------");
 
       }
     }
 
-    private static IEnumerable<LandingCoordinates> DefaultSavedCoords
-    {
-      get
-      {
+    private static IEnumerable<LandingCoordinates> DefaultSavedCoords {
+      get {
         var kerbin = Planetarium.fetch?.Home;
         var minmus = FlightGlobals.fetch?.bodies?.FirstOrDefault(b => b.bodyName == "Minmus");
-        if (kerbin == null)
-        {
+        if (kerbin == null) {
           return new List<LandingCoordinates>();
         }
         var list = new List<LandingCoordinates>
@@ -129,103 +113,82 @@ namespace HyperEdit.Model
                     new LandingCoordinates("Airstrip Island Runway", -1.518, 288.1, 35, kerbin),
                     new LandingCoordinates("Airstrip Island Beach - Wet", -1.518, 287.9503, 20, kerbin)
                 };
-        if (minmus != null)
-        {
+        if (minmus != null) {
           list.Add(new LandingCoordinates("Minmus Flats", 0.562859, 175.968846, 20, minmus));
         }
         return list;
       }
     }
 
-    private static List<LandingCoordinates> SavedCoords
-    {
-      get
-      {
+    private static List<LandingCoordinates> SavedCoords {
+      get {
         var path = IoExt.GetPath(FilenameNoExt + ".cfg");
         var oldPath = IoExt.GetPath(OldFilename);
         IEnumerable<LandingCoordinates> query;
-        if (System.IO.File.Exists(path))
-        {
+        if (System.IO.File.Exists(path)) {
           query = ConfigNode.Load(path).nodes.OfType<ConfigNode>().Select(c => new LandingCoordinates(c));
-        }
-        else if (System.IO.File.Exists(oldPath))
-        {
+        } else if (System.IO.File.Exists(oldPath)) {
           query =
               System.IO.File.ReadAllLines(oldPath)
                   .Select(x => new LandingCoordinates(x))
                   .Where(l => string.IsNullOrEmpty(l.Name) == false);
-        }
-        else
-        {
+        } else {
           query = new LandingCoordinates[0];
         }
         query = query.Union(DefaultSavedCoords);
         return query.ToList();
       }
-      set
-      {
+      set {
         var cfg = new ConfigNode(FilenameNoExt);
-        foreach (var coord in value)
-        {
+        foreach (var coord in value) {
           cfg.AddNode(coord.ToConfigNode());
         }
         cfg.Save();
       }
     }
 
-    public static void AddLastCoords(double latitude, double longitude, double altitude, CelestialBody body)
-    {
-      if (body == null)
-      {
+    public static void AddLastCoords(double latitude, double longitude, double altitude, CelestialBody body) {
+      if (body == null) {
         return;
       }
 
       AddSavedCoords(RecentEntryName, latitude, longitude, altitude, body);
     }
 
-    public static void AddSavedCoords(double latitude, double longitude, double altitude, CelestialBody body)
-    {
-      if (body == null)
-      {
+    public static void AddSavedCoords(double latitude, double longitude, double altitude, CelestialBody body) {
+      if (body == null) {
         return;
       }
 
       View.WindowHelper.Prompt("Save as...", s => AddSavedCoords(s, latitude, longitude, altitude, body));
     }
 
-    private static void AddSavedCoords(string name, double latitude, double longitude, double altitude, CelestialBody body)
-    {
+    private static void AddSavedCoords(string name, double latitude, double longitude, double altitude, CelestialBody body) {
       var saved = SavedCoords;
       saved.RemoveAll(match => match.Name == name);
       saved.Add(new LandingCoordinates(name, latitude, longitude, altitude, body));
       SavedCoords = saved;
     }
 
-    public static void LoadLast(Action<double, double, double, CelestialBody> onLoad)
-    {
+    public static void LoadLast(Action<double, double, double, CelestialBody> onLoad) {
       var lastC = SavedCoords.Find(c => c.Name == RecentEntryName);
       onLoad(lastC.Lat, lastC.Lon, lastC.Alt, lastC.Body);
     }
 
-    public static void Load(Action<double, double, double, CelestialBody> onLoad)
-    {
+    public static void Load(Action<double, double, double, CelestialBody> onLoad) {
       View.WindowHelper.Selector("Load...", SavedCoords, c => c.Name, c => onLoad(c.Lat, c.Lon, c.Alt, c.Body));
     }
 
-    public static void Delete()
-    {
+    public static void Delete() {
       var coords = SavedCoords;
-      View.WindowHelper.Selector("Delete...", coords, c => c.Name, toDelete =>
-      {
+      View.WindowHelper.Selector("Delete...", coords, c => c.Name, toDelete => {
         coords.Remove(toDelete);
         SavedCoords = coords;
       });
     }
 
-    public static void SetToCurrent(Action<double, double, double, CelestialBody> onLoad)
-    {
-      if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null)
-      {
+    public static void SetToCurrent(Action<double, double, double, CelestialBody> onLoad) {
+      if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null) {
         return;
       }
 
@@ -233,15 +196,12 @@ namespace HyperEdit.Model
           FlightGlobals.ActiveVessel.mainBody);
     }
 
-    public static IEnumerable<Vessel> LandedVessels()
-    {
+    public static IEnumerable<Vessel> LandedVessels() {
       return FlightGlobals.fetch == null ? null : FlightGlobals.Vessels.Where(v => v.Landed);
     }
 
-    public static void SetToLanded(Action<double, double, double, CelestialBody> onLoad, Vessel landingBeside)
-    {
-      if (landingBeside == null)
-      {
+    public static void SetToLanded(Action<double, double, double, CelestialBody> onLoad, Vessel landingBeside) {
+      if (landingBeside == null) {
         return;
       }
 
@@ -254,8 +214,7 @@ namespace HyperEdit.Model
       onLoad(landingBeside.latitude, landingBeside.longitude + fiftyMOfLong, landingBeside.altitude, landingBeside.mainBody);
     }
 
-    private struct LandingCoordinates : IEquatable<LandingCoordinates>
-    {
+    private struct LandingCoordinates : IEquatable<LandingCoordinates> {
       public string Name { get; }
       public double Lat { get; }
       public double Lon { get; }
@@ -263,8 +222,7 @@ namespace HyperEdit.Model
       public CelestialBody Body { get; }
 
       public LandingCoordinates(string name, double lat, double lon, double alt, CelestialBody body)
-          : this()
-      {
+          : this() {
         Name = name;
         Lat = lat;
         Lon = lon;
@@ -273,11 +231,9 @@ namespace HyperEdit.Model
       }
 
       public LandingCoordinates(string value)
-          : this()
-      {
+          : this() {
         var split = value.Split(',');
-        if (split.Length < 3)
-        {
+        if (split.Length < 3) {
           Name = null;
           Lat = 0;
           Lon = 0;
@@ -286,24 +242,18 @@ namespace HyperEdit.Model
           return;
         }
         double dlat, dlon, dalt;
-        if (double.TryParse(split[1], out dlat) && double.TryParse(split[2], out dlon) && double.TryParse(split[2], out dalt))
-        {
+        if (double.TryParse(split[1], out dlat) && double.TryParse(split[2], out dlon) && double.TryParse(split[2], out dalt)) {
           Name = split[0];
           Lat = dlat;
           Lon = dlon;
           Alt = dalt;
           CelestialBody body;
-          if (split.Length >= 4 && Extensions.CbTryParse(split[3], out body))
-          {
+          if (split.Length >= 4 && Extensions.CbTryParse(split[3], out body)) {
             Body = body;
-          }
-          else
-          {
+          } else {
             Body = Planetarium.fetch.Home;
           }
-        }
-        else
-        {
+        } else {
           Name = null;
           Lat = 0;
           Lon = 0;
@@ -312,8 +262,7 @@ namespace HyperEdit.Model
         }
       }
 
-      public LandingCoordinates(ConfigNode node)
-      {
+      public LandingCoordinates(ConfigNode node) {
         CelestialBody body = null;
         node.TryGetValue("body", ref body, Extensions.CbTryParse);
         Body = body;
@@ -330,28 +279,23 @@ namespace HyperEdit.Model
         Name = name;
       }
 
-      public override int GetHashCode()
-      {
+      public override int GetHashCode() {
         return Name.GetHashCode();
       }
 
-      public override bool Equals(object obj)
-      {
+      public override bool Equals(object obj) {
         return obj is LandingCoordinates && Equals((LandingCoordinates)obj);
       }
 
-      public bool Equals(LandingCoordinates other)
-      {
+      public bool Equals(LandingCoordinates other) {
         return Name.Equals(other.Name);
       }
 
-      public override string ToString()
-      {
+      public override string ToString() {
         return Name + "," + Lat + "," + Lon + "," + Alt + "," + Body.CbToString();
       }
 
-      public ConfigNode ToConfigNode()
-      {
+      public ConfigNode ToConfigNode() {
         var node = new ConfigNode("coordinate");
         node.AddValue("name", Name);
         node.AddValue("body", Body.CbToString());
@@ -366,8 +310,7 @@ namespace HyperEdit.Model
     }
   }
 
-  public class LanderAttachment : MonoBehaviour
-  {
+  public class LanderAttachment : MonoBehaviour {
     public bool AlreadyTeleported { get; set; }
     public Action<double, double, double, CelestialBody> OnManualEdit { get; set; }
     public CelestialBody Body { get; set; }
@@ -381,11 +324,9 @@ namespace HyperEdit.Model
     private bool teleportedToLandingAlt = false;
     private double lastUpdate = 0;
 
-    public void SetAltitudeToCurrent()
-    {
+    public void SetAltitudeToCurrent() {
       var pqs = Body.pqsController;
-      if (pqs == null)
-      {
+      if (pqs == null) {
         Destroy(this);
         return;
       }
@@ -404,71 +345,54 @@ namespace HyperEdit.Model
 
     }
 
-    public void Update()
-    {
+    public void Update() {
       // 0.2 meters per frame
-      //var degrees = 0.2 / Body.Radius * (180 / Math.PI);
-      var degrees = 0.5 / Body.Radius * (180 / Math.PI);
+      var degrees = 0.2 / Body.Radius * (180 / Math.PI);
 
       var changed = false;
-      if (GameSettings.TRANSLATE_UP.GetKey())
-      {
+      if (GameSettings.TRANSLATE_UP.GetKey()) {
         Latitude -= degrees;
         changed = true;
       }
-      if (GameSettings.TRANSLATE_DOWN.GetKey())
-      {
+      if (GameSettings.TRANSLATE_DOWN.GetKey()) {
         Latitude += degrees;
         changed = true;
       }
-      if (GameSettings.TRANSLATE_LEFT.GetKey())
-      {
+      if (GameSettings.TRANSLATE_LEFT.GetKey()) {
         Longitude -= degrees / Math.Cos(Latitude * (Math.PI / 180));
         changed = true;
       }
-      if (GameSettings.TRANSLATE_RIGHT.GetKey())
-      {
+      if (GameSettings.TRANSLATE_RIGHT.GetKey()) {
         Longitude += degrees / Math.Cos(Latitude * (Math.PI / 180));
         changed = true;
       }
 
-      if (Latitude == 0)
-      {
+      if (Latitude == 0) {
         Latitude = 0.0001;
       }
-      if (Longitude == 0)
-      {
+      if (Longitude == 0) {
         Longitude = 0.0001;
       }
-      if (changed)
-      {
+      if (changed) {
         AlreadyTeleported = false;
         teleportedToLandingAlt = false;
         OnManualEdit(Latitude, Longitude, Altitude, Body);
       }
     }
 
-    public void FixedUpdate()
-    {
-      //Extensions.Log("LanderAttachment.FixedUpdate");
-      //Extensions.Log("----------------------------");
-
+    public void FixedUpdate() {
       var vessel = GetComponent<Vessel>();
-      if (vessel != FlightGlobals.ActiveVessel)
-      {
+
+      if (vessel != FlightGlobals.ActiveVessel) {
         Destroy(this);
         return;
       }
 
-      if (AlreadyTeleported)
-      {
-        //Extensions.Log("FixedUpdate: AlreadyTeleported");
-        if (vessel.LandedOrSplashed)
-        {
+      if (AlreadyTeleported) {
+        
+        if (vessel.LandedOrSplashed) {
           Destroy(this);
-        }
-        else
-        {
+        } else {
           var accel = (vessel.srf_velocity + vessel.upAxis) * -0.5;
           vessel.ChangeWorldVelocity(accel);
           /*
@@ -476,14 +400,12 @@ namespace HyperEdit.Model
               $"(Happening every frame) Soft-lander changed ship velocity this frame by vector {accel.x},{accel.y},{accel.z} (mag {accel.magnitude})");
           */
         }
-      }
-      else
-      {
-        //Debug.Log("FixedUpdate: not AlreadyTeleported");
+      } else {
+        //NOT AlreadyTeleported
         //Still calculating
         var pqs = Body.pqsController;
-        if (pqs == null)
-        {
+        if (pqs == null) {
+          // The sun has no terrain.  Everthing else has a PQScontroller.
           Destroy(this);
           return;
         }
@@ -496,103 +418,98 @@ namespace HyperEdit.Model
         landHeight = FlightGlobals.ActiveVessel.altitude - FlightGlobals.ActiveVessel.pqsAltitude;
         var checkAlt = FlightGlobals.ActiveVessel.altitude;
         var checkPQSAlt = FlightGlobals.ActiveVessel.pqsAltitude;
+        double terrainAlt = GetTerrainAltitude();
 
-        Extensions.Log("-------------------");
-        Extensions.Log("m1. Body.Radius  = " + Body.Radius);
-        Extensions.Log("m2. PQS SurfaceHeight = " + pqs.GetSurfaceHeight(Body.GetRelSurfaceNVector(Latitude, Longitude)) );
-        Extensions.Log("alt ( m2 - m1 ) = " + alt);
-        Extensions.Log(".GetRelSurfaceNVector = " + Body.GetRelSurfaceNVector(Latitude, Longitude));
-        Extensions.Log("Body.TerrainAltitude = " + tmpAlt);
-        Extensions.Log("checkAlt    = " + checkAlt);
-        Extensions.Log("checkPQSAlt = " + checkPQSAlt);
-        Extensions.Log("landheight  = " + landHeight);
-        Extensions.Log("-------------------");
+        Extensions.ALog("-------------------");
+        Extensions.ALog("m1. Body.Radius  = ", Body.Radius);
+        Extensions.ALog("m2. PQS SurfaceHeight = ", pqs.GetSurfaceHeight(Body.GetRelSurfaceNVector(Latitude, Longitude)));
+        Extensions.ALog("alt ( m2 - m1 ) = ", alt);
+        Extensions.ALog("Body.TerrainAltitude = ", tmpAlt);
+        Extensions.ALog("checkAlt    = ", checkAlt);
+        Extensions.ALog("checkPQSAlt = ", checkPQSAlt);
+        Extensions.ALog("landheight  = ", landHeight);
+        Extensions.ALog("terrainAlt  = ", terrainAlt);
+        Extensions.ALog("-------------------");
+        Extensions.ALog("Latitude: ", Latitude, "Longitude: ", Longitude);
+        Extensions.ALog("-------------------");
 
-        alt = Math.Max(alt, 0d); // Underwater!
-
-        Extensions.Log("alt > 0.00 = " + alt);
-
-        if (TimeWarp.CurrentRateIndex != 0)
-        {
+        alt = Math.Max(alt, 0d); // Make sure we're not underwater!
+        
+        if (TimeWarp.CurrentRateIndex != 0) {
           TimeWarp.SetRate(0, true);
           Extensions.Log("Set time warp to index 0");
         }
         // HoldVesselUnpack is in display frames, not physics frames
-
-        Extensions.Log("alt: " + alt.ToString() + "   Altitude: " + Altitude);
-        Extensions.Log("Latitude: " + Latitude.ToString() + "   Longitude: " + Longitude.ToString());
-        Extensions.Log("TerrainAltitude: " + tmpAlt);
-
-        //var teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt +Altitude);
-        Extensions.Log("Old teleportPosition: " + Body.GetRelSurfacePosition(Latitude, Longitude, alt + Altitude));
+        
+        //var oldTeleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt + Altitude);
+        //Extensions.Log("Old teleportPosition: " + oldTeleportPosition);
 
         Vector3d teleportPosition;
-        Vector3d tpTest;
 
-        if (!teleportedToLandingAlt)
-        {
-          Extensions.Log("teleportedToLandingAlt == false, ");
-          Extensions.Log("interimAltitude: " + InterimAltitude );
-          Extensions.Log("Altitude: " + Altitude);
+        if (!teleportedToLandingAlt) {
+          Extensions.ALog("teleportedToLandingAlt == false");
+          Extensions.ALog("interimAltitude: ", InterimAltitude);
+          Extensions.ALog("Altitude: ", Altitude);
 
-          if (InterimAltitude > Altitude)
-          {
-            if (Planetarium.GetUniversalTime() - lastUpdate >= 0.5)
-            {
+          if (InterimAltitude > Altitude) {
+            
+            if (Planetarium.GetUniversalTime() - lastUpdate >= 0.5) {
               InterimAltitude = InterimAltitude / 10;
+              terrainAlt = GetTerrainAltitude();
 
-              Extensions.Log("Planetarium.GetUniversalTime (): " + Planetarium.GetUniversalTime().ToString() + "   lastUpdate: " + lastUpdate.ToString());
-              Extensions.Log("intermAltitude: " + InterimAltitude.ToString());
+              if (InterimAltitude < terrainAlt) {
+                InterimAltitude = terrainAlt + Altitude;
+              }
 
-              teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt + InterimAltitude);
-              tpTest = Body.GetWorldSurfacePosition(Latitude, Longitude, alt + InterimAltitude);
+              //InterimAltitude = terrainAlt + Altitude;
+              
+              //teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt + InterimAltitude);
+              //tpTest = Body.GetWorldSurfacePosition(Latitude, Longitude, alt + InterimAltitude);
 
-              Extensions.Log("1. teleportPosition = " + teleportPosition);
-              Extensions.Log("1. tpTest = " + tpTest);
+              teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, InterimAltitude);
 
-              if (lastUpdate != 0)
-              {
+              Extensions.ALog("1. teleportPosition = ", teleportPosition);
+              Extensions.ALog("1. interimAltitude: ", InterimAltitude);
+
+              if (lastUpdate != 0) {
                 InterimAltitude = Altitude;
               }
               lastUpdate = Planetarium.GetUniversalTime();
 
-            }
-            else
-            {
+            } else {
               Extensions.Log("teleportPositionAltitude (no time change):");
-              Extensions.Log("alt: " + alt.ToString() + " | intermAltitude: " + InterimAltitude.ToString());
-
+              
               teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt + InterimAltitude);
-              tpTest = Body.GetWorldSurfacePosition(Latitude, Longitude, alt + InterimAltitude);
+              //teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt);
 
-              Extensions.Log("2. teleportPosition = " + teleportPosition);
-              Extensions.Log("2. tpTest = " + tpTest);
+              Extensions.ALog("2. teleportPosition = ", teleportPosition);
+              Extensions.ALog("2. alt: ", alt);
+              Extensions.ALog("2. interimAltitude: ", InterimAltitude);
             }
-          }
-          else
-          {
+          } else {
             //InterimAltitude <= Altitude
-            Extensions.Log("teleportedToLandingAlt set to true");
+            Extensions.Log("3. teleportedToLandingAlt set to true");
+
+            landHeight = FlightGlobals.ActiveVessel.altitude - FlightGlobals.ActiveVessel.pqsAltitude;
+            /*
+             * landHeight factors into the final altitude somehow.
+             */
+
 
             teleportedToLandingAlt = true;
             teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt + Altitude);
-
-            tpTest = Body.GetWorldSurfacePosition(Latitude, Longitude, alt + Altitude);
-
-            Extensions.Log("3. teleportPosition = " + teleportPosition);
-            Extensions.Log("3. tpTest = " + tpTest);
+            
+            Extensions.ALog("3. teleportPosition = ", teleportPosition);
+            Extensions.ALog("3. landHeight = ", landHeight);
+            Extensions.ALog("3. alt = ", alt, "Altitude = ", Altitude, "InterimAltitude = ", InterimAltitude);
           }
-        }
-        else
-        {
+        } else {
           Extensions.Log("teleportedToLandingAlt == true");
 
           teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt + Altitude);
-
-          tpTest = Body.GetWorldSurfacePosition(Latitude, Longitude, alt + Altitude);
-
-          Extensions.Log("4. teleportPosition = " + teleportPosition);
-          Extensions.Log("4. tpTest = " + tpTest);
+          
+          Extensions.ALog("4. teleportPosition = ", teleportPosition);
+          Extensions.ALog("4. alt = ", alt, "Altitude = ", Altitude, "InterimAltitude = ", InterimAltitude);
         }
 
         var teleportVelocity = Vector3d.Cross(Body.angularVelocity, teleportPosition);
@@ -602,51 +519,104 @@ namespace HyperEdit.Model
         //                        (Math.PI*2)/(Body.rotationPeriod));
 
         // convert from world space to orbit space
-        
+
         teleportPosition = teleportPosition.xzy;
         teleportVelocity = teleportVelocity.xzy;
         
-
-        Extensions.Log("teleportPosition(xzy): " + teleportPosition);
-        Extensions.Log("teleportVelocity(xzy): " + teleportVelocity);
-        Extensions.Log("Body                 : " + Body);
+        Extensions.ALog("0. teleportPosition(xzy): ", teleportPosition);
+        Extensions.ALog("0. teleportVelocity(xzy): ", teleportVelocity);
+        Extensions.ALog("0. Body                 : ", Body);
 
         // counter for the momentary fall when on rails (about one second)
         teleportVelocity += teleportPosition.normalized * (Body.gravParameter / teleportPosition.sqrMagnitude);
 
         Quaternion rotation;
-        if (SetRotation)
-        {
+        if (SetRotation) {
           var from = Vector3d.up;
           var to = teleportPosition.xzy.normalized;
-          //var to = teleportPosition.normalized;
           rotation = Quaternion.FromToRotation(from, to);
-        }
-        else
-        {
+        } else {
           var oldUp = vessel.orbit.pos.xzy.normalized;
           var newUp = teleportPosition.xzy.normalized;
-          //var newUp = teleportPosition.normalized;
           rotation = Quaternion.FromToRotation(oldUp, newUp) * vessel.vesselTransform.rotation;
         }
 
         var orbit = vessel.orbitDriver.orbit.Clone();
         orbit.UpdateFromStateVectors(teleportPosition, teleportVelocity, Body, Planetarium.GetUniversalTime());
 
-        Extensions.Log("FINAL:");
-        Extensions.Log("orbit    = " + orbit);
-        Extensions.Log("rotation = " + rotation);
-        Extensions.Log("teleportedToLandingAlt = " + teleportedToLandingAlt);
-        Extensions.Log("vessel: " + vessel);
+        Extensions.ALog("FINAL:");
+        Extensions.ALog("rotation = ", rotation);
+        Extensions.ALog("teleportedToLandingAlt = ", teleportedToLandingAlt);
+        Extensions.ALog("vessel: ", vessel);
 
         vessel.SetOrbit(orbit);
         vessel.SetRotation(rotation);
-        if (teleportedToLandingAlt)
-        {
+
+        if (teleportedToLandingAlt) {
           AlreadyTeleported = true;
-          Extensions.Log(" :ALREADY TELEPORTED:");
+          Extensions.Log(" :FINISHED TELEPORTING:");
         }
       }
     }
+
+    /// <summary>
+    ///  Returns the ground's altitude above sea level at this geo position.
+    /// </summary>
+    /// <returns></returns>
+    public Double GetTerrainAltitude() {
+      double alt = 0.0;
+      PQS bodyPQS = Body.pqsController;
+      if (bodyPQS != null) // The sun has no terrain.  Everything else has a PQScontroller.
+      {
+        // The PQS controller gives the theoretical ideal smooth surface curve terrain.
+        // The actual ground that exists in-game that you land on, however, is the terrain
+        // polygon mesh which is built dynamically from the PQS controller's altitude values,
+        // and it only approximates the PQS controller.  The discrepancy between the two
+        // can be as high as 20 meters on relatively mild rolling terrain and is probably worse
+        // in mountainous terrain with steeper slopes.  It also varies with the user terrain detail
+        // graphics setting.
+
+        // Therefore the algorithm here is this:  Get the PQS ideal terrain altitude first.
+        // Then try using RayCast to get the actual terrain altitude, which will only work
+        // if the LAT/LONG is near the active vessel so the relevant terrain polygons are
+        // loaded.  If the RayCast hit works, it overrides the PQS altitude.
+
+        // PQS controller ideal altitude value:
+        // -------------------------------------
+
+        // The vector the pqs GetSurfaceHeight method expects is a vector in the following
+        // reference frame:
+        //     Origin = body center.
+        //     X axis = LATLNG(0,0), Y axis = LATLNG(90,0)(north pole), Z axis = LATLNG(0,-90).
+        // Using that reference frame, you tell GetSurfaceHeight what the "up" vector is pointing through
+        // the spot on the surface you're querying for.
+        var bodyUpVector = new Vector3d(1, 0, 0);
+        bodyUpVector = QuaternionD.AngleAxis(Latitude, Vector3d.forward/*around Z axis*/) * bodyUpVector;
+        bodyUpVector = QuaternionD.AngleAxis(Longitude, Vector3d.down/*around -Y axis*/) * bodyUpVector;
+
+        alt = bodyPQS.GetSurfaceHeight(bodyUpVector) - bodyPQS.radius;
+
+        // Terrain polygon raycasting:
+        // ---------------------------
+        const double HIGH_AGL = 1000.0;
+        const double POINT_AGL = 800.0;
+        const int TERRAIN_MASK_BIT = 15;
+
+        // a point hopefully above the terrain:
+        Vector3d worldRayCastStart = Body.GetWorldSurfacePosition(Latitude, Longitude, alt + HIGH_AGL);
+        // a point a bit below it, to aim down to the terrain:
+        Vector3d worldRayCastStop = Body.GetWorldSurfacePosition(Latitude, Longitude, alt + POINT_AGL);
+        RaycastHit hit;
+        if (Physics.Raycast(worldRayCastStart, (worldRayCastStop - worldRayCastStart), out hit, float.MaxValue, 1 << TERRAIN_MASK_BIT)) {
+          // Ensure hit is on the topside of planet, near the worldRayCastStart, not on the far side.
+          if (Mathf.Abs(hit.distance) < 3000) {
+            // Okay a hit was found, use it instead of PQS alt:
+            alt = ((alt + HIGH_AGL) - hit.distance);
+          }
+        }
+      }
+      return alt;
+    }
+
   }
 }
