@@ -122,12 +122,12 @@ namespace HyperEdit.View
           () => AutoOpenLander, () => true, v => AutoOpenLander = v);
       var bodySelector = new ListSelectView<CelestialBody>("Body", () => FlightGlobals.fetch == null ? null : FlightGlobals.fetch.bodies, null, Extensions.CbToString);
       bodySelector.CurrentlySelected = FlightGlobals.fetch == null ? null : FlightGlobals.ActiveVessel == null ? Planetarium.fetch.Home : FlightGlobals.ActiveVessel.mainBody;
-      var lat = new TextBoxView<double>("Lat", "Latitude (North/South).", 0.001d, latTryParse);
-      var lon = new TextBoxView<double>("Lon", "Longitude (East/West). Converts to less than 360 degrees.", 0.001d, myTryParse);
-      var alt = new TextBoxView<double>("Alt", "Altitude (Up/Down).", 20, altTryParse);
+      var lat = new TextBoxView<double>("Lat", "Latitude (North/South). Between +90 (North) and -90 (South).", 0.001d, latTryParse);
+      var lon = new TextBoxView<double>("Lon", "Longitude (East/West). Converts to less than 360 degrees. Between +180 (East) to -180 (West).", 0.001d, myTryParse);
+      var alt = new TextBoxView<double>("Alt", "Altitude (Up/Down). Distance above the surface.", 20, altTryParse);
       var setRot = new ToggleView("Force Rotation",
           "Rotates vessel such that up on the vessel is up when landing. Otherwise, the current orientation is kept relative to the body.",
-          false);
+          true);
       Func<bool> isValid = () => lat.Valid && lon.Valid && alt.Valid;
       Action<double, double, double, CelestialBody> load = (latVal, lonVal, altVal, body) =>
       {
