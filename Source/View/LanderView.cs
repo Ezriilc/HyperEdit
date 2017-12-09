@@ -29,6 +29,27 @@ namespace HyperEdit.View
       d = d1;
       return true;
     }
+    /*
+    static bool lonTryParse(string str, out double result) {
+      result = null;
+      double d1;
+      //Extensions.DegreeFix(str, 0);
+      bool b = double.TryParse(str, out d1);
+
+      if (!b) {
+        result = 0.001f;
+        return false;
+      } else {
+        
+        d1 = Extensions.DegreeFix(result, 0);
+
+        return true;
+      }
+      return true;
+
+    }
+    */
+
     static bool latTryParse(string str, out double d)
     {
       double d1;

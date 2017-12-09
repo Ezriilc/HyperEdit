@@ -420,9 +420,8 @@ namespace HyperEdit.Model {
         var alt = pqs.GetSurfaceHeight(Body.GetRelSurfaceNVector(Latitude, Longitude)) - Body.Radius;
         var tmpAlt = Body.TerrainAltitude(Latitude, Longitude);
 
-        double landHeight = 0;
+        double landHeight = FlightGlobals.ActiveVessel.altitude - FlightGlobals.ActiveVessel.pqsAltitude;
 
-        landHeight = FlightGlobals.ActiveVessel.altitude - FlightGlobals.ActiveVessel.pqsAltitude;
         var checkAlt = FlightGlobals.ActiveVessel.altitude;
         var checkPQSAlt = FlightGlobals.ActiveVessel.pqsAltitude;
         double terrainAlt = GetTerrainAltitude();
