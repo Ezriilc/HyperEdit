@@ -498,6 +498,7 @@ namespace HyperEdit.Model {
             Extensions.Log("3. teleportedToLandingAlt set to true");
 
             landHeight = FlightGlobals.ActiveVessel.altitude - FlightGlobals.ActiveVessel.pqsAltitude;
+            terrainAlt = GetTerrainAltitude();
             /*
              * landHeight factors into the final altitude somehow.
              */
@@ -508,15 +509,16 @@ namespace HyperEdit.Model {
             
             Extensions.ALog("3. teleportPosition = ", teleportPosition);
             Extensions.ALog("3. landHeight = ", landHeight);
-            Extensions.ALog("3. alt = ", alt, "Altitude = ", Altitude, "InterimAltitude = ", InterimAltitude);
+            Extensions.ALog("3. alt = ", alt, "Altitude = ", Altitude, "InterimAltitude = ", InterimAltitude, "TerrainAlt = ", terrainAlt);
           }
         } else {
           Extensions.Log("teleportedToLandingAlt == true");
 
           teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt + Altitude);
-          
+          terrainAlt = GetTerrainAltitude();
+
           Extensions.ALog("4. teleportPosition = ", teleportPosition);
-          Extensions.ALog("4. alt = ", alt, "Altitude = ", Altitude, "InterimAltitude = ", InterimAltitude);
+          Extensions.ALog("4. alt = ", alt, "Altitude = ", Altitude, "InterimAltitude = ", InterimAltitude, "TerrainAlt = ", terrainAlt);
         }
 
         var teleportVelocity = Vector3d.Cross(Body.angularVelocity, teleportPosition);
