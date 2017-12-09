@@ -206,6 +206,7 @@ namespace HyperEdit.Model {
       }
 
       //work out Longitude + 50m
+      //I'm curious why, other than avoiding spawning on top of an existing object?
       var fiftyMOfLong = (360 * 40) / (landingBeside.orbit.referenceBody.Radius * 2 * Math.PI);
 
       Extensions.Log("SetToLanded:: fiftyMOfLong=" + fiftyMOfLong);
@@ -337,6 +338,12 @@ namespace HyperEdit.Model {
       Extensions.Log("SetAltitudeToCurrent:: alt (pqs.GetSurfaceHeight) = " + alt);
 
       alt = Math.Max(alt, 0); // Underwater!
+      /*
+       * I'm not sure whether this is correct to zero the altitude as there are times on certain bodies
+       * where the altitude of the surface is below sea level...wish I could remember where it was that
+       * I found this.
+       */
+
       Altitude = GetComponent<Vessel>().altitude - alt;
 
       Extensions.Log("SetAltitudeToCurrent::");

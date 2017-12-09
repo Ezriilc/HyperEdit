@@ -146,7 +146,7 @@ namespace HyperEdit.View
             bodySelector,
             new ConditionalView(() => FlightGlobals.fetch != null && FlightGlobals.ActiveVessel != null && FlightGlobals.ActiveVessel.mainBody != bodySelector.CurrentlySelected, new LabelView("Landing on a different body is not recommended.", "This may destroy the vessel. Use the Orbit Editor to orbit the body first, then land on it.")),
             lat,
-            new ConditionalView(() => !lat.Valid, new LabelView("Latitude must be a number from 0 to (+/-)89.9.", "Values too close to the poles ((+/-)90) can chrash KSP, values beyond that are invalid for a latitude.")),
+            new ConditionalView(() => !lat.Valid, new LabelView("Latitude must be a number from 0 to (+/-)89.9.", "Values too close to the poles ((+/-)90) can crash KSP, values beyond that are invalid for a latitude.")),
             lon,
             alt,
             new ConditionalView(() => alt.Object < 0, new LabelView("Altitude must be a positive number.", "This may destroy the vessel. Values less than 0 are sub-surface.")),
