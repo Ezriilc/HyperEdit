@@ -430,7 +430,7 @@ namespace HyperEdit
         sb.Append(message[i].ToString());
         sb.Append("\t");
       }
-      String s = sb.ToString();
+      String s = sb.ToString().Trim();
       UnityEngine.Debug.Log("HyperEdit: " + s);
     }
 

@@ -1,34 +1,39 @@
 ﻿using System;
 using UnityEngine;
 
-namespace HyperEdit.View
-{
-    public class MiscEditorView
-    {
-        public static Action Create()
-        {
-            var view = View();
-            return () => Window.Create("Misc tools", true, true, 300, -1, w => view.Draw());
-        }
+namespace HyperEdit.View {
+  public class MiscEditorView {
+    private static ConfigNode _toggleRes;
 
-        public static IView View()
-        {
-            Action resources = () =>
-            {
-                foreach (var resource in Model.MiscEditor.GetResources())
-                {
-                    GUILayout.BeginHorizontal();
-                    GUILayout.Label(resource.Key);
-                    var newval = (double) GUILayout.HorizontalSlider((float) resource.Value, 0, 1);
-                    if (Math.Abs(newval - resource.Value) > 0.001)
-                    {
-                        Model.MiscEditor.SetResource(resource.Key, newval);
-                    }
-                    GUILayout.EndHorizontal();
-                }
-            };
-            return new VerticalView(new IView[]
-            {
+    public static Action Create() {
+      var view = View();
+      return () => Window.Create("Misc tools", true, true, 300, -1, w => view.Draw());
+    }
+
+    public static IView View() {
+      ReloadConfig();
+
+      Action resources = () => {
+        foreach (var resource in Model.MiscEditor.GetResources()) {
+          GUILayout.BeginHorizontal();
+          GUILayout.Label(resource.Key);
+          var newval = (double)GUILayout.HorizontalSlider((float)resource.Value, 0, 1);
+          if (Math.Abs(newval - resource.Value) > 0.001) {
+            Model.MiscEditor.SetResource(resource.Key, newval);
+          }
+          //Just trying an idea
+          //toggleRes = GUILayout.Toggle(toggleRes[resource.Key], "lock");
+          //toggleRes = GUILayout.Toggle(toggleRes, "lock");
+          /*
+           * It'd be nice to lock inf resources for specific vessels, or maybe just any vessel?
+           */
+
+
+          GUILayout.EndHorizontal();
+        }
+      };
+      return new VerticalView(new IView[]
+      {
                 new LabelView("Resources", "Set amounts of various resources contained on the active vessel"),
                 new CustomView(resources),
                 new TextBoxView<double>("Time", "Set time (aka UniversalTime)",
@@ -44,7 +49,23 @@ namespace HyperEdit.View
                     "Sets the dV applied per frame when the boost button is held down",
                     Model.MiscEditor.BoostButtonSpeed, Model.SiSuffix.TryParse, null,
                     v => Model.MiscEditor.BoostButtonSpeed = v)
-            });
-        }
+      });
     }
+
+    private static void ReloadConfig() {
+      var hypereditCfg = IoExt.GetPath("miscoptions.cfg");
+      if (System.IO.File.Exists(hypereditCfg)) {
+        _toggleRes = ConfigNode.Load(hypereditCfg);
+        _toggleRes.name = "miscoptions";
+      } else {
+        _toggleRes = new ConfigNode("miscoptions");
+      }
+
+      //var autoOpenLanderValue = true;
+      //_toggleRes.TryGetValue("AutoOpenLander", ref autoOpenLanderValue, bool.TryParse);
+      //AutoOpenLander = autoOpenLanderValue;
+
+
+    }
+  }
 }
