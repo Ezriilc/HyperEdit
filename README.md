@@ -3,6 +3,8 @@ HyperEdit
 
 A plugin for Kerbal Space Program, proudly maintained by Kerbaltek.
 
+Please talk to us at the KSP forum thread:  http://forum.kerbalspaceprogram.com/threads/37756
+
 Pull requests are always welcome, as is any other input.  In fact, we rely on contributions to keep our projects going.  Please feel free to contact us here, in the KSP forums, and on our website.
 
 To build:
