@@ -422,6 +422,8 @@ namespace HyperEdit.Model {
 
         double landHeight = FlightGlobals.ActiveVessel.altitude - FlightGlobals.ActiveVessel.pqsAltitude;
 
+        double finalAltitude; //trying to isolate this for debugging!
+
         var checkAlt = FlightGlobals.ActiveVessel.altitude;
         var checkPQSAlt = FlightGlobals.ActiveVessel.pqsAltitude;
         double terrainAlt = GetTerrainAltitude();
@@ -447,9 +449,6 @@ namespace HyperEdit.Model {
         }
         // HoldVesselUnpack is in display frames, not physics frames
         
-        //var oldTeleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt + Altitude);
-        //Extensions.Log("Old teleportPosition: " + oldTeleportPosition);
-
         Vector3d teleportPosition;
 
         if (!teleportedToLandingAlt) {
@@ -469,10 +468,6 @@ namespace HyperEdit.Model {
 
               //InterimAltitude = terrainAlt + Altitude;
               
-              //teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt + InterimAltitude);
-              //tpTest = Body.GetWorldSurfacePosition(Latitude, Longitude, alt + InterimAltitude);
-
-              teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, InterimAltitude);
               teleportPosition = Body.GetWorldSurfacePosition(Latitude, Longitude, InterimAltitude) - Body.position;
 
               Extensions.ALog("1. teleportPosition = ", teleportPosition);
@@ -486,10 +481,8 @@ namespace HyperEdit.Model {
             } else {
               Extensions.Log("teleportPositionAltitude (no time change):");
               
-              teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt + InterimAltitude);
               teleportPosition = Body.GetWorldSurfacePosition(Latitude, Longitude, alt + InterimAltitude) - Body.position;
-              //teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt);
-
+              
               Extensions.ALog("2. teleportPosition = ", teleportPosition);
               Extensions.ALog("2. alt: ", alt);
               Extensions.ALog("2. interimAltitude: ", InterimAltitude);
@@ -519,10 +512,10 @@ namespace HyperEdit.Model {
 
 
             teleportedToLandingAlt = true;
-            //teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt + Altitude);
-            teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt + Altitude);
-            teleportPosition = Body.GetWorldSurfacePosition(Latitude, Longitude, alt + Altitude) - Body.position;
-            
+            finalAltitude = alt + Altitude;
+
+            teleportPosition = Body.GetWorldSurfacePosition(Latitude, Longitude, finalAltitude) - Body.position;
+
             Extensions.ALog("3. teleportPosition = ", teleportPosition);
             Extensions.ALog("3. alt = ", alt, "Altitude = ", Altitude, "InterimAltitude = ", InterimAltitude);
             Extensions.ALog("3. TerrainAlt = ", terrainAlt, "landHeight = ", landHeight);
@@ -533,20 +526,19 @@ namespace HyperEdit.Model {
           landHeight = FlightGlobals.ActiveVessel.altitude - FlightGlobals.ActiveVessel.pqsAltitude;
           terrainAlt = GetTerrainAltitude();
 
-          teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt + Altitude);
-          teleportPosition = Body.GetWorldSurfacePosition(Latitude, Longitude, alt + Altitude) - Body.position;
+          finalAltitude = alt + Altitude;
+
+          teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, finalAltitude);
+          teleportPosition = Body.GetWorldSurfacePosition(Latitude, Longitude, finalAltitude) - Body.position;
 
           Extensions.ALog("4. teleportPosition = ", teleportPosition);
           Extensions.ALog("4. alt = ", alt, "Altitude = ", Altitude, "InterimAltitude = ", InterimAltitude);
           Extensions.ALog("4. TerrainAlt = ", terrainAlt, "landHeight = ", landHeight);
+          Extensions.ALog("4. finalAltitude = ", finalAltitude);
         }
 
         var teleportVelocity = Vector3d.Cross(Body.angularVelocity, teleportPosition);
-
-        //var teleportVelocity = Vector3d.Cross(Vector3d.down, teleportPosition.normalized)*
-        //                       (Math.Cos(L atitude*(Math.PI/180))*teleportPosition.magnitude*
-        //                        (Math.PI*2)/(Body.rotationPeriod));
-
+        
         // convert from world space to orbit space
 
         teleportPosition = teleportPosition.xzy;
@@ -572,12 +564,7 @@ namespace HyperEdit.Model {
 
         var orbit = vessel.orbitDriver.orbit.Clone();
         orbit.UpdateFromStateVectors(teleportPosition, teleportVelocity, Body, Planetarium.GetUniversalTime());
-
-        //Extensions.ALog("FINAL:");
-        //Extensions.ALog("rotation = ", rotation);
-        //Extensions.ALog("teleportedToLandingAlt = ", teleportedToLandingAlt);
-        //Extensions.ALog("vessel: ", vessel);
-
+        
         vessel.SetOrbit(orbit);
         vessel.SetRotation(rotation);
 
