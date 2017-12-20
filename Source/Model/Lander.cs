@@ -512,8 +512,13 @@ namespace HyperEdit.Model {
 
 
             teleportedToLandingAlt = true;
-            finalAltitude = alt + Altitude;
-
+            //finalAltitude = alt + Altitude;
+            if (alt < 0) {
+              finalAltitude = Altitude;
+            } else {
+              finalAltitude = alt;
+            }
+            
             teleportPosition = Body.GetWorldSurfacePosition(Latitude, Longitude, finalAltitude) - Body.position;
 
             Extensions.ALog("3. teleportPosition = ", teleportPosition);
@@ -526,7 +531,12 @@ namespace HyperEdit.Model {
           landHeight = FlightGlobals.ActiveVessel.altitude - FlightGlobals.ActiveVessel.pqsAltitude;
           terrainAlt = GetTerrainAltitude();
 
-          finalAltitude = alt + Altitude;
+          //finalAltitude = alt + Altitude;
+          if (alt < 0) {
+            finalAltitude = Altitude;
+          } else {
+            finalAltitude = alt;
+          }
 
           teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, finalAltitude);
           teleportPosition = Body.GetWorldSurfacePosition(Latitude, Longitude, finalAltitude) - Body.position;
