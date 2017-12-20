@@ -515,8 +515,10 @@ namespace HyperEdit.Model {
             //finalAltitude = alt + Altitude;
             if (alt < 0) {
               finalAltitude = Altitude;
+            } else if (alt > 0) {
+              finalAltitude = Altitude;
             } else {
-              finalAltitude = alt;
+              finalAltitude = alt + Altitude;
             }
             
             teleportPosition = Body.GetWorldSurfacePosition(Latitude, Longitude, finalAltitude) - Body.position;
@@ -534,8 +536,10 @@ namespace HyperEdit.Model {
           //finalAltitude = alt + Altitude;
           if (alt < 0) {
             finalAltitude = Altitude;
+          } else if (alt > 0) {
+            finalAltitude = Altitude;
           } else {
-            finalAltitude = alt;
+            finalAltitude = alt + Altitude;
           }
 
           teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, finalAltitude);

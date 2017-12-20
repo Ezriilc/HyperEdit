@@ -72,9 +72,9 @@
   </Target>
   <PropertyGroup>
     <PostBuildEvent>if $(ConfigurationName) == Debug "G:\Utils\pdb2mdb\pdb2mdb.exe" "$(TargetFileName)"
-if $(ConfigurationName) == Debug xcopy /Y "$(TargetPath)" "G:\KSP131.dev\GameData\Kerbaltek\$(ProjectName)\"
-if $(ConfigurationName) == Debug xcopy /Y "$(TargetDir)$(TargetName).pdb" "G:\KSP131.dev\GameData\Kerbaltek\$(ProjectName)\"
-if $(ConfigurationName) == Debug xcopy /Y "$(TargetDir)$(TargetName).dll.mdb" "G:\KSP131.dev\GameData\Kerbaltek\$(ProjectName)\"
+if $(ConfigurationName) == Debug xcopy /Y "$(TargetPath)" "G:\KSP131.dev\GameData\$(ProjectName)\"
+if $(ConfigurationName) == Debug xcopy /Y "$(TargetDir)$(TargetName).pdb" "G:\KSP131.dev\GameData\$(ProjectName)\"
+if $(ConfigurationName) == Debug xcopy /Y "$(TargetDir)$(TargetName).dll.mdb" "G:\KSP131.dev\GameData\$(ProjectName)\"
 if $(ConfigurationName) == Release xcopy /Y "$(TargetPath)" "V:\KSP 1.3.1\GameData\Kerbaltek\$(ProjectName)\"</PostBuildEvent>
   </PropertyGroup>
 </Project>
