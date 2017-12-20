@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{2FF6FC29-02C3-489C-9EFE-B913973AF85B}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -14,10 +14,11 @@
     <ConsolePause>false</ConsolePause>
     <NoConfig>true</NoConfig>
     <NoStdLib>true</NoStdLib>
-    <KspInstallDir Condition=" '$(KspInstallDir)' == '' ">..\..\..\Games\Kerbal Space Program\KSP_win64</KspInstallDir>
+    <KspInstallDir Condition=" '$(KspInstallDir)' == '' ">G:\KSP131.dev</KspInstallDir>
     <KspOutputPath>$(KspInstallDir)\GameData\Kerbaltek</KspOutputPath>
-    <KspLibPath>$(KspInstallDir)\KSP_Data\Managed</KspLibPath>
+    <KspLibPath>$(KspInstallDir)\KSP_x64_Data\Managed</KspLibPath>
   </PropertyGroup>
+  
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -67,4 +68,11 @@
   <Target Name="AfterBuild">
     <Copy SourceFiles="$(OutputPath)\$(MyFileName)" DestinationFolder="$(KspOutputPath)" />
   </Target>
+  <PropertyGroup>
+    <PostBuildEvent>if $(ConfigurationName) == Debug "G:\Utils\pdb2mdb\pdb2mdb.exe" "$(TargetFileName)"
+if $(ConfigurationName) == Debug xcopy /Y "$(TargetPath)" "G:\KSP131.dev\GameData\Kerbaltek\$(ProjectName)\"
+if $(ConfigurationName) == Debug xcopy /Y "$(TargetDir)$(TargetName).pdb" "G:\KSP131.dev\GameData\Kerbaltek\$(ProjectName)\"
+if $(ConfigurationName) == Debug xcopy /Y "$(TargetDir)$(TargetName).dll.mdb" "G:\KSP131.dev\GameData\Kerbaltek\$(ProjectName)\"
+if $(ConfigurationName) == Release xcopy /Y "$(TargetPath)" "V:\KSP 1.3.1\GameData\Kerbaltek\"</PostBuildEvent>
+  </PropertyGroup>
 </Project>
