@@ -324,8 +324,8 @@ namespace HyperEdit.Model {
     private readonly object _accelLogObject = new object();
     private bool teleportedToLandingAlt = false;
     private double lastUpdate = 0;
-    private double altAGL = 0; // Need to work out these in relation
-    private double altASL = 0; // to land or sea.
+    //private double altAGL = 0; // Need to work out these in relation
+    //private double altASL = 0; // to land or sea.
 
     public void SetAltitudeToCurrent() {
       var pqs = Body.pqsController;
@@ -519,6 +519,7 @@ namespace HyperEdit.Model {
             if (alt < 0) {
               finalAltitude = Altitude;
             } else if (alt > 0) {
+
               finalAltitude = alt + Altitude;
             } else {
               finalAltitude = alt + Altitude;
