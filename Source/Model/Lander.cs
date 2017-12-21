@@ -422,7 +422,7 @@ namespace HyperEdit.Model {
 
         double landHeight = FlightGlobals.ActiveVessel.altitude - FlightGlobals.ActiveVessel.pqsAltitude;
 
-        double finalAltitude; //trying to isolate this for debugging!
+        double finalAltitude = 0.0; //trying to isolate this for debugging!
 
         var checkAlt = FlightGlobals.ActiveVessel.altitude;
         var checkPQSAlt = FlightGlobals.ActiveVessel.pqsAltitude;
@@ -507,16 +507,15 @@ namespace HyperEdit.Model {
             }
 
             /*
-             * landHeight factors into the final altitude somehow.
+             * landHeight factors into the final altitude somehow. Possibly.
              */
-
 
             teleportedToLandingAlt = true;
             //finalAltitude = alt + Altitude;
             if (alt < 0) {
               finalAltitude = Altitude;
             } else if (alt > 0) {
-              finalAltitude = Altitude;
+              finalAltitude = alt + Altitude;
             } else {
               finalAltitude = alt + Altitude;
             }
@@ -528,16 +527,26 @@ namespace HyperEdit.Model {
             Extensions.ALog("3. TerrainAlt = ", terrainAlt, "landHeight = ", landHeight);
           }
         } else {
+          /*
+           * With the current way of calculating, it seems like this part of the conditional
+           * never gets called. (Well not so far in my (@fronbow) testing.
+           */
+
           Extensions.Log("teleportedToLandingAlt == true");
 
           landHeight = FlightGlobals.ActiveVessel.altitude - FlightGlobals.ActiveVessel.pqsAltitude;
           terrainAlt = GetTerrainAltitude();
 
+          Extensions.ALog("4. finalAltitude = ", finalAltitude);
+          /*
+           * Depending on finalAltitude, we might not need to calculate it again here.
+           */
+           
           //finalAltitude = alt + Altitude;
           if (alt < 0) {
             finalAltitude = Altitude;
           } else if (alt > 0) {
-            finalAltitude = Altitude;
+            finalAltitude = alt + Altitude;
           } else {
             finalAltitude = alt + Altitude;
           }
