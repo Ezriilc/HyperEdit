@@ -324,6 +324,8 @@ namespace HyperEdit.Model {
     private readonly object _accelLogObject = new object();
     private bool teleportedToLandingAlt = false;
     private double lastUpdate = 0;
+    private double altAGL = 0; // Need to work out these in relation
+    private double altASL = 0; // to land or sea.
 
     public void SetAltitudeToCurrent() {
       var pqs = Body.pqsController;
@@ -342,6 +344,8 @@ namespace HyperEdit.Model {
        * I'm not sure whether this is correct to zero the altitude as there are times on certain bodies
        * where the altitude of the surface is below sea level...wish I could remember where it was that
        * I found this.
+       * 
+       * Also HyperEdit used to allow you to land underwater for things like submarines!
        */
 
       Altitude = GetComponent<Vessel>().altitude - alt;
