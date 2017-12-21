@@ -555,7 +555,7 @@ namespace HyperEdit.Model {
             finalAltitude = alt + Altitude;
           }
 
-          teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, finalAltitude);
+          //teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, finalAltitude);
           teleportPosition = Body.GetWorldSurfacePosition(Latitude, Longitude, finalAltitude) - Body.position;
 
           Extensions.ALog("4. teleportPosition = ", teleportPosition);
