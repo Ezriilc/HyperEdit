@@ -12,6 +12,7 @@ DTAR*/
 *.sln
 *.sln.docstates
 *.user
+*.csproj
 *.userprefs
 
 # Build results
