@@ -12,9 +12,7 @@ DTAR*/
 *.sln
 *.sln.docstates
 *.user
-*.csproj
 *.userprefs
-*.csproj
 
 # Build results
 [Dd]ebug/

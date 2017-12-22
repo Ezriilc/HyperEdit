@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{2FF6FC29-02C3-489C-9EFE-B913973AF85B}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -14,7 +14,10 @@
     <ConsolePause>false</ConsolePause>
     <NoConfig>true</NoConfig>
     <NoStdLib>true</NoStdLib>
-    <KspInstallDir Condition=" '$(KspInstallDir)' == '' ">G:\KSP131.dev</KspInstallDir>
+<!-- // This is for Ezriilc's IDE, please leave this comment here.
+    <KspInstallDir Condition=" '$(KspInstallDir)' == '' ">..\..\..\Games\Kerbal Space Program\KSP_win64</KspInstallDir>
+-->
+    <KspInstallDir Condition=" '$(KspInstallDir)' == '' ">..\..\..\Games\Kerbal Space Program\KSP_win64</KspInstallDir>
     <KspOutputPath>$(KspInstallDir)\GameData\Kerbaltek</KspOutputPath>
     <KspLibPath>$(KspInstallDir)\KSP_x64_Data\Managed</KspLibPath>
   </PropertyGroup>
