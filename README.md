@@ -11,6 +11,4 @@ To build:
 
 Please leave our .version file as it is.  That's only here for CKAN, and it will be changed manually by the owner when we package the mod for release.
 
-Please ignore your .csproj file, and leave it out of the repo.
-
 VS2015+ is required, or other C#6 compliant C# compiler (khyperia uses mono 4.2.2, Ezriilc uses VS2017 Community)
