@@ -324,6 +324,8 @@ namespace HyperEdit.Model {
     private readonly object _accelLogObject = new object();
     private bool teleportedToLandingAlt = false;
     private double lastUpdate = 0;
+    //private double altAGL = 0; // Need to work out these in relation
+    //private double altASL = 0; // to land or sea.
 
     public void SetAltitudeToCurrent() {
       var pqs = Body.pqsController;
@@ -342,6 +344,8 @@ namespace HyperEdit.Model {
        * I'm not sure whether this is correct to zero the altitude as there are times on certain bodies
        * where the altitude of the surface is below sea level...wish I could remember where it was that
        * I found this.
+       * 
+       * Also HyperEdit used to allow you to land underwater for things like submarines!
        */
 
       Altitude = GetComponent<Vessel>().altitude - alt;
@@ -422,6 +426,8 @@ namespace HyperEdit.Model {
 
         double landHeight = FlightGlobals.ActiveVessel.altitude - FlightGlobals.ActiveVessel.pqsAltitude;
 
+        double finalAltitude = 0.0; //trying to isolate this for debugging!
+
         var checkAlt = FlightGlobals.ActiveVessel.altitude;
         var checkPQSAlt = FlightGlobals.ActiveVessel.pqsAltitude;
         double terrainAlt = GetTerrainAltitude();
@@ -447,9 +453,6 @@ namespace HyperEdit.Model {
         }
         // HoldVesselUnpack is in display frames, not physics frames
         
-        //var oldTeleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt + Altitude);
-        //Extensions.Log("Old teleportPosition: " + oldTeleportPosition);
-
         Vector3d teleportPosition;
 
         if (!teleportedToLandingAlt) {
@@ -469,10 +472,6 @@ namespace HyperEdit.Model {
 
               //InterimAltitude = terrainAlt + Altitude;
               
-              //teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt + InterimAltitude);
-              //tpTest = Body.GetWorldSurfacePosition(Latitude, Longitude, alt + InterimAltitude);
-
-              teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, InterimAltitude);
               teleportPosition = Body.GetWorldSurfacePosition(Latitude, Longitude, InterimAltitude) - Body.position;
 
               Extensions.ALog("1. teleportPosition = ", teleportPosition);
@@ -486,10 +485,8 @@ namespace HyperEdit.Model {
             } else {
               Extensions.Log("teleportPositionAltitude (no time change):");
               
-              teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt + InterimAltitude);
               teleportPosition = Body.GetWorldSurfacePosition(Latitude, Longitude, alt + InterimAltitude) - Body.position;
-              //teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt);
-
+              
               Extensions.ALog("2. teleportPosition = ", teleportPosition);
               Extensions.ALog("2. alt: ", alt);
               Extensions.ALog("2. interimAltitude: ", InterimAltitude);
@@ -514,39 +511,62 @@ namespace HyperEdit.Model {
             }
 
             /*
-             * landHeight factors into the final altitude somehow.
+             * landHeight factors into the final altitude somehow. Possibly.
              */
 
-
             teleportedToLandingAlt = true;
-            //teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt + Altitude);
-            teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt + Altitude);
-            teleportPosition = Body.GetWorldSurfacePosition(Latitude, Longitude, alt + Altitude) - Body.position;
+            //finalAltitude = alt + Altitude;
+            if (alt < 0) {
+              finalAltitude = Altitude;
+            } else if (alt > 0) {
+
+              finalAltitude = alt + Altitude;
+            } else {
+              finalAltitude = alt + Altitude;
+            }
             
+            teleportPosition = Body.GetWorldSurfacePosition(Latitude, Longitude, finalAltitude) - Body.position;
+
             Extensions.ALog("3. teleportPosition = ", teleportPosition);
             Extensions.ALog("3. alt = ", alt, "Altitude = ", Altitude, "InterimAltitude = ", InterimAltitude);
             Extensions.ALog("3. TerrainAlt = ", terrainAlt, "landHeight = ", landHeight);
           }
         } else {
+          /*
+           * With the current way of calculating, it seems like this part of the conditional
+           * never gets called. (Well not so far in my (@fronbow) testing.
+           */
+
           Extensions.Log("teleportedToLandingAlt == true");
 
           landHeight = FlightGlobals.ActiveVessel.altitude - FlightGlobals.ActiveVessel.pqsAltitude;
           terrainAlt = GetTerrainAltitude();
 
-          teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, alt + Altitude);
-          teleportPosition = Body.GetWorldSurfacePosition(Latitude, Longitude, alt + Altitude) - Body.position;
+          Extensions.ALog("4. finalAltitude = ", finalAltitude);
+          /*
+           * Depending on finalAltitude, we might not need to calculate it again here.
+           */
+           
+          //finalAltitude = alt + Altitude;
+          if (alt < 0) {
+            finalAltitude = Altitude;
+          } else if (alt > 0) {
+            finalAltitude = alt + Altitude;
+          } else {
+            finalAltitude = alt + Altitude;
+          }
+
+          //teleportPosition = Body.GetRelSurfacePosition(Latitude, Longitude, finalAltitude);
+          teleportPosition = Body.GetWorldSurfacePosition(Latitude, Longitude, finalAltitude) - Body.position;
 
           Extensions.ALog("4. teleportPosition = ", teleportPosition);
           Extensions.ALog("4. alt = ", alt, "Altitude = ", Altitude, "InterimAltitude = ", InterimAltitude);
           Extensions.ALog("4. TerrainAlt = ", terrainAlt, "landHeight = ", landHeight);
+          Extensions.ALog("4. finalAltitude = ", finalAltitude);
         }
 
         var teleportVelocity = Vector3d.Cross(Body.angularVelocity, teleportPosition);
-
-        //var teleportVelocity = Vector3d.Cross(Vector3d.down, teleportPosition.normalized)*
-        //                       (Math.Cos(L atitude*(Math.PI/180))*teleportPosition.magnitude*
-        //                        (Math.PI*2)/(Body.rotationPeriod));
-
+        
         // convert from world space to orbit space
 
         teleportPosition = teleportPosition.xzy;
@@ -572,12 +592,7 @@ namespace HyperEdit.Model {
 
         var orbit = vessel.orbitDriver.orbit.Clone();
         orbit.UpdateFromStateVectors(teleportPosition, teleportVelocity, Body, Planetarium.GetUniversalTime());
-
-        //Extensions.ALog("FINAL:");
-        //Extensions.ALog("rotation = ", rotation);
-        //Extensions.ALog("teleportedToLandingAlt = ", teleportedToLandingAlt);
-        //Extensions.ALog("vessel: ", vessel);
-
+        
         vessel.SetOrbit(orbit);
         vessel.SetRotation(rotation);
 
