@@ -70,14 +70,4 @@
   <Target Name="AfterBuild">
     <Copy SourceFiles="$(OutputPath)\$(MyFileName)" DestinationFolder="$(KspOutputPath)" />
   </Target>
-  <PropertyGroup>
-    <PostBuildEvent>if $(ConfigurationName) == "Debug" (
-  "G:\Utils\pdb2mdb\pdb2mdb.exe" "$(TargetFileName)"
-  xcopy /Y "$(TargetPath)" "G:\KSP131.dev\GameData\$(ProjectName)\"
-  xcopy /Y "$(TargetDir)$(TargetName).pdb" "G:\KSP131.dev\GameData\$(ProjectName)\"
-  xcopy /Y "$(TargetDir)$(TargetName).dll.mdb" "G:\KSP131.dev\GameData\$(ProjectName)\"
-) else if $(ConfigurationName) == "Release" (
-  xcopy /Y "$(TargetPath)" "V:\KSP 1.3.1\GameData\Kerbaltek\$(ProjectName)\"
-)</PostBuildEvent>
-  </PropertyGroup>
 </Project>
