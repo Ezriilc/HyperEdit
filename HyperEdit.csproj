@@ -14,7 +14,8 @@
     <ConsolePause>false</ConsolePause>
     <NoConfig>true</NoConfig>
     <NoStdLib>true</NoStdLib>
-    <KspInstallDir Condition=" '$(KspInstallDir)' == '' ">G:\KSP131.dev</KspInstallDir>
+    <KspInstallDir Condition=" '$(KspInstallDir)' == '' ">V:\KSP 1.3.1</KspInstallDir>
+    <KspDevDir Condition=" '$(KspDevDir)' == '' ">G:\KSP131.dev</KspDevDir>
     <KspOutputPath>$(KspInstallDir)\GameData\Kerbaltek</KspOutputPath>
     <KspLibPath>$(KspInstallDir)\KSP_x64_Data\Managed</KspLibPath>
   </PropertyGroup>
@@ -71,13 +72,13 @@
     <Copy SourceFiles="$(OutputPath)\$(MyFileName)" DestinationFolder="$(KspOutputPath)" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>if $(ConfigurationName) == "Debug" (
-  "G:\Utils\pdb2mdb\pdb2mdb.exe" "$(TargetFileName)"
+    <PostBuildEvent>echo $(ConfigurationName)
+if "$(ConfigurationName)" == "Debug" (
+  "G:\Utils\pdb2mdb\pdb2mdb.exe" "$(TargetPath)"
+echo "Copying Files."
   xcopy /Y "$(TargetPath)" "G:\KSP131.dev\GameData\$(ProjectName)\"
   xcopy /Y "$(TargetDir)$(TargetName).pdb" "G:\KSP131.dev\GameData\$(ProjectName)\"
   xcopy /Y "$(TargetDir)$(TargetName).dll.mdb" "G:\KSP131.dev\GameData\$(ProjectName)\"
-) else if $(ConfigurationName) == "Release" (
-  xcopy /Y "$(TargetPath)" "V:\KSP 1.3.1\GameData\Kerbaltek\$(ProjectName)\"
 )</PostBuildEvent>
   </PropertyGroup>
 </Project>
