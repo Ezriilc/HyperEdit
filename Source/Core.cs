@@ -415,12 +415,20 @@ namespace HyperEdit
 
   public static class Extensions
   {
+    /// <summary>
+    /// Debug logging. Only compiles in DEBUG builds.
+    /// </summary>
+    /// <param name="message"></param>
     [ConditionalAttribute("DEBUG")]
     public static void Log(string message)
     {
       UnityEngine.Debug.Log("HyperEdit: " + message);
     }
 
+    /// <summary>
+    /// Comma separated debug logging. Only compiles in DEBUG builds.
+    /// </summary>
+    /// <param name="message"></param>
     [ConditionalAttribute("DEBUG")]
     public static void ALog(params object [] message)
     {
