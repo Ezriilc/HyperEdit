@@ -7,6 +7,7 @@ using KSP.UI.Screens;
 using System.Reflection;
 using System.Diagnostics;
 
+[assembly: System.Reflection.AssemblyProduct("HyperEdit")]
 [assembly: System.Reflection.AssemblyTitle("HyperEdit")]
 [assembly: System.Reflection.AssemblyDescription("A plugin mod for Kerbal Space Program")]
 [assembly: System.Reflection.AssemblyCompany("Kerbaltek")]
