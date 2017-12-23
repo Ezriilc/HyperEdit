@@ -4,10 +4,13 @@ using UnityEngine;
 namespace HyperEdit.View {
   public class MiscEditorView {
     private static ConfigNode _toggleRes;
+    private static int vwidth = 300; //View width (needed for scrollviews)
+    private static int vheight = -1; //View height
 
     public static Action Create() {
       var view = View();
-      return () => Window.Create("Misc tools", true, true, 300, -1, w => view.Draw());
+      //return () => Window.Create("Misc tools", true, true, 300, -1, w => view.Draw());
+      return () => Window.Create("Misc tools", true, true, vwidth, vheight, w => view.Draw());
     }
 
     public static IView View() {
