@@ -18,7 +18,10 @@ namespace HyperEdit.View {
       ReloadConfig();
 
       Action resources = () => {
-        scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width(vwidth), GUILayout.Height(vheight));
+        //scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width(vwidth), GUILayout.Height(vheight));
+        //Using the Vertical to set the box height.
+        GUILayout.BeginVertical(GUILayout.Height(100));
+        scrollPosition = GUILayout.BeginScrollView(scrollPosition);
 
         foreach (var resource in Model.MiscEditor.GetResources()) {
           GUILayout.BeginHorizontal();
@@ -37,7 +40,10 @@ namespace HyperEdit.View {
 
           GUILayout.EndHorizontal();
         }
+        GUILayout.FlexibleSpace();
         GUILayout.EndScrollView();
+        GUILayout.EndVertical();
+
       };
       return new VerticalView(new IView[]
       {
