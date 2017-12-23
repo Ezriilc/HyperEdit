@@ -6,6 +6,7 @@ namespace HyperEdit.View {
     private static ConfigNode _toggleRes;
     private static int vwidth = 300; //View width (needed for scrollviews)
     private static int vheight = -1; //View height
+    private static Vector2 scrollPosition;
 
     public static Action Create() {
       var view = View();
@@ -17,6 +18,8 @@ namespace HyperEdit.View {
       ReloadConfig();
 
       Action resources = () => {
+        scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width(vwidth), GUILayout.Height(vheight));
+
         foreach (var resource in Model.MiscEditor.GetResources()) {
           GUILayout.BeginHorizontal();
           GUILayout.Label(resource.Key);
@@ -34,6 +37,7 @@ namespace HyperEdit.View {
 
           GUILayout.EndHorizontal();
         }
+        GUILayout.EndScrollView();
       };
       return new VerticalView(new IView[]
       {
