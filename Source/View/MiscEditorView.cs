@@ -21,7 +21,7 @@ namespace HyperEdit.View {
         //scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width(vwidth), GUILayout.Height(vheight));
         //Using the Vertical to set the box height.
         GUILayout.BeginVertical(GUILayout.Height(100));
-        scrollPosition = GUILayout.BeginScrollView(scrollPosition);
+        scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.MinHeight(300));
 
         foreach (var resource in Model.MiscEditor.GetResources()) {
           GUILayout.BeginHorizontal();
