@@ -1,7 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
+<!-- // To switch from Release to Debug, change the next line. -->
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+<!-- // To switch from Release to Debug, change the previous line. -->
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{2FF6FC29-02C3-489C-9EFE-B913973AF85B}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -14,7 +16,7 @@
     <ConsolePause>false</ConsolePause>
     <NoConfig>true</NoConfig>
     <NoStdLib>true</NoStdLib>
-<!-- // This is for Ezriilc's IDE, please leave this full comment here, but change the next line to point to your own KSP install directory.
+<!-- // This is for Ezriilc's IDE, please leave this comment here, but change the next line to your own KSP install directory.
     <KspInstallDir Condition=" '$(KspInstallDir)' == '' ">..\..\..\Games\Kerbal Space Program\KSP_win64</KspInstallDir>
 -->
     <KspInstallDir Condition=" '$(KspInstallDir)' == '' ">..\..\..\Games\Kerbal Space Program\KSP_win64</KspInstallDir>
