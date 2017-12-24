@@ -5,8 +5,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{2FF6FC29-02C3-489C-9EFE-B913973AF85B}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>HyperEdit</RootNamespace>
     <AssemblyName>HyperEdit</AssemblyName>
+    <RootNamespace>$(AssemblyName)</RootNamespace>
     <MyFileName>$(AssemblyName).dll</MyFileName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <ErrorReport>prompt</ErrorReport>
@@ -14,7 +14,7 @@
     <ConsolePause>false</ConsolePause>
     <NoConfig>true</NoConfig>
     <NoStdLib>true</NoStdLib>
-<!-- // This is for Ezriilc's IDE, please leave this comment here.
+<!-- // This is for Ezriilc's IDE, please leave this full comment here, but change the next line to point to your own KSP install directory.
     <KspInstallDir Condition=" '$(KspInstallDir)' == '' ">..\..\..\Games\Kerbal Space Program\KSP_win64</KspInstallDir>
 -->
     <KspInstallDir Condition=" '$(KspInstallDir)' == '' ">..\..\..\Games\Kerbal Space Program\KSP_win64</KspInstallDir>
@@ -61,13 +61,6 @@
   <ItemGroup>
     <Compile Include="Source\*" />
     <Compile Include="Source\*\*" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="$(AssemblyName).version" />
-    <None Include="README.md" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">
