@@ -176,6 +176,7 @@ namespace HyperEdit.View
             new ConditionalView(() => !Model.DoLander.IsLanding() && isValid(), new ButtonView("Land", "Teleport to entered location, then slowly lower to surface.", () => Model.DoLander.ToggleLanding(lat.Object, lon.Object, alt.Object, bodySelector.CurrentlySelected, setRot.Value, load))),
             new ConditionalView(() => Model.DoLander.IsLanding(), new ButtonView("Drop (CAUTION!)", "Release vessel to gravity.", () => Model.DoLander.ToggleLanding(lat.Object, lon.Object, alt.Object, bodySelector.CurrentlySelected, setRot.Value, load))),
             new ConditionalView(() => Model.DoLander.IsLanding(), new LabelView("LANDING IN PROGRESS.", "Vessel is being lowered to the surface.")),
+            //Launch button here
             new ConditionalView(() => Model.DoLander.IsLanding(), new LabelView(changeHelpString(), "Change location slightly.")),
             new ConditionalView(() => !Model.DoLander.IsLanding(), new ButtonView("Land Here", "Stop at current location, then slowly lower to surface.", () => Model.DoLander.LandHere(load))),
             new ListSelectView<Vessel>("Set to vessel", Model.DoLander.LandedVessels, select => Model.DoLander.SetToLanded(load, select), Extensions.VesselToString),

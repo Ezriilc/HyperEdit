@@ -4,16 +4,25 @@ using UnityEngine;
 namespace HyperEdit.View {
   public class MiscEditorView {
     private static ConfigNode _toggleRes;
+    private static int vwidth = 300; //View width (needed for scrollviews)
+    private static int vheight = -1; //View height
+    private static Vector2 scrollPosition;
 
     public static Action Create() {
       var view = View();
-      return () => Window.Create("Misc tools", true, true, 300, -1, w => view.Draw());
+      //return () => Window.Create("Misc tools", true, true, 300, -1, w => view.Draw());
+      return () => Window.Create("Misc tools", true, true, vwidth, vheight, w => view.Draw());
     }
 
     public static IView View() {
       ReloadConfig();
 
       Action resources = () => {
+        //scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width(vwidth), GUILayout.Height(vheight));
+        //Using the Vertical to set the box height.
+        GUILayout.BeginVertical(GUILayout.Height(100));
+        scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.MinHeight(140));
+
         foreach (var resource in Model.MiscEditor.GetResources()) {
           GUILayout.BeginHorizontal();
           GUILayout.Label(resource.Key);
@@ -31,6 +40,10 @@ namespace HyperEdit.View {
 
           GUILayout.EndHorizontal();
         }
+        GUILayout.FlexibleSpace();
+        GUILayout.EndScrollView();
+        GUILayout.EndVertical();
+
       };
       return new VerticalView(new IView[]
       {

@@ -327,6 +327,9 @@ namespace HyperEdit.Model {
     //private double altAGL = 0; // Need to work out these in relation
     //private double altASL = 0; // to land or sea.
 
+    /// <summary>
+    /// Sets the vessel altitude to the current calculation.
+    /// </summary>
     public void SetAltitudeToCurrent() {
       var pqs = Body.pqsController;
       if (pqs == null) {
@@ -357,6 +360,13 @@ namespace HyperEdit.Model {
     }
 
     public void Update() {
+
+      //Testing whether to kill TimeWarp
+      if (TimeWarp.CurrentRateIndex != 0) {
+        TimeWarp.SetRate(0, true);
+        Extensions.Log("Update: Kill TimeWarp");
+      }
+
       // 0.2 meters per frame
       var degrees = 0.2 / Body.Radius * (180 / Math.PI);
 
@@ -397,6 +407,11 @@ namespace HyperEdit.Model {
       if (vessel != FlightGlobals.ActiveVessel) {
         Destroy(this);
         return;
+      }
+
+      if (TimeWarp.CurrentRateIndex != 0) {
+        TimeWarp.SetRate(0, true);
+        Extensions.Log("Kill time warp for safety reasons!");
       }
 
       if (AlreadyTeleported) {
@@ -447,10 +462,6 @@ namespace HyperEdit.Model {
 
         alt = Math.Max(alt, 0d); // Make sure we're not underwater!
         
-        if (TimeWarp.CurrentRateIndex != 0) {
-          TimeWarp.SetRate(0, true);
-          Extensions.Log("Set time warp to index 0");
-        }
         // HoldVesselUnpack is in display frames, not physics frames
         
         Vector3d teleportPosition;
@@ -580,7 +591,11 @@ namespace HyperEdit.Model {
         teleportVelocity += teleportPosition.normalized * (Body.gravParameter / teleportPosition.sqrMagnitude);
 
         Quaternion rotation;
+        
         if (SetRotation) {
+          // Need to check vessel and find up for the root command pod
+          // and hope cockpits have proper orientation and aren't the same as pods!
+
           var from = Vector3d.up;
           var to = teleportPosition.xzy.normalized;
           rotation = Quaternion.FromToRotation(from, to);
@@ -607,6 +622,8 @@ namespace HyperEdit.Model {
     ///  Returns the ground's altitude above sea level at this geo position.
     /// </summary>
     /// <returns></returns>
+    /// <remarks>Borrowed this from the kOS mod with slight modification</remarks>
+    /// <see cref="https://github.com/KSP-KOS/KOS/blob/develop/src/kOS/Suffixed/GeoCoordinates.cs"/>
     public Double GetTerrainAltitude() {
       double alt = 0.0;
       PQS bodyPQS = Body.pqsController;
