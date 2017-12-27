@@ -129,7 +129,7 @@ namespace HyperEdit.Model
         private bool _doBoost;
         private readonly object _boostLogObject = new object();
 
-        public KeyCode[] Keys { get; set; } = { KeyCode.LeftControl, KeyCode.B };
+        public KeyCode[] Keys { get; set; } = { KeyCode.RightControl, KeyCode.B };
 
         public double Speed { get; set; }
 

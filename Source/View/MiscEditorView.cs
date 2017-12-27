@@ -18,7 +18,6 @@ namespace HyperEdit.View {
       ReloadConfig();
 
       Action resources = () => {
-        //scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width(vwidth), GUILayout.Height(vheight));
         //Using the Vertical to set the box height.
         GUILayout.BeginVertical(GUILayout.Height(100));
         scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.MinHeight(140));
@@ -37,7 +36,8 @@ namespace HyperEdit.View {
            * It'd be nice to lock inf resources for specific vessels, or maybe just any vessel?
            */
 
-
+          //GUILayout.FlexibleSpace();
+          GUILayout.Space(5);
           GUILayout.EndHorizontal();
         }
         GUILayout.FlexibleSpace();
