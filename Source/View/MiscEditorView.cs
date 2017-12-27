@@ -36,7 +36,8 @@ namespace HyperEdit.View {
            * It'd be nice to lock inf resources for specific vessels, or maybe just any vessel?
            */
 
-          GUILayout.FlexibleSpace();
+          //GUILayout.FlexibleSpace();
+          GUILayout.Space(5);
           GUILayout.EndHorizontal();
         }
         GUILayout.FlexibleSpace();
