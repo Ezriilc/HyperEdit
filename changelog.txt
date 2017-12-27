@@ -1,5 +1,7 @@
 
 2017-12-27: Change default boost key to Right-Ctrl + B as it was conflicting with the default throttle.
+            Put config files in PluginData directory inside HyperEdit directory.
+			Changed Lander view to show altitude above terrain as current altitude instead of ASL.
 
 2017-12-26: Reinstated original folder structure for saved settings files.
 
