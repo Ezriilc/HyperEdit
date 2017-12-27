@@ -192,8 +192,24 @@ namespace HyperEdit.Model {
         return;
       }
 
-      onLoad(FlightGlobals.ActiveVessel.latitude, FlightGlobals.ActiveVessel.longitude, FlightGlobals.ActiveVessel.altitude,
-          FlightGlobals.ActiveVessel.mainBody);
+      //FlightGlobals.ActiveVessel.altitude is incorrect.
+      var Body = FlightGlobals.ActiveVessel.mainBody;
+      var Latitude = FlightGlobals.ActiveVessel.latitude;
+      var Longitude = FlightGlobals.ActiveVessel.longitude;
+      var alt = FlightGlobals.ActiveVessel.radarAltitude;
+      /*
+      var pqs = FlightGlobals.ActiveVessel.mainBody.pqsController;
+
+      if (pqs != null) {
+        var alt = pqs.GetSurfaceHeight(Body.GetRelSurfaceNVector(Latitude, Longitude)) - Body.Radius;
+      } else {
+        var alt = FlightGlobals.ActiveVessel.radarAltitude;
+      }
+      */
+
+      onLoad(Latitude, Longitude, alt, Body);
+
+      //onLoad(FlightGlobals.ActiveVessel.latitude, FlightGlobals.ActiveVessel.longitude, FlightGlobals.ActiveVessel.altitude, FlightGlobals.ActiveVessel.mainBody);
     }
 
     public static IEnumerable<Vessel> LandedVessels() {
