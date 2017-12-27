@@ -1,12 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
+<!-- // To switch between Release and Debug, change the next line (5). -->
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{2FF6FC29-02C3-489C-9EFE-B913973AF85B}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>HyperEdit</RootNamespace>
     <AssemblyName>HyperEdit</AssemblyName>
+    <RootNamespace>$(AssemblyName)</RootNamespace>
     <MyFileName>$(AssemblyName).dll</MyFileName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <ErrorReport>prompt</ErrorReport>
@@ -14,11 +15,10 @@
     <ConsolePause>false</ConsolePause>
     <NoConfig>true</NoConfig>
     <NoStdLib>true</NoStdLib>
-    <KspInstallDir Condition=" '$(KspInstallDir)' == '' ">V:\KSP 1.3.1</KspInstallDir>
-    <KspDevDir Condition=" '$(KspDevDir)' == '' ">G:\KSP131.dev</KspDevDir>
-<!-- // This is for Ezriilc's IDE, please leave this comment here.
+<!-- // This is for Ezriilc's IDE, please leave this comment here, but change the next line (21) to your own KSP install directory.
     <KspInstallDir Condition=" '$(KspInstallDir)' == '' ">..\..\..\Games\Kerbal Space Program\KSP_win64</KspInstallDir>
 -->
+    <KspInstallDir Condition=" '$(KspInstallDir)' == '' ">..\..\..\Games\Kerbal Space Program\KSP_win64</KspInstallDir>
     <KspOutputPath>$(KspInstallDir)\GameData\Kerbaltek</KspOutputPath>
     <KspLibPath>$(KspInstallDir)\KSP_x64_Data\Managed</KspLibPath>
   </PropertyGroup>
@@ -63,28 +63,8 @@
     <Compile Include="Source\*" />
     <Compile Include="Source\*\*" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="$(AssemblyName).version" />
-    <None Include="README.md" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="changelog.txt" />
-  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">
     <Copy SourceFiles="$(OutputPath)\$(MyFileName)" DestinationFolder="$(KspOutputPath)" />
   </Target>
-  <PropertyGroup>
-    <PostBuildEvent>echo $(ConfigurationName)
-if "$(ConfigurationName)" == "Debug" (
-  "G:\Utils\pdb2mdb\pdb2mdb.exe" "$(TargetPath)"
-echo "Copying Files."
-  xcopy /Y "$(TargetPath)" "G:\KSP131.dev\GameData\$(ProjectName)\"
-  xcopy /Y "$(TargetDir)$(TargetName).pdb" "G:\KSP131.dev\GameData\$(ProjectName)\"
-  xcopy /Y "$(TargetDir)$(TargetName).dll.mdb" "G:\KSP131.dev\GameData\$(ProjectName)\"
-)</PostBuildEvent>
-  </PropertyGroup>
 </Project>
