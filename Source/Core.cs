@@ -12,23 +12,27 @@ using System.Diagnostics;
 [assembly: System.Reflection.AssemblyDescription("A plugin mod for Kerbal Space Program")]
 [assembly: System.Reflection.AssemblyCompany("Kerbaltek")]
 [assembly: System.Reflection.AssemblyCopyright("Erickson Swift")]
-[assembly: System.Reflection.AssemblyVersion("1.5.6.0")]
+[assembly: System.Reflection.AssemblyVersion("1.5.6.01")]
 
 [KSPAddon(KSPAddon.Startup.SpaceCentre, true)] // Determines when plugin starts.
 public class HyperEditModule : MonoBehaviour {
   static List<ApplicationLauncherButton> appListModHidden;
+
   public void Awake() // Called after scene (designated w/ KSPAddon) loads, but before Start().  Init data here.
   {
     HyperEdit.Immortal.AddImmortal<HyperEdit.HyperEditBehaviour>();
   }
+
   private void Start() {
     // following needed to fix a stock bug
     appListModHidden = (List<ApplicationLauncherButton>)typeof(ApplicationLauncher).GetField("appListModHidden", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(ApplicationLauncher.Instance);
     DontDestroyOnLoad(this);
   }
+
   double lasttimecheck = 0;
   GameScenes lastScene = GameScenes.LOADING;
   double lastTime = 0;
+
   private void FixedUpdate() {
     if (HighLogic.LoadedScene != lastScene) {
       lastScene = HighLogic.LoadedScene;
