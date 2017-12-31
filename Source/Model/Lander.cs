@@ -223,7 +223,8 @@ namespace HyperEdit.Model {
 
       //work out Longitude + 50m
       //I'm curious why, other than avoiding spawning on top of an existing object?
-      var fiftyMOfLong = (360 * 40) / (landingBeside.orbit.referenceBody.Radius * 2 * Math.PI);
+      //var fiftyMOfLong = (360 * 40) / (landingBeside.orbit.referenceBody.Radius * 2 * Math.PI);
+      var fiftyMOfLong = 0.0;
 
       Extensions.Log("SetToLanded:: fiftyMOfLong=" + fiftyMOfLong);
       Extensions.Log("landingBeside: " + landingBeside);

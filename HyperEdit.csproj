@@ -64,9 +64,11 @@
     <Compile Include="Source\*\*" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- //Makes life confusing when Building within VS. Not so bad for releasing, headaches for debug building.
   <Target Name="AfterBuild">
     <Copy SourceFiles="$(OutputPath)\$(MyFileName)" DestinationFolder="$(KspOutputPath)" />
   </Target>
+  -->
   <PropertyGroup>
     <PostBuildEvent>if $(ConfigurationName) == Debug (
   "G:\Utils\pdb2mdb\pdb2mdb.exe" "$(TargetFileName)"
