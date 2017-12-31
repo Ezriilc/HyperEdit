@@ -1,4 +1,6 @@
 
+2017-12-31: Fix for #41 - Landing vessels near each other doesn't space them miles/kilometres apart.
+
 2017-12-27: Change default boost key to Right-Ctrl + B as it was conflicting with the default throttle.
             Put config files in PluginData directory inside HyperEdit directory.
 			Changed Lander view to show altitude above terrain as current altitude instead of ASL.
