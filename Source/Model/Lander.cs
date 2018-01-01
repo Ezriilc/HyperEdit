@@ -172,7 +172,8 @@ namespace HyperEdit.Model {
 
     public static void LoadLast(Action<double, double, double, CelestialBody> onLoad) {
       var lastC = SavedCoords.Find(c => c.Name == RecentEntryName);
-      onLoad(lastC.Lat, lastC.Lon, lastC.Alt, lastC.Body);
+      //double-check coords are correct (so that we don't load invalid data!)
+      onLoad(Extensions.DegreeFix(lastC.Lat,0) , lastC.Lon, lastC.Alt, lastC.Body);
     }
 
     public static void Load(Action<double, double, double, CelestialBody> onLoad) {
@@ -208,8 +209,6 @@ namespace HyperEdit.Model {
       */
 
       onLoad(Latitude, Longitude, alt, Body);
-
-      //onLoad(FlightGlobals.ActiveVessel.latitude, FlightGlobals.ActiveVessel.longitude, FlightGlobals.ActiveVessel.altitude, FlightGlobals.ActiveVessel.mainBody);
     }
 
     public static IEnumerable<Vessel> LandedVessels() {
@@ -221,15 +220,13 @@ namespace HyperEdit.Model {
         return;
       }
 
-      //work out Longitude + 50m
-      //I'm curious why, other than avoiding spawning on top of an existing object?
-      //var fiftyMOfLong = (360 * 40) / (landingBeside.orbit.referenceBody.Radius * 2 * Math.PI);
-      var fiftyMOfLong = 0.0;
-
-      Extensions.Log("SetToLanded:: fiftyMOfLong=" + fiftyMOfLong);
-      Extensions.Log("landingBeside: " + landingBeside);
-
-      onLoad(landingBeside.latitude, landingBeside.longitude + fiftyMOfLong, landingBeside.altitude, landingBeside.mainBody);
+      //doing this here for brevity and correct altitude display.
+      var Body = landingBeside.mainBody;
+      var Latitude = landingBeside.latitude;
+      var Longitude = landingBeside.longitude;
+      var alt = landingBeside.radarAltitude;
+      
+      onLoad(Latitude, Longitude, alt, Body);
     }
 
     private struct LandingCoordinates : IEquatable<LandingCoordinates> {
@@ -609,11 +606,18 @@ namespace HyperEdit.Model {
 
         Quaternion rotation;
         
+        
         if (SetRotation) {
           // Need to check vessel and find up for the root command pod
-          // and hope cockpits have proper orientation and aren't the same as pods!
+          vessel.ActionGroups.SetGroup(KSPActionGroup.SAS, false); //hopefully this disables SAS as it causes unknown results!
 
-          var from = Vector3d.up;
+          var from = Vector3d.up; //Sensible default for all vessels
+
+          if (vessel.displaylandedAt == "Runway" || vessel.vesselType.ToString() == "Plane") {
+            from = vessel.vesselTransform.up;
+          }
+
+
           var to = teleportPosition.xzy.normalized;
           rotation = Quaternion.FromToRotation(from, to);
         } else {
