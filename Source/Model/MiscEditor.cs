@@ -97,8 +97,13 @@ namespace HyperEdit.Model
 
         public static KeyCode[] BoostButtonKey
         {
-            get { return BoostListener.Fetch.Keys; }
-            set { BoostListener.Fetch.Keys = value; }
+            get {
+              return BoostListener.Fetch.Keys;
+            }
+            set {
+              BoostListener.Fetch.Keys = value;
+              //Save value to config file
+            }
         }
 
         public static double BoostButtonSpeed

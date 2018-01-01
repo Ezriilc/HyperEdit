@@ -12,44 +12,41 @@ using System.Diagnostics;
 [assembly: System.Reflection.AssemblyDescription("A plugin mod for Kerbal Space Program")]
 [assembly: System.Reflection.AssemblyCompany("Kerbaltek")]
 [assembly: System.Reflection.AssemblyCopyright("Erickson Swift")]
-[assembly: System.Reflection.AssemblyVersion("1.5.6.0")]
+[assembly: System.Reflection.AssemblyVersion("1.5.6.01")]
 
 [KSPAddon(KSPAddon.Startup.SpaceCentre, true)] // Determines when plugin starts.
-public class HyperEditModule : MonoBehaviour
-{
+public class HyperEditModule : MonoBehaviour {
   static List<ApplicationLauncherButton> appListModHidden;
+
   public void Awake() // Called after scene (designated w/ KSPAddon) loads, but before Start().  Init data here.
   {
     HyperEdit.Immortal.AddImmortal<HyperEdit.HyperEditBehaviour>();
   }
-  private void Start()
-  {
+
+  private void Start() {
     // following needed to fix a stock bug
     appListModHidden = (List<ApplicationLauncherButton>)typeof(ApplicationLauncher).GetField("appListModHidden", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(ApplicationLauncher.Instance);
     DontDestroyOnLoad(this);
   }
+
   double lasttimecheck = 0;
   GameScenes lastScene = GameScenes.LOADING;
   double lastTime = 0;
-  private void FixedUpdate()
-  {
-    if (HighLogic.LoadedScene != lastScene)
-    {
+
+  private void FixedUpdate() {
+    if (HighLogic.LoadedScene != lastScene) {
       lastScene = HighLogic.LoadedScene;
       lastTime = Time.fixedTime;
     }
-    if (Time.fixedTime - lastTime < 2)
-    {
-      if (Time.fixedTime - lasttimecheck > .1)
-      {
+    if (Time.fixedTime - lastTime < 2) {
+      if (Time.fixedTime - lasttimecheck > .1) {
         lasttimecheck = Time.fixedTime;
         // following fixes a stock bug
-        if (appListModHidden.Contains(HyperEdit.HyperEditBehaviour.appButton))
-        {
+        if (appListModHidden.Contains(HyperEdit.HyperEditBehaviour.appButton)) {
           HyperEdit.HyperEditBehaviour.appButton.gameObject.SetActive(false);
-          if (HyperEdit.HyperEditBehaviour.appButton.enabled)
+          if (HyperEdit.HyperEditBehaviour.appButton.enabled) {
             HyperEdit.HyperEditBehaviour.appButton.onDisable();
-
+          }
         }
       }
 
@@ -57,18 +54,14 @@ public class HyperEditModule : MonoBehaviour
   }
 }
 
-namespace HyperEdit
-{
+namespace HyperEdit {
   public delegate bool TryParse<T>(string str, out T value);
 
-  public static class Immortal
-  {
+  public static class Immortal {
     private static GameObject _gameObject;
 
-    public static T AddImmortal<T>() where T : Component
-    {
-      if (_gameObject == null)
-      {
+    public static T AddImmortal<T>() where T : Component {
+      if (_gameObject == null) {
         _gameObject = new GameObject("HyperEditImmortal", typeof(T));
         UnityEngine.Object.DontDestroyOnLoad(_gameObject);
       }
@@ -76,8 +69,7 @@ namespace HyperEdit
     }
   }
 
-  public class HyperEditBehaviour : MonoBehaviour
-  {
+  public class HyperEditBehaviour : MonoBehaviour {
     private ConfigNode _hyperEditConfig;
     private bool _useAppLauncherButton;
     private static ApplicationLauncherButton _appLauncherButton;
@@ -85,8 +77,7 @@ namespace HyperEdit
     private Action _createLanderView;
     private bool _autoOpenLanderValue;
 
-    public static ApplicationLauncherButton appButton
-    {
+    public static ApplicationLauncherButton appButton {
       get { return _appLauncherButton; }
     }
 
@@ -106,38 +97,36 @@ namespace HyperEdit
 
     public void Start() // Called after all mods are Awake().
     {
-      //            Extensions.Log("[" + this.GetInstanceID().ToString("X") + "][" + Time.time.ToString("0.0000") + "]: Start()");
+      //Extensions.Log("[" + this.GetInstanceID().ToString("X") + "][" + Time.time.ToString("0.0000") + "]: Start()");
       ReloadConfig();
     }
 
-    private void CreateCoreView()
-    {
+    private void CreateCoreView() {
       ReloadConfig();
-      if (_createCoreView == null)
+      if (_createCoreView == null) {
         _createCoreView = View.CoreView.Create(this);
+      }
       _createCoreView();
-      if (_autoOpenLanderValue == true && !View.Window.GameObject.GetComponents<View.Window>().Any(w => w.Title == "Lander"))
+      if (_autoOpenLanderValue == true && !View.Window.GameObject.GetComponents<View.Window>().Any(w => w.Title == "Lander")) {
         CreateLanderView();
+      }
     }
 
-    private void CreateLanderView()
-    {
-      if (_createLanderView == null)
+    private void CreateLanderView() {
+      if (_createLanderView == null) {
         _createLanderView = View.LanderView.Create();
+      }
       _createLanderView();
     }
 
     // SceneUpdate() fires only when the scene changes.
-    private void SceneUpdate(GameScenes data)
-    {
+    private void SceneUpdate(GameScenes data) {
       ReloadConfig();
-      if (HighLogic.LoadedScene == GameScenes.FLIGHT || HighLogic.LoadedScene == GameScenes.TRACKSTATION)
-      {
-        if (_autoOpenLanderValue == true && !View.Window.GameObject.GetComponents<View.Window>().Any(w => w.Title == "Lander"))
+      if (HighLogic.LoadedScene == GameScenes.FLIGHT || HighLogic.LoadedScene == GameScenes.TRACKSTATION) {
+        if (_autoOpenLanderValue == true && !View.Window.GameObject.GetComponents<View.Window>().Any(w => w.Title == "Lander")) {
           CreateLanderView();
-      }
-      else
-      {
+        }
+      } else {
         View.Window.CloseAll();
       }
     }
@@ -146,42 +135,34 @@ namespace HyperEdit
     public void FixedUpdate() => Model.PlanetEditor.TryApplyFileDefaults();
 
     // Update() fires every frame.
-    public void Update()
-    {
+    public void Update() {
       RateLimitedLogger.Update();
-      if ((Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)) && Input.GetKeyDown(KeyCode.H))
-      {
+      if ((Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)) && Input.GetKeyDown(KeyCode.H)) {
         // Linuxgurugamer added this scene check to keep HyperEdit off in the editors.
-        if (HighLogic.LoadedScene == GameScenes.FLIGHT || HighLogic.LoadedScene == GameScenes.TRACKSTATION)
-        {
-          if (View.Window.GameObject.GetComponents<View.Window>().Any(w => w.Title == "HyperEdit"))
-          {
-            if (_appLauncherButton == null)
+        if (HighLogic.LoadedScene == GameScenes.FLIGHT || HighLogic.LoadedScene == GameScenes.TRACKSTATION) {
+          if (View.Window.GameObject.GetComponents<View.Window>().Any(w => w.Title == "HyperEdit")) {
+            if (_appLauncherButton == null) {
               View.Window.CloseAll();
-            else
+            } else {
               _appLauncherButton.SetFalse();
-          }
-          else
-          {
-            if (_appLauncherButton == null)
+            }
+          } else {
+            if (_appLauncherButton == null) {
               CreateCoreView();
-            else
+            } else {
               _appLauncherButton.SetTrue();
+            }
           }
         }
       }
     }
 
-    private void ReloadConfig()
-    {
+    private void ReloadConfig() {
       var hypereditCfg = IoExt.GetPath("hyperedit.cfg");
-      if (System.IO.File.Exists(hypereditCfg))
-      {
+      if (System.IO.File.Exists(hypereditCfg)) {
         _hyperEditConfig = ConfigNode.Load(hypereditCfg);
         _hyperEditConfig.name = "hyperedit";
-      }
-      else
-      {
+      } else {
         _hyperEditConfig = new ConfigNode("hyperedit");
         _hyperEditConfig.SetValue("AutoOpenLander", false.ToString(), true);
       }
@@ -193,31 +174,25 @@ namespace HyperEdit
       _hyperEditConfig.TryGetValue("AutoOpenLander", ref _autoOpenLanderValue, bool.TryParse);
     }
 
-    private void AreWindowsOpenChange(bool isOpen)
-    {
-      if (_appLauncherButton != null)
-      {
-        if (isOpen)
+    private void AreWindowsOpenChange(bool isOpen) {
+      if (_appLauncherButton != null) {
+        if (isOpen) {
           _appLauncherButton.SetTrue(false);
-        else
+        } else {
           _appLauncherButton.SetFalse(false);
+        }
       }
     }
 
-    public bool UseAppLauncherButton
-    {
+    public bool UseAppLauncherButton {
       get { return _useAppLauncherButton; }
-      set
-      {
+      set {
         if (_useAppLauncherButton == value)
           return;
         _useAppLauncherButton = value;
-        if (value)
-        {
+        if (value) {
           AddAppLauncher();
-        }
-        else
-        {
+        } else {
           RemoveAppLauncher();
         }
         _hyperEditConfig.SetValue("UseAppLauncherButton", value.ToString(), true);
@@ -225,19 +200,16 @@ namespace HyperEdit
       }
     }
 
-    private void AddAppLauncher()
-    {
+    private void AddAppLauncher() {
       if (_useAppLauncherButton == false)
         return;
-      if (_appLauncherButton != null)
-      {
+      if (_appLauncherButton != null) {
         Extensions.Log(
             "Not adding to ApplicationLauncher, button already exists (yet onGUIApplicationLauncherReady was called?)");
         return;
       }
       var applauncher = ApplicationLauncher.Instance;
-      if (applauncher == null)
-      {
+      if (applauncher == null) {
         Extensions.Log("Cannot add to ApplicationLauncher, instance was null");
         return;
       }
@@ -275,16 +247,13 @@ namespace HyperEdit
       );
     }
 
-    private void RemoveAppLauncher()
-    {
+    private void RemoveAppLauncher() {
       var applauncher = ApplicationLauncher.Instance;
-      if (applauncher == null)
-      {
+      if (applauncher == null) {
         Extensions.Log("Cannot remove from ApplicationLauncher, instance was null");
         return;
       }
-      if (_appLauncherButton == null)
-      {
+      if (_appLauncherButton == null) {
         return;
       }
       applauncher.RemoveModApplication(_appLauncherButton);
@@ -294,21 +263,18 @@ namespace HyperEdit
     // End of class.
   }
 
-  public static class IoExt
-  {
+  public static class IoExt {
     private static readonly string PluginDir = System.IO.Path.Combine(System.IO.Path.ChangeExtension(typeof(IoExt).Assembly.Location, null), "..");
     private static readonly string PluginDataDir = System.IO.Path.Combine(PluginDir, "PluginData");
 
     //private static readonly string RootDir = System.IO.Path.Combine(System.IO.Path.ChangeExtension(typeof(IoExt).Assembly.Location, null), "PluginData");
     private static readonly string RootDir = PluginDataDir;
 
-    static IoExt()
-    {
-      if (!System.IO.Directory.Exists(RootDir))
-      {
+    static IoExt() {
+      if (!System.IO.Directory.Exists(RootDir)) {
         System.IO.Directory.CreateDirectory(RootDir);
       }
-      
+
       Extensions.Log("Using '" + RootDir + "' as root config directory");
     }
 
@@ -317,18 +283,15 @@ namespace HyperEdit
     public static void Save(this ConfigNode config) => config.Save(GetPath(config.name + ".cfg"));
   }
 
-  public static class RateLimitedLogger
-  {
+  public static class RateLimitedLogger {
     private const int MaxFrequency = 100; // measured in number of frames
 
-    private class Countdown
-    {
+    private class Countdown {
       public string LastMessage;
       public int FramesLeft;
       public bool NeedsPrint;
 
-      public Countdown(string msg, int frames)
-      {
+      public Countdown(string msg, int frames) {
         LastMessage = msg;
         FramesLeft = frames;
         NeedsPrint = false;
@@ -337,68 +300,51 @@ namespace HyperEdit
 
     private static readonly Dictionary<object, Countdown> Messages = new Dictionary<object, Countdown>();
 
-    public static void Update()
-    {
+    public static void Update() {
       List<object> toRemove = null;
-      foreach (var kvp in Messages)
-      {
-        if (kvp.Value.FramesLeft == 0)
-        {
-          if (kvp.Value.NeedsPrint)
-          {
+      foreach (var kvp in Messages) {
+        if (kvp.Value.FramesLeft == 0) {
+          if (kvp.Value.NeedsPrint) {
             kvp.Value.NeedsPrint = false;
             kvp.Value.FramesLeft = MaxFrequency;
 
             Extensions.Log(kvp.Value.LastMessage);
-          }
-          else
-          {
-            if (toRemove == null)
-            {
+          } else {
+            if (toRemove == null) {
               toRemove = new List<object>();
             }
             toRemove.Add(kvp.Key);
           }
-        }
-        else
-        {
+        } else {
           kvp.Value.FramesLeft--;
         }
       }
-      if (toRemove != null)
-      {
-        foreach (var key in toRemove)
-        {
+      if (toRemove != null) {
+        foreach (var key in toRemove) {
           Messages.Remove(key);
         }
       }
     }
 
-    public static void Log(object key, string message)
-    {
+    public static void Log(object key, string message) {
       Countdown countdown;
-      if (Messages.TryGetValue(key, out countdown))
-      {
+      if (Messages.TryGetValue(key, out countdown)) {
         countdown.NeedsPrint = true;
         countdown.LastMessage = message;
-      }
-      else
-      {
+      } else {
         Extensions.Log(message);
         Messages[key] = new Countdown(message, MaxFrequency);
       }
     }
   }
 
-  public static class Extensions
-  {
+  public static class Extensions {
     /// <summary>
     /// Debug logging. Only compiles in DEBUG builds.
     /// </summary>
     /// <param name="message"></param>
     [ConditionalAttribute("DEBUG")]
-    public static void Log(string message)
-    {
+    public static void Log(string message) {
       UnityEngine.Debug.Log("HyperEdit: " + message);
     }
 
@@ -407,11 +353,9 @@ namespace HyperEdit
     /// </summary>
     /// <param name="message"></param>
     [ConditionalAttribute("DEBUG")]
-    public static void ALog(params object [] message)
-    {
+    public static void ALog(params object[] message) {
       StringBuilder sb = new StringBuilder();
-      for (int i = 0; i < message.Length; i++)
-      {
+      for (int i = 0; i < message.Length; i++) {
         sb.Append(message[i].ToString());
         sb.Append("\t");
       }
@@ -419,41 +363,36 @@ namespace HyperEdit
       UnityEngine.Debug.Log("HyperEdit: " + s);
     }
 
-    public static void TryGetValue<T>(this ConfigNode node, string key, ref T value, TryParse<T> tryParse)
-    {
+    public static void TryGetValue<T>(this ConfigNode node, string key, ref T value, TryParse<T> tryParse) {
       var strvalue = node.GetValue(key);
       if (strvalue == null)
         return;
-      if (tryParse == null)
-      {
+      if (tryParse == null) {
         // `T` better be `string`...
         value = (T)(object)strvalue;
         return;
       }
       T temp;
-      if (tryParse(strvalue, out temp) == false)
+      if (tryParse(strvalue, out temp) == false) {
         return;
+      }
       value = temp;
     }
 
     private static GUIStyle _pressedButton;
 
-    public static GUIStyle PressedButton => _pressedButton ?? (_pressedButton = new GUIStyle(HighLogic.Skin.button)
-    {
+    public static GUIStyle PressedButton => _pressedButton ?? (_pressedButton = new GUIStyle(HighLogic.Skin.button) {
       normal = HighLogic.Skin.button.active,
       hover = HighLogic.Skin.button.active,
       active = HighLogic.Skin.button.normal
     });
 
-    public static void RealCbUpdate(this CelestialBody body)
-    {
+    public static void RealCbUpdate(this CelestialBody body) {
       body.CBUpdate();
-      try
-      {
+      try {
         body.resetTimeWarpLimits();
       }
-      catch (NullReferenceException)
-      {
+      catch (NullReferenceException) {
         Log("resetTimeWarpLimits threw NRE " + (TimeWarp.fetch == null ? "as expected" : "unexpectedly"));
       }
 
@@ -468,81 +407,80 @@ namespace HyperEdit
       body.sphereOfInfluence = orbit.semiMajorAxis * Math.Pow(body.Mass / orbit.referenceBody.Mass, 2.0 / 5.0);
     }
 
-    public static void PrepVesselTeleport(this Vessel vessel)
-    {
-      if (vessel.Landed)
-      {
+    public static void PrepVesselTeleport(this Vessel vessel) {
+      if (vessel.Landed) {
         vessel.Landed = false;
         Log("Set ActiveVessel.Landed = false");
       }
-      if (vessel.Splashed)
-      {
+      if (vessel.Splashed) {
         vessel.Splashed = false;
         Log("Set ActiveVessel.Splashed = false");
       }
-      if (vessel.landedAt != string.Empty)
-      {
+      if (vessel.landedAt != string.Empty) {
         vessel.landedAt = string.Empty;
         Log("Set ActiveVessel.landedAt = \"\"");
       }
       var parts = vessel.parts;
-      if (parts != null)
-      {
+      if (parts != null) {
         var killcount = 0;
-        foreach (var part in parts.Where(part => part.Modules.OfType<LaunchClamp>().Any()).ToList())
-        {
+        foreach (var part in parts.Where(part => part.Modules.OfType<LaunchClamp>().Any()).ToList()) {
           killcount++;
           part.Die();
         }
-        if (killcount != 0)
-        {
+        if (killcount != 0) {
           Log($"Removed {killcount} launch clamps from {vessel.vesselName}");
         }
       }
     }
 
-    public static double Soi(this CelestialBody body)
-    {
+    /// <summary>
+    /// Sphere of Influence.
+    /// </summary>
+    /// <param name="body"></param>
+    /// <returns></returns>
+    public static double Soi(this CelestialBody body) {
       var radius = body.sphereOfInfluence * 0.95;
-      if (double.IsNaN(radius) || double.IsInfinity(radius) || radius < 0 || radius > 200000000000)
+      if (double.IsNaN(radius) || double.IsInfinity(radius) || radius < 0 || radius > 200000000000) {
         radius = 200000000000; // jool apo = 72,212,238,387
+      }
       return radius;
     }
 
-    public static double Mod(this double x, double y)
-    {
+    public static double Mod(this double x, double y) {
       var result = x % y;
-      if (result < 0)
+      if (result < 0) {
         result += y;
+      }
       return result;
     }
 
-    public static string VesselToString(this Vessel vessel)
-    {
-      if (FlightGlobals.fetch != null && FlightGlobals.ActiveVessel == vessel)
+    public static string VesselToString(this Vessel vessel) {
+      if (FlightGlobals.fetch != null && FlightGlobals.ActiveVessel == vessel) {
         return "Active vessel";
+      }
       return vessel.vesselName;
     }
 
-    public static string OrbitDriverToString(this OrbitDriver driver)
-    {
-      if (driver == null)
+    public static string OrbitDriverToString(this OrbitDriver driver) {
+      if (driver == null) {
         return null;
-      if (driver.celestialBody != null)
+      }
+      if (driver.celestialBody != null) {
         return driver.celestialBody.bodyName;
-      if (driver.vessel != null)
+      }
+      if (driver.vessel != null) {
         return driver.vessel.VesselToString();
-      if (!string.IsNullOrEmpty(driver.name))
+      }
+      if (!string.IsNullOrEmpty(driver.name)) {
         return driver.name;
+      }
       return "Unknown";
     }
 
     private static Dictionary<string, KeyCode> _keyCodeNames;
 
-    public static Dictionary<string, KeyCode> KeyCodeNames
-    {
-      get
-      {
+    public static Dictionary<string, KeyCode> KeyCodeNames {
+      get {
         return _keyCodeNames ?? (_keyCodeNames =
             Enum.GetNames(typeof(KeyCode))
                 .Distinct()
@@ -550,70 +488,68 @@ namespace HyperEdit
       }
     }
 
-    public static bool KeyCodeTryParse(string str, out KeyCode[] value)
-    {
+    public static bool KeyCodeTryParse(string str, out KeyCode[] value) {
       var split = str.Split('-', '+');
-      if (split.Length == 0)
-      {
+      if (split.Length == 0) {
         value = null;
         return false;
       }
       value = new KeyCode[split.Length];
-      for (int i = 0; i < split.Length; i++)
-      {
-        if (KeyCodeNames.TryGetValue(split[i], out value[i]) == false)
-        {
+      for (int i = 0; i < split.Length; i++) {
+        if (KeyCodeNames.TryGetValue(split[i], out value[i]) == false) {
           return false;
         }
       }
       return true;
     }
 
-    public static string KeyCodeToString(this KeyCode[] values)
-    {
+    public static string KeyCodeToString(this KeyCode[] values) {
       return string.Join("-", values.Select(v => v.ToString()).ToArray());
     }
 
-    public static string CbToString(this CelestialBody body)
-    {
+    /// <summary>
+    /// Convert Celestial Body to human readable form.
+    /// </summary>
+    /// <param name="body">Celestial Body</param>
+    /// <returns>The name of the Celestial Body.</returns>
+    public static string CbToString(this CelestialBody body) {
       return body.bodyName;
     }
 
-    public static bool CbTryParse(string bodyName, out CelestialBody body)
-    {
+    public static bool CbTryParse(string bodyName, out CelestialBody body) {
       body = FlightGlobals.Bodies == null ? null : FlightGlobals.Bodies.FirstOrDefault(cb => cb.name == bodyName);
       return body != null;
     }
 
-    public static void ClearGuiFocus()
-    {
+    public static void ClearGuiFocus() {
       GUIUtility.keyboardControl = 0;
     }
 
-    private static string TrimUnityColor(string value)
-    {
+    private static string TrimUnityColor(string value) {
       value = value.Trim();
-      if (value.StartsWith("RGBA", StringComparison.OrdinalIgnoreCase))
+      if (value.StartsWith("RGBA", StringComparison.OrdinalIgnoreCase)) {
         value = value.Substring(4).Trim();
+      }
       value = value.Trim('(', ')');
       return value;
     }
 
-    public static bool ColorTryParse(string value, out Color color)
-    {
+    public static bool ColorTryParse(string value, out Color color) {
       color = new Color();
       string parseValue = TrimUnityColor(value);
-      if (parseValue == null)
+      if (parseValue == null) {
         return false;
+      }
       string[] values = parseValue.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
-      if (values.Length == 3 || values.Length == 4)
-      {
+      if (values.Length == 3 || values.Length == 4) {
         if (!float.TryParse(values[0], out color.r) ||
             !float.TryParse(values[1], out color.g) ||
-            !float.TryParse(values[2], out color.b))
+            !float.TryParse(values[2], out color.b)) {
           return false;
-        if (values.Length == 3 && !float.TryParse(values[3], out color.a))
+        }
+        if (values.Length == 3 && !float.TryParse(values[3], out color.a)) {
           return false;
+        }
         return true;
       }
       return false;
@@ -664,7 +600,7 @@ namespace HyperEdit
         outAngle += 360.0;
       return outAngle;
     }
-    
+
 
 
   }
