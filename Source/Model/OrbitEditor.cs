@@ -25,21 +25,30 @@ namespace HyperEdit.Model
             SetOrbit(currentlyEditing, CreateOrbit(0 , 0, altitude + body.Radius, 0, 0, 0, 0, body));
         }
 
-        public static void GetSimple(OrbitDriver currentlyEditing, out double altitude, out CelestialBody body)
-        {
-            const int min = 1000;
-            const int defaultAlt = 100000;
-            body = currentlyEditing.orbit.referenceBody;
-            altitude = currentlyEditing.orbit.semiMajorAxis - body.Radius;
-            if (altitude > min)
-                return;
-            altitude = currentlyEditing.orbit.ApA;
-            if (altitude > min)
-                return;
-            altitude = defaultAlt;
-        }
+    public static void GetSimple(OrbitDriver currentlyEditing, out double altitude, out CelestialBody body) {
+      const int min = 1000;
+      const int defaultAlt = 100000;
+      body = currentlyEditing.orbit.referenceBody;
+      altitude = currentlyEditing.orbit.semiMajorAxis - body.Radius;
+      if (altitude > min) {
+        return;
+      }
 
-        public static void Complex(OrbitDriver currentlyEditing, double inclination, double eccentricity,
+      if (currentlyEditing.vessel.Landed) {
+        altitude = currentlyEditing.vessel.radarAltitude;
+        return;
+      } else {
+        altitude = currentlyEditing.orbit.ApA;
+      }
+      
+      if (altitude > min) {
+        return;
+      }
+
+      altitude = defaultAlt;
+    }
+
+    public static void Complex(OrbitDriver currentlyEditing, double inclination, double eccentricity,
             double semiMajorAxis, double longitudeAscendingNode, double argumentOfPeriapsis,
             double meanAnomalyAtEpoch, double epoch, CelestialBody body)
         {
