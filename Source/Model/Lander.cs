@@ -605,19 +605,18 @@ namespace HyperEdit.Model {
         teleportVelocity += teleportPosition.normalized * (Body.gravParameter / teleportPosition.sqrMagnitude);
 
         Quaternion rotation;
-        
-        
+
+        vessel.ActionGroups.SetGroup(KSPActionGroup.SAS, false); //disable SAS as it causes unknown results!
+
         if (SetRotation) {
           // Need to check vessel and find up for the root command pod
-          vessel.ActionGroups.SetGroup(KSPActionGroup.SAS, false); //hopefully this disables SAS as it causes unknown results!
-
+          
           var from = Vector3d.up; //Sensible default for all vessels
 
           if (vessel.displaylandedAt == "Runway" || vessel.vesselType.ToString() == "Plane") {
             from = vessel.vesselTransform.up;
           }
-
-
+          
           var to = teleportPosition.xzy.normalized;
           rotation = Quaternion.FromToRotation(from, to);
         } else {
@@ -631,6 +630,8 @@ namespace HyperEdit.Model {
         
         vessel.SetOrbit(orbit);
         vessel.SetRotation(rotation);
+
+        vessel.ActionGroups.SetGroup(KSPActionGroup.SAS, true); //enable SAS for stability
 
         if (teleportedToLandingAlt) {
           AlreadyTeleported = true;
