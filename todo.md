@@ -3,6 +3,9 @@
 
 * Save Boost Keycode to config file.
 
+* Maybe have one file for config?
+  1. Add options to change more keys.
+
 * Check IJKL movement tweaks.
 
 * Save config data per vessel so that the infinite resource tracking can follow vessels!
