@@ -84,12 +84,12 @@ namespace HyperEdit {
 
     public HyperEditBehaviour() // Constructor.  Don't init data here cuz Unity, do so in Awake();
     {
-      //            Extensions.Log("[" + this.GetInstanceID().ToString("X") + "][" + Time.time.ToString("0.0000") + "]: Constructor()");
+      //Extensions.Log("[" + this.GetInstanceID().ToString("X") + "][" + Time.time.ToString("0.0000") + "]: Constructor()");
     }
 
     public void Awake() // Called after scene (designated w/ KSPAddon) loads, but before Start().  Init data here.
     {
-      //            Extensions.Log("[" + this.GetInstanceID().ToString("X") + "][" + Time.time.ToString("0.0000") + "]: Awake()");
+      //Extensions.Log("[" + this.GetInstanceID().ToString("X") + "][" + Time.time.ToString("0.0000") + "]: Awake()");
       View.Window.AreWindowsOpenChange += AreWindowsOpenChange;
       GameEvents.onGUIApplicationLauncherReady.Add(AddAppLauncher);
       GameEvents.onGUIApplicationLauncherDestroyed.Add(RemoveAppLauncher);
