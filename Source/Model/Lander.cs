@@ -613,7 +613,8 @@ namespace HyperEdit.Model {
           
           var from = Vector3d.up; //Sensible default for all vessels
 
-          if (vessel.displaylandedAt == "Runway" || vessel.vesselType.ToString() == "Plane") {
+          if (vessel.displaylandedAt == "Runway" || 
+            (vessel.vesselType.ToString() == "Plane" || vessel.vesselType.ToString() == "Rover" || vessel.vesselType.ToString() == "Base") ) {
             from = vessel.vesselTransform.up;
           }
           
