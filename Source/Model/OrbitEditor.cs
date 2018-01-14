@@ -25,6 +25,7 @@ namespace HyperEdit.Model {
     public static void GetSimple(OrbitDriver currentlyEditing, out double altitude, out CelestialBody body) {
       const int min = 1000;
       const int defaultAlt = 100000;
+
       body = currentlyEditing.orbit.referenceBody;
       altitude = currentlyEditing.orbit.semiMajorAxis - body.Radius;
       if (altitude > min) {

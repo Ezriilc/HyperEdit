@@ -173,7 +173,7 @@ namespace HyperEdit.Model {
     public static void LoadLast(Action<double, double, double, CelestialBody> onLoad) {
       var lastC = SavedCoords.Find(c => c.Name == RecentEntryName);
       //double-check coords are correct (so that we don't load invalid data!)
-      onLoad(Extensions.DegreeFix(lastC.Lat,0) , lastC.Lon, lastC.Alt, lastC.Body);
+      onLoad(Utils.DegreeFix(lastC.Lat,0) , lastC.Lon, lastC.Alt, lastC.Body);
     }
 
     public static void Load(Action<double, double, double, CelestialBody> onLoad) {
@@ -382,23 +382,27 @@ namespace HyperEdit.Model {
       }
 
       // 0.2 meters per frame
-      var degrees = 0.2 / Body.Radius * (180 / Math.PI);
+      var degrees = 0.02 / Body.Radius * (180 / Math.PI);
 
       var changed = false;
       if (GameSettings.TRANSLATE_UP.GetKey()) {
-        Latitude -= degrees;
+        Latitude = Utils.DestinationLatitude(Latitude, Longitude, 0, 5, Body.Radius);
+        //Latitude -= degrees;
         changed = true;
       }
       if (GameSettings.TRANSLATE_DOWN.GetKey()) {
-        Latitude += degrees;
+		Latitude = Utils.DestinationLatitude(Latitude, Longitude, 180, 5, Body.Radius);
+        //Latitude += degrees;
         changed = true;
       }
       if (GameSettings.TRANSLATE_LEFT.GetKey()) {
-        Longitude -= degrees / Math.Cos(Latitude * (Math.PI / 180));
+        Longitude = Utils.DestinationLongitude(Latitude, Longitude, 270, 5, Body.Radius);
+        //Longitude -= degrees / Math.Cos(Latitude * (Math.PI / 180));
         changed = true;
       }
       if (GameSettings.TRANSLATE_RIGHT.GetKey()) {
-        Longitude += degrees / Math.Cos(Latitude * (Math.PI / 180));
+		Longitude = Utils.DestinationLongitude(Latitude, Longitude, 90, 5, Body.Radius);
+        //Longitude += degrees / Math.Cos(Latitude * (Math.PI / 180));
         changed = true;
       }
 
@@ -460,6 +464,8 @@ namespace HyperEdit.Model {
         var checkAlt = FlightGlobals.ActiveVessel.altitude;
         var checkPQSAlt = FlightGlobals.ActiveVessel.pqsAltitude;
         double terrainAlt = GetTerrainAltitude();
+
+        //double vesselHeight = Bounds[vessel.id]
 
         Extensions.ALog("-------------------");
         Extensions.ALog("m1. Body.Radius  = ", Body.Radius);
@@ -610,6 +616,8 @@ namespace HyperEdit.Model {
 
         if (SetRotation) {
           // Need to check vessel and find up for the root command pod
+          var up = vessel.upAxis;
+          var vType = vessel.vesselType.ToString();
           
           var from = Vector3d.up; //Sensible default for all vessels
 

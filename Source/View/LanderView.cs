@@ -67,7 +67,7 @@ namespace HyperEdit.View {
         return false;
       }
       //d = d1;
-      d = Extensions.DegreeFix(d1, 0); //checking for massive values
+      d = Utils.DegreeFix(d1, 0); //checking for massive values
       return true;
     }
     static bool altTryParse(string str, out double d) {
