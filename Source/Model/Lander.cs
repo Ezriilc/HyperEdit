@@ -386,22 +386,22 @@ namespace HyperEdit.Model {
 
       var changed = false;
       if (GameSettings.TRANSLATE_UP.GetKey()) {
-        Latitude = Utils.DestinationLatitude(Latitude, Longitude, 0, 5, Body.Radius);
+        Latitude = Utils.DestinationLatitudeRad(Latitude, Longitude, 0, 5, Body.Radius);
         //Latitude -= degrees;
         changed = true;
       }
       if (GameSettings.TRANSLATE_DOWN.GetKey()) {
-		Latitude = Utils.DestinationLatitude(Latitude, Longitude, 180, 5, Body.Radius);
+		Latitude = Utils.DestinationLatitudeRad(Latitude, Longitude, 180, 5, Body.Radius);
         //Latitude += degrees;
         changed = true;
       }
       if (GameSettings.TRANSLATE_LEFT.GetKey()) {
-        Longitude = Utils.DestinationLongitude(Latitude, Longitude, 270, 5, Body.Radius);
+        Longitude = Utils.DestinationLongitudeRad(Latitude, Longitude, 270, 5, Body.Radius);
         //Longitude -= degrees / Math.Cos(Latitude * (Math.PI / 180));
         changed = true;
       }
       if (GameSettings.TRANSLATE_RIGHT.GetKey()) {
-		Longitude = Utils.DestinationLongitude(Latitude, Longitude, 90, 5, Body.Radius);
+		Longitude = Utils.DestinationLongitudeRad(Latitude, Longitude, 90, 5, Body.Radius);
         //Longitude += degrees / Math.Cos(Latitude * (Math.PI / 180));
         changed = true;
       }

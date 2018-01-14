@@ -50,7 +50,7 @@ namespace HyperEdit {
     /// <returns></returns>
     public static double DestinationLatitude(double latStart, double lonStart, double bearing, double distance, double radius) {
 
-      distance = distance / 1000; //this should equate to metres
+      distance = distance / 100; //this should equate to metres
 
       latStart = PI / 180 * latStart;
       lonStart = PI / 180 * lonStart;
@@ -77,7 +77,7 @@ namespace HyperEdit {
     /// <returns></returns>
     public static double DestinationLongitude(double latStart, double lonStart, double bearing, double distance, double radius) {
 
-      distance = distance / 1000; //this should equate to metres
+      distance = distance / 100; //this should equate to metres
 
       latStart = PI / 180 * latStart;
       lonStart = PI / 180 * lonStart;
@@ -90,6 +90,31 @@ namespace HyperEdit {
 
       return lonEnd;
     }
+
+    public static double DestinationLatitudeRad(double latStart, double lonStart, double bearing, double distance, double radius) {
+
+      distance = distance / 100; //this should equate to metres
+
+      var latEnd = Math.Asin(Math.Sin(latStart) * Math.Cos(distance / radius) +
+        Math.Cos(latStart) * Math.Sin(distance / radius) * Math.Cos(bearing));
+      var lonEnd = lonStart + Math.Atan2(Math.Sin(bearing) * Math.Sin(distance / radius) * Math.Cos(latStart),
+        Math.Cos(distance / radius) - Math.Sin(latStart) * Math.Sin(latEnd));
+
+      return latEnd;
+    }
+
+    public static double DestinationLongitudeRad(double latStart, double lonStart, double bearing, double distance, double radius) {
+
+      distance = distance / 100; //this should equate to metres
+
+      var latEnd = Math.Asin(Math.Sin(latStart) * Math.Cos(distance / radius) +
+        Math.Cos(latStart) * Math.Sin(distance / radius) * Math.Cos(bearing));
+      var lonEnd = lonStart + Math.Atan2(Math.Sin(bearing) * Math.Sin(distance / radius) * Math.Cos(latStart),
+        Math.Cos(distance / radius) - Math.Sin(latStart) * Math.Sin(latEnd));
+
+      return lonEnd;
+    }
+
 
   }
 }
