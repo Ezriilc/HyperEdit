@@ -168,7 +168,7 @@ namespace HyperEdit.View {
 
     private static string changeHelpString() {
       return
-          $"Use {GameSettings.TRANSLATE_UP.primary},{GameSettings.TRANSLATE_DOWN.primary},{GameSettings.TRANSLATE_LEFT.primary},{GameSettings.TRANSLATE_RIGHT.primary} to fine-tune location.";
+          $"Use {GameSettings.TRANSLATE_UP.primary} (N),{GameSettings.TRANSLATE_DOWN.primary} (S),{GameSettings.TRANSLATE_LEFT.primary} (W),{GameSettings.TRANSLATE_RIGHT.primary} (E) to fine-tune location.";
     }
   }
 }
