@@ -9,11 +9,11 @@ using System.Diagnostics;
 
 [assembly: System.Reflection.AssemblyProduct("HyperEdit")]
 [assembly: System.Reflection.AssemblyTitle("HyperEdit")]
-[assembly: System.Reflection.AssemblyDescription("A plugin mod for Kerbal Space Program")]
+[assembly: System.Reflection.AssemblyDescription("A plugin mod for Kerbal Space Program v1.4.1")]
 [assembly: System.Reflection.AssemblyCompany("Kerbaltek")]
 [assembly: System.Reflection.AssemblyCopyright("Erickson Swift")]
-[assembly: System.Reflection.AssemblyVersion("1.5.6")]
-[assembly: System.Reflection.AssemblyFileVersion("1.5.6.05")]
+[assembly: System.Reflection.AssemblyVersion("1.5.7")]
+[assembly: System.Reflection.AssemblyFileVersion("1.5.7")]
 
 [KSPAddon(KSPAddon.Startup.SpaceCentre, true)] // Determines when plugin starts.
 public class HyperEditModule : MonoBehaviour {
@@ -100,6 +100,7 @@ namespace HyperEdit {
     {
       //Extensions.Log("[" + this.GetInstanceID().ToString("X") + "][" + Time.time.ToString("0.0000") + "]: Start()");
       ReloadConfig();
+      Model.PlanetEditor.TryApplyFileDefaults();
     }
 
     private void CreateCoreView() {
