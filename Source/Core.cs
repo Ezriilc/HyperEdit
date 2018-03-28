@@ -12,8 +12,8 @@ using System.Diagnostics;
 [assembly: System.Reflection.AssemblyDescription("A plugin mod for Kerbal Space Program v1.4.1")]
 [assembly: System.Reflection.AssemblyCompany("Kerbaltek")]
 [assembly: System.Reflection.AssemblyCopyright("Erickson Swift")]
-[assembly: System.Reflection.AssemblyVersion("1.5.7")]
-[assembly: System.Reflection.AssemblyFileVersion("1.5.7")]
+[assembly: System.Reflection.AssemblyVersion("1.5.8")]
+[assembly: System.Reflection.AssemblyFileVersion("1.5.8")]
 
 [KSPAddon(KSPAddon.Startup.SpaceCentre, true)] // Determines when plugin starts.
 public class HyperEditModule : MonoBehaviour {
