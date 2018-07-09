@@ -2,12 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace HyperEdit.Model
-{
-    public static class SiSuffix
+namespace HyperEdit.Model {
+  public static class SiSuffix {
+    private static readonly Dictionary<string, double> Suffixes = new Dictionary<string, double>
     {
-        private static readonly Dictionary<string, double> Suffixes = new Dictionary<string, double>
-        {
             { "Y", 1e24 },
             { "Z", 1e21 },
             { "E", 1e18 },
@@ -31,52 +29,48 @@ namespace HyperEdit.Model
             { "y", 1e-24 }
         };
 
-        public static bool TryParse(string s, out float value)
-        {
-            double dval;
-            var success = TryParse(s, out dval);
-            value = (float)dval;
-            return success;
-        }
-
-        public static bool TryParse(string s, out double value)
-        {
-            s = s.Trim();
-            double multiplier;
-            var suffix = Suffixes.FirstOrDefault(suf => s.EndsWith(suf.Key, StringComparison.Ordinal));
-            if (suffix.Key != null)
-            {
-                s = s.Substring(0, s.Length - suffix.Key.Length);
-                multiplier = suffix.Value;
-            }
-            else
-                multiplier = 1.0;
-            if (double.TryParse(s, out value) == false)
-                return false;
-            value *= multiplier;
-            return true;
-        }
-
-        /*
-        // Not currently used.  Si suffixes are unnecessary and confusing.  Possibly useful with modification for clarity and practicality.
-        public static string ToString(this double value)
-        {
-            var log = Math.Log10(Math.Abs(value));
-            var minDiff = double.MaxValue;
-            var minSuffix = new KeyValuePair<string, double>("", 1);
-            foreach (var suffix in Suffixes.Concat(new[] { new KeyValuePair<string, double>("", 1) }))
-            {
-                var diff = Math.Abs(log - Math.Log10(suffix.Value));
-                if (diff < minDiff)
-                {
-                    minDiff = diff;
-                    minSuffix = suffix;
-                }
-            }
-            value /= minSuffix.Value;
-            return value.ToString("F") + minSuffix.Key;
-        }
-        */
+    public static bool TryParse(string s, out float value) {
+      double dval;
+      var success = TryParse(s, out dval);
+      value = (float)dval;
+      return success;
     }
-    
+
+    public static bool TryParse(string s, out double value) {
+      s = s.Trim();
+      double multiplier;
+      var suffix = Suffixes.FirstOrDefault(suf => s.EndsWith(suf.Key, StringComparison.Ordinal));
+      if (suffix.Key != null) {
+        s = s.Substring(0, s.Length - suffix.Key.Length);
+        multiplier = suffix.Value;
+      } else
+        multiplier = 1.0;
+      if (double.TryParse(s, out value) == false)
+        return false;
+      value *= multiplier;
+      return true;
+    }
+
+    /*
+    // Not currently used.  Si suffixes are unnecessary and confusing.  Possibly useful with modification for clarity and practicality.
+    public static string ToString(this double value)
+    {
+        var log = Math.Log10(Math.Abs(value));
+        var minDiff = double.MaxValue;
+        var minSuffix = new KeyValuePair<string, double>("", 1);
+        foreach (var suffix in Suffixes.Concat(new[] { new KeyValuePair<string, double>("", 1) }))
+        {
+            var diff = Math.Abs(log - Math.Log10(suffix.Value));
+            if (diff < minDiff)
+            {
+                minDiff = diff;
+                minSuffix = suffix;
+            }
+        }
+        value /= minSuffix.Value;
+        return value.ToString("F") + minSuffix.Key;
+    }
+    */
+  }
+
 }

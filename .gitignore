@@ -15,6 +15,7 @@ DTAR*/
 *.userprefs
 
 HyperEdit.fronbow.*
+todo.md
 
 # Build results
 [Dd]ebug/
