@@ -10,35 +10,19 @@ namespace HyperEdit.View {
     public static IView View() {
       CelestialBody body = null;
 
-<<<<<<< HEAD
-            var geeAsl = new TextBoxView<double>("Gravity multiplier", "1.0 is kerbin, 0.5 is half of kerbin's gravity, etc.", 1, Model.SiSuffix.TryParse);
-            var ocean = new ToggleView("Has ocean", "Does weird things to the ocean if off", false);
-            var atmosphere = new ToggleView("Has atmosphere", "Toggles if the planet has atmosphere or not", false);
-            var atmosphereContainsOxygen = new ToggleView("Atmosphere contains oxygen", "Whether jet engines work or not", false);
-            var atmosphereDepth = new TextBoxView<double>("Atmosphere depth", "Theoretically atmosphere height. In reality, doesn't work too well.", 1, Model.SiSuffix.TryParse);
-            var atmosphereTemperatureSeaLevel = new TextBoxView<double>("atmosphereTemperatureSeaLevel", "New 1.0 field. Unknown what this does.", 1, Model.SiSuffix.TryParse);
-            var atmospherePressureSeaLevel = new TextBoxView<float>("atmospherePressureSeaLevel", "New 1.0 field. Unknown what this does.", 1, Model.SiSuffix.TryParse);
-            var atmosphereMolarMass = new TextBoxView<double>("atmosphereMolarMass", "New 1.0 field. Unknown what this does.", 1, Model.SiSuffix.TryParse);
-            var atmosphereAdiabaticIndex = new TextBoxView<double>("atmosphereAdiabaticIndex", "New 1.0 field. Unknown what this does.", 1, Model.SiSuffix.TryParse);
-            var rotates = new ToggleView("Rotates", "If the planet rotates.", false);
-            var rotationPeriod = new TextBoxView<double>("Rotation period", "Rotation period of the planet, in seconds.", 1, Model.SiSuffix.TryParse);
-            var initialRotation = new TextBoxView<double>("Initial rotation", "Absolute rotation in degrees of the planet at time=0", 1, Model.SiSuffix.TryParse);
-            var tidallyLocked = new ToggleView("Tidally locked", "If the planet is tidally locked. Overrides Rotation Period.", false);
-=======
       var geeAsl = new TextBoxView<double>("Gravity multiplier", "1.0 is kerbin, 0.5 is half of kerbin's gravity, etc.", 1, Model.SiSuffix.TryParse);
       var ocean = new ToggleView("Has ocean", "Does weird things to the ocean if off", false);
       var atmosphere = new ToggleView("Has atmosphere", "Toggles if the planet has atmosphere or not", false);
       var atmosphereContainsOxygen = new ToggleView("Atmosphere contains oxygen", "Whether jet engines work or not", false);
       var atmosphereDepth = new TextBoxView<double>("Atmosphere depth", "Theoretically atmosphere height. In reality, doesn't work too well.", 1, Model.SiSuffix.TryParse);
       var atmosphereTemperatureSeaLevel = new TextBoxView<double>("atmosphereTemperatureSeaLevel", "New 1.0 field. Unknown what this does.", 1, Model.SiSuffix.TryParse);
-      var atmospherePressureSeaLevel = new TextBoxView<double>("atmospherePressureSeaLevel", "New 1.0 field. Unknown what this does.", 1, Model.SiSuffix.TryParse);
+      var atmospherePressureSeaLevel = new TextBoxView<float>("atmospherePressureSeaLevel", "New 1.0 field. Unknown what this does.", 1, Model.SiSuffix.TryParse);
       var atmosphereMolarMass = new TextBoxView<double>("atmosphereMolarMass", "New 1.0 field. Unknown what this does.", 1, Model.SiSuffix.TryParse);
       var atmosphereAdiabaticIndex = new TextBoxView<double>("atmosphereAdiabaticIndex", "New 1.0 field. Unknown what this does.", 1, Model.SiSuffix.TryParse);
       var rotates = new ToggleView("Rotates", "If the planet rotates.", false);
       var rotationPeriod = new TextBoxView<double>("Rotation period", "Rotation period of the planet, in seconds.", 1, Model.SiSuffix.TryParse);
       var initialRotation = new TextBoxView<double>("Initial rotation", "Absolute rotation in degrees of the planet at time=0", 1, Model.SiSuffix.TryParse);
       var tidallyLocked = new ToggleView("Tidally locked", "If the planet is tidally locked. Overrides Rotation Period.", false);
->>>>>>> development
 
       Action<CelestialBody> onSelect = cb => {
         body = cb;
