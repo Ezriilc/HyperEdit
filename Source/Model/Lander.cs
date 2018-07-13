@@ -173,7 +173,7 @@ namespace HyperEdit.Model {
     public static void LoadLast(Action<double, double, double, CelestialBody> onLoad) {
       var lastC = SavedCoords.Find(c => c.Name == RecentEntryName);
       //double-check coords are correct (so that we don't load invalid data!)
-      onLoad(Utils.DegreeFix(lastC.Lat,0) , lastC.Lon, lastC.Alt, lastC.Body);
+      onLoad(Extensions.DegreeFix(lastC.Lat,0) , lastC.Lon, lastC.Alt, lastC.Body);
     }
 
     public static void Load(Action<double, double, double, CelestialBody> onLoad) {
@@ -382,9 +382,7 @@ namespace HyperEdit.Model {
       }
 
       // 0.2 meters per frame
-      //var degrees = Math.Round(0.02 / Body.Radius * (180 / Math.PI), 6);
-      // approx 1m
-      var degrees = Math.Round(0.1 / Body.Radius * (180 / Math.PI), 6);
+      var degrees = 0.2 / Body.Radius * (180 / Math.PI);
 
       var changed = false;
       if (GameSettings.TRANSLATE_UP.GetKey()) {
@@ -396,11 +394,11 @@ namespace HyperEdit.Model {
         changed = true;
       }
       if (GameSettings.TRANSLATE_LEFT.GetKey()) {
-        Longitude -= degrees;
+        Longitude -= degrees / Math.Cos(Latitude * (Math.PI / 180));
         changed = true;
       }
       if (GameSettings.TRANSLATE_RIGHT.GetKey()) {
-        Longitude += degrees;
+        Longitude += degrees / Math.Cos(Latitude * (Math.PI / 180));
         changed = true;
       }
 
@@ -462,8 +460,6 @@ namespace HyperEdit.Model {
         var checkAlt = FlightGlobals.ActiveVessel.altitude;
         var checkPQSAlt = FlightGlobals.ActiveVessel.pqsAltitude;
         double terrainAlt = GetTerrainAltitude();
-
-        //double vesselHeight = Bounds[vessel.id]
 
         Extensions.ALog("-------------------");
         Extensions.ALog("m1. Body.Radius  = ", Body.Radius);
@@ -609,21 +605,19 @@ namespace HyperEdit.Model {
         teleportVelocity += teleportPosition.normalized * (Body.gravParameter / teleportPosition.sqrMagnitude);
 
         Quaternion rotation;
-
-        vessel.ActionGroups.SetGroup(KSPActionGroup.SAS, false); //disable SAS as it causes unknown results!
-
+        
+        
         if (SetRotation) {
           // Need to check vessel and find up for the root command pod
-          var up = vessel.upAxis;
-          var vType = vessel.vesselType.ToString();
-          
+          vessel.ActionGroups.SetGroup(KSPActionGroup.SAS, false); //hopefully this disables SAS as it causes unknown results!
+
           var from = Vector3d.up; //Sensible default for all vessels
 
-          if (vessel.displaylandedAt == "Runway" || 
-            (vessel.vesselType.ToString() == "Plane" || vessel.vesselType.ToString() == "Rover" || vessel.vesselType.ToString() == "Base") ) {
+          if (vessel.displaylandedAt == "Runway" || vessel.vesselType.ToString() == "Plane") {
             from = vessel.vesselTransform.up;
           }
-          
+
+
           var to = teleportPosition.xzy.normalized;
           rotation = Quaternion.FromToRotation(from, to);
         } else {
@@ -637,8 +631,6 @@ namespace HyperEdit.Model {
         
         vessel.SetOrbit(orbit);
         vessel.SetRotation(rotation);
-
-        vessel.ActionGroups.SetGroup(KSPActionGroup.SAS, true); //enable SAS for stability
 
         if (teleportedToLandingAlt) {
           AlreadyTeleported = true;
