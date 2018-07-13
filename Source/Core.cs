@@ -12,7 +12,8 @@ using System.Diagnostics;
 [assembly: System.Reflection.AssemblyDescription("A plugin mod for Kerbal Space Program")]
 [assembly: System.Reflection.AssemblyCompany("Kerbaltek")]
 [assembly: System.Reflection.AssemblyCopyright("Erickson Swift")]
-[assembly: System.Reflection.AssemblyVersion("1.5.6.01")]
+[assembly: System.Reflection.AssemblyVersion("1.5.8")]
+[assembly: System.Reflection.AssemblyFileVersion("1.5.8")]
 
 [KSPAddon(KSPAddon.Startup.SpaceCentre, true)] // Determines when plugin starts.
 public class HyperEditModule : MonoBehaviour {
@@ -83,12 +84,12 @@ namespace HyperEdit {
 
     public HyperEditBehaviour() // Constructor.  Don't init data here cuz Unity, do so in Awake();
     {
-      //            Extensions.Log("[" + this.GetInstanceID().ToString("X") + "][" + Time.time.ToString("0.0000") + "]: Constructor()");
+      //Extensions.Log("[" + this.GetInstanceID().ToString("X") + "][" + Time.time.ToString("0.0000") + "]: Constructor()");
     }
 
     public void Awake() // Called after scene (designated w/ KSPAddon) loads, but before Start().  Init data here.
     {
-      //            Extensions.Log("[" + this.GetInstanceID().ToString("X") + "][" + Time.time.ToString("0.0000") + "]: Awake()");
+      //Extensions.Log("[" + this.GetInstanceID().ToString("X") + "][" + Time.time.ToString("0.0000") + "]: Awake()");
       View.Window.AreWindowsOpenChange += AreWindowsOpenChange;
       GameEvents.onGUIApplicationLauncherReady.Add(AddAppLauncher);
       GameEvents.onGUIApplicationLauncherDestroyed.Add(RemoveAppLauncher);
@@ -99,6 +100,7 @@ namespace HyperEdit {
     {
       //Extensions.Log("[" + this.GetInstanceID().ToString("X") + "][" + Time.time.ToString("0.0000") + "]: Start()");
       ReloadConfig();
+      Model.PlanetEditor.TryApplyFileDefaults();
     }
 
     private void CreateCoreView() {
@@ -265,10 +267,10 @@ namespace HyperEdit {
 
   public static class IoExt {
     private static readonly string PluginDir = System.IO.Path.Combine(System.IO.Path.ChangeExtension(typeof(IoExt).Assembly.Location, null), "..");
-    private static readonly string PluginDataDir = System.IO.Path.Combine(PluginDir, "PluginData");
+    private static readonly string PluginDataDir = System.IO.Path.Combine(PluginDir, "HyperEdit");
 
-    //private static readonly string RootDir = System.IO.Path.Combine(System.IO.Path.ChangeExtension(typeof(IoExt).Assembly.Location, null), "PluginData");
-    private static readonly string RootDir = PluginDataDir;
+        //private static readonly string RootDir = System.IO.Path.Combine(System.IO.Path.ChangeExtension(typeof(IoExt).Assembly.Location, null), "HyperEdit");
+        private static readonly string RootDir = PluginDataDir;
 
     static IoExt() {
       if (!System.IO.Directory.Exists(RootDir)) {
@@ -555,53 +557,7 @@ namespace HyperEdit {
       return false;
     }
 
-    ///   Borrowed from https://github.com/KSP-KOS/KOS.
-    /// <summary>
-    ///   Fix the strange too-large or too-small angle degrees that are sometimes
-    ///   returned by KSP, normalizing them into a constrained 360 degree range.
-    /// </summary>
-    /// <param name="inAngle">input angle in degrees</param>
-    /// <param name="rangeStart">
-    ///   Bottom of 360 degree range to normalize to.
-    ///   ( 0 means the range [0..360]), while -180 means [-180,180] )
-    /// </param>
-    /// <returns>the same angle, normalized to the range given.</returns>
-    public static double DegreeFix(double inAngle, double rangeStart) {
-      double rangeEnd = rangeStart + 360.0;
-      double outAngle = inAngle;
-      while (outAngle > rangeEnd)
-        outAngle -= 360.0;
-      while (outAngle < rangeStart)
-        outAngle += 360.0;
-      return outAngle;
-    }
-
-
   }
 
-  public static class Utils {
-    ///   Borrowed from https://github.com/KSP-KOS/KOS.
-    /// <summary>
-    ///   Fix the strange too-large or too-small angle degrees that are sometimes
-    ///   returned by KSP, normalizing them into a constrained 360 degree range.
-    /// </summary>
-    /// <param name="inAngle">input angle in degrees</param>
-    /// <param name="rangeStart">
-    ///   Bottom of 360 degree range to normalize to.
-    ///   ( 0 means the range [0..360]), while -180 means [-180,180] )
-    /// </param>
-    /// <returns>the same angle, normalized to the range given.</returns>
-    public static double DegreeFix(double inAngle, double rangeStart) {
-      double rangeEnd = rangeStart + 360.0;
-      double outAngle = inAngle;
-      while (outAngle > rangeEnd)
-        outAngle -= 360.0;
-      while (outAngle < rangeStart)
-        outAngle += 360.0;
-      return outAngle;
-    }
-
-
-
-  }
+  
 }

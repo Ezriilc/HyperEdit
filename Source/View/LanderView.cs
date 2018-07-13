@@ -1,26 +1,21 @@
 ﻿using System;
 
-namespace HyperEdit.View
-{
-  public static class LanderView
-  {
+namespace HyperEdit.View {
+  public static class LanderView {
 
     private static bool _autoOpenLander;
     private static ConfigNode _hyperEditConfig;
 
-    public static Action Create()
-    {
+    public static Action Create() {
       var view = View();
       return () => Window.Create("Lander", true, true, 200, -1, w => view.Draw());
     }
 
     // Use myTryParse to validate the string, and, if it is 0, to set it to 0.001f
-    static bool myTryParse(string str, out double d)
-    {
+    static bool myTryParse(string str, out double d) {
       double d1;
       bool b = double.TryParse(str, out d1);
-      if (!b)
-      {
+      if (!b) {
         d = 0.001f;
         return false;
       }
@@ -50,53 +45,44 @@ namespace HyperEdit.View
     }
     */
 
-    static bool latTryParse(string str, out double d)
-    {
+    static bool latTryParse(string str, out double d) {
       double d1;
       double highLimit = 89.9d;
       double lowLimit = -89.9d;
       bool b = double.TryParse(str, out d1);
-      if (!b)
-      {
+      if (!b) {
         d = 0.001f;
         return false;
       }
-      if (d1 == 0)
-      {
+      if (d1 == 0) {
         d = 0.001d;
         return true;
       }
-      if (d1 > highLimit)
-      {
+      if (d1 > highLimit) {
         d = highLimit;
         return false;
       }
-      if (d1 < lowLimit)
-      {
+      if (d1 < lowLimit) {
         d = lowLimit;
         return false;
       }
       //d = d1;
-      d = Extensions.DegreeFix(d1, 0); //checking for massive values
+      d = Utils.DegreeFix(d1, 0); //checking for massive values
       return true;
     }
-    static bool altTryParse(string str, out double d)
-    {
+    static bool altTryParse(string str, out double d) {
       double d1;
       double lowLimit = 0.0d;
       bool b = Model.SiSuffix.TryParse(str, out d1);
-      if (!b)
-      {
+      if (!b) {
         d = 0.001f;
         return false;
       }
-      if (d1 == 0)
-      {
+      if (d1 == 0) {
         d = 0.001d;
         return true;
       }
-      if (d1 < lowLimit)
-      {
+      if (d1 < lowLimit) {
         d = lowLimit;
         return false;
       }
@@ -104,16 +90,12 @@ namespace HyperEdit.View
       return true;
     }
 
-    private static void ReloadConfig()
-    {
+    private static void ReloadConfig() {
       var hypereditCfg = IoExt.GetPath("hyperedit.cfg");
-      if (System.IO.File.Exists(hypereditCfg))
-      {
+      if (System.IO.File.Exists(hypereditCfg)) {
         _hyperEditConfig = ConfigNode.Load(hypereditCfg);
         _hyperEditConfig.name = "hyperedit";
-      }
-      else
-      {
+      } else {
         _hyperEditConfig = new ConfigNode("hyperedit");
       }
 
@@ -122,11 +104,9 @@ namespace HyperEdit.View
       AutoOpenLander = autoOpenLanderValue;
     }
 
-    public static bool AutoOpenLander
-    {
+    public static bool AutoOpenLander {
       get { return _autoOpenLander; }
-      set
-      {
+      set {
         if (_autoOpenLander == value)
           return;
         _autoOpenLander = value;
@@ -135,8 +115,7 @@ namespace HyperEdit.View
       }
     }
 
-    public static IView View()
-    {
+    public static IView View() {
       // Load Auto Open status.
       ReloadConfig();
 
@@ -151,8 +130,7 @@ namespace HyperEdit.View
           "Rotates vessel such that up on the vessel is up when landing. Otherwise, the current orientation is kept relative to the body.",
           true);
       Func<bool> isValid = () => lat.Valid && lon.Valid && alt.Valid;
-      Action<double, double, double, CelestialBody> load = (latVal, lonVal, altVal, body) =>
-      {
+      Action<double, double, double, CelestialBody> load = (latVal, lonVal, altVal, body) => {
         lat.Object = latVal;
         lon.Object = lonVal;
         alt.Object = altVal;
@@ -188,10 +166,9 @@ namespace HyperEdit.View
           });
     }
 
-    private static string changeHelpString()
-    {
+    private static string changeHelpString() {
       return
-          $"Use {GameSettings.TRANSLATE_UP.primary},{GameSettings.TRANSLATE_DOWN.primary},{GameSettings.TRANSLATE_LEFT.primary},{GameSettings.TRANSLATE_RIGHT.primary} to fine-tune location.";
+          $"Use {GameSettings.TRANSLATE_UP.primary} (S),{GameSettings.TRANSLATE_DOWN.primary} (N),{GameSettings.TRANSLATE_LEFT.primary} (W),{GameSettings.TRANSLATE_RIGHT.primary} (E) to fine-tune location.";
     }
   }
 }
