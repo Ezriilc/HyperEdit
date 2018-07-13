@@ -20,7 +20,7 @@ namespace HyperEdit.View
             var atmosphereContainsOxygen = new ToggleView("Atmosphere contains oxygen", "Whether jet engines work or not", false);
             var atmosphereDepth = new TextBoxView<double>("Atmosphere depth", "Theoretically atmosphere height. In reality, doesn't work too well.", 1, Model.SiSuffix.TryParse);
             var atmosphereTemperatureSeaLevel = new TextBoxView<double>("atmosphereTemperatureSeaLevel", "New 1.0 field. Unknown what this does.", 1, Model.SiSuffix.TryParse);
-            var atmospherePressureSeaLevel = new TextBoxView<double>("atmospherePressureSeaLevel", "New 1.0 field. Unknown what this does.", 1, Model.SiSuffix.TryParse);
+            var atmospherePressureSeaLevel = new TextBoxView<float>("atmospherePressureSeaLevel", "New 1.0 field. Unknown what this does.", 1, Model.SiSuffix.TryParse);
             var atmosphereMolarMass = new TextBoxView<double>("atmosphereMolarMass", "New 1.0 field. Unknown what this does.", 1, Model.SiSuffix.TryParse);
             var atmosphereAdiabaticIndex = new TextBoxView<double>("atmosphereAdiabaticIndex", "New 1.0 field. Unknown what this does.", 1, Model.SiSuffix.TryParse);
             var rotates = new ToggleView("Rotates", "If the planet rotates.", false);
