@@ -9,7 +9,7 @@ using System.Diagnostics;
 
 [assembly: System.Reflection.AssemblyProduct("HyperEdit")]
 [assembly: System.Reflection.AssemblyTitle("HyperEdit")]
-[assembly: System.Reflection.AssemblyDescription("A plugin mod for Kerbal Space Program v1.4.1")]
+[assembly: System.Reflection.AssemblyDescription("A plugin mod for Kerbal Space Program")]
 [assembly: System.Reflection.AssemblyCompany("Kerbaltek")]
 [assembly: System.Reflection.AssemblyCopyright("Erickson Swift")]
 [assembly: System.Reflection.AssemblyVersion("1.5.8")]
@@ -267,10 +267,10 @@ namespace HyperEdit {
 
   public static class IoExt {
     private static readonly string PluginDir = System.IO.Path.Combine(System.IO.Path.ChangeExtension(typeof(IoExt).Assembly.Location, null), "..");
-    private static readonly string PluginDataDir = System.IO.Path.Combine(PluginDir, "PluginData");
+    private static readonly string PluginDataDir = System.IO.Path.Combine(PluginDir, "HyperEdit");
 
-    //private static readonly string RootDir = System.IO.Path.Combine(System.IO.Path.ChangeExtension(typeof(IoExt).Assembly.Location, null), "PluginData");
-    private static readonly string RootDir = PluginDataDir;
+        //private static readonly string RootDir = System.IO.Path.Combine(System.IO.Path.ChangeExtension(typeof(IoExt).Assembly.Location, null), "HyperEdit");
+        private static readonly string RootDir = PluginDataDir;
 
     static IoExt() {
       if (!System.IO.Directory.Exists(RootDir)) {
