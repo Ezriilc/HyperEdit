@@ -5,10 +5,10 @@ A plugin for Kerbal Space Program, proudly maintained by Kerbaltek.
 
 All releases will be on our own site: http://www.Kerbaltek.com/hyperedit
 
-Please talk to us at the KSP forum thread, or on our site. http://forum.KerbalSpaceProgram.com/threads/37756
+Please talk to us at the KSP forum thread (you'll have to search for it), and on our site:
 http://www.Kerbaltek.com/contact
 
-Pull requests are always welcome, as is any other input.  In fact, we rely on contributions to keep our projects going.  Please feel free to contact us here, in the KSP forums, and on our website.
+Pull requests are always welcome, as is any other input.  In fact, we rely on contributions to keep our projects going.
 
 Please leave our .version file as it is.  That's only here for CKAN, and it will be changed manually by the owner when we package the mod for release.
 
