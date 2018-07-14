@@ -18,7 +18,7 @@ namespace HyperEdit.Model
                 bool   atmosphereContainsOxygen
                 double atmosphereDepth
                 double atmosphereTemperatureSeaLevel
-                float atmospherePressureSeaLevel
+                double atmospherePressureSeaLevel
                 double atmosphereMolarMass
                 double atmosphereAdiabaticIndex
                 bool   rotates
@@ -33,7 +33,7 @@ namespace HyperEdit.Model
             public bool atmosphereContainsOxygen { get; set; }
             public double atmosphereDepth { get; set; }
             public double atmosphereTemperatureSeaLevel { get; set; }
-            public float atmospherePressureSeaLevel { get; set; }
+            public double atmospherePressureSeaLevel { get; set; }
             public double atmosphereMolarMass { get; set; }
             public double atmosphereAdiabaticIndex { get; set; }
             public bool rotates { get; set; }
@@ -49,7 +49,7 @@ namespace HyperEdit.Model
                 bool atmosphereContainsOxygen,
                 double atmosphereDepth,
                 double atmosphereTemperatureSeaLevel,
-                float atmospherePressureSeaLevel,
+                double atmospherePressureSeaLevel,
                 double atmosphereMolarMass,
                 double atmosphereAdiabaticIndex,
                 bool rotates,
@@ -162,7 +162,7 @@ namespace HyperEdit.Model
                 node.TryGetValue("atmosphereContainsOxygen", ref body.atmosphereContainsOxygen, bool.TryParse);
                 node.TryGetValue("atmosphereDepth", ref body.atmosphereDepth, double.TryParse);
                 node.TryGetValue("atmosphereTemperatureSeaLevel", ref body.atmosphereTemperatureSeaLevel, double.TryParse);
-                node.TryGetValue("atmospherePressureSeaLevel", ref body.atmospherePressureSeaLevel, float.TryParse);
+                node.TryGetValue("atmospherePressureSeaLevel", ref body.atmospherePressureSeaLevel, double.TryParse);
                 node.TryGetValue("atmosphereMolarMass", ref body.atmosphereMolarMass, double.TryParse);
                 node.TryGetValue("atmosphereAdiabaticIndex", ref body.atmosphereAdiabaticIndex, double.TryParse);
                 node.TryGetValue("rotates", ref body.rotates, bool.TryParse);
