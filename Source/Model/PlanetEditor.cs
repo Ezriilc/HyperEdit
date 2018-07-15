@@ -12,19 +12,30 @@ namespace HyperEdit.Model
         {
             // Included fields for copy-paste:
             /*
-                double GeeASL
-                bool   ocean
-                bool   atmosphere
-                bool   atmosphereContainsOxygen
-                double atmosphereDepth
-                double atmosphereTemperatureSeaLevel
-                double atmospherePressureSeaLevel
-                double atmosphereMolarMass
-                double atmosphereAdiabaticIndex
-                bool   rotates
-                double rotationPeriod
-                double initialRotation
-                bool   tidallyLocked
+                double     GeeASL
+                bool       ocean
+                bool       atmosphere
+                bool       atmosphereContainsOxygen
+                double     atmosphereDepth
+                double     atmosphereTemperatureSeaLevel
+                double     atmosphereTemperatureLapseRate
+                double     atmospherePressureSeaLevel
+                double     atmDensityASL
+                double     atmosphereGasMassLapseRate
+                double     atmosphereMolarMass
+                double     atmosphereAdiabaticIndex
+                double     radiusAtmoFactor
+                bool       atmosphereUsePressureCurve
+                bool       atmospherePressureCurveIsNormalized
+                FloatCurve atmospherePressureCurve
+                bool       atmosphereUseTemperatureCurve
+                bool       atmosphereTemperatureCurveIsNormalized
+                FloatCurve atmosphereTemperatureCurve
+                FloatCurve atmosphereTemperatureSunMultCurve
+                bool       rotates
+                double     rotationPeriod
+                double     initialRotation
+                bool       tidallyLocked
             */
 
             public double GeeASL { get; set; }
@@ -33,9 +44,20 @@ namespace HyperEdit.Model
             public bool atmosphereContainsOxygen { get; set; }
             public double atmosphereDepth { get; set; }
             public double atmosphereTemperatureSeaLevel { get; set; }
+            public double atmosphereTemperatureLapseRate { get; set; }
             public double atmospherePressureSeaLevel { get; set; }
+            public double atmDensityASL { get; set; }
+            public double atmosphereGasMassLapseRate { get; set; }
             public double atmosphereMolarMass { get; set; }
             public double atmosphereAdiabaticIndex { get; set; }
+            public double radiusAtmoFactor { get; set; }
+            public bool atmosphereUsePressureCurve { get; set; }
+            public bool atmospherePressureCurveIsNormalized { get; set; }
+            public FloatCurve atmospherePressureCurve { get; set; }
+            public bool atmosphereUseTemperatureCurve { get; set; }
+            public bool atmosphereTemperatureCurveIsNormalized { get; set; }
+            public FloatCurve atmosphereTemperatureCurve { get; set; }
+            public FloatCurve atmosphereTemperatureSunMultCurve { get; set; }
             public bool rotates { get; set; }
             public double rotationPeriod { get; set; }
             public double initialRotation { get; set; }
@@ -49,9 +71,20 @@ namespace HyperEdit.Model
                 bool atmosphereContainsOxygen,
                 double atmosphereDepth,
                 double atmosphereTemperatureSeaLevel,
+                double atmosphereTemperatureLapseRate,
                 double atmospherePressureSeaLevel,
+                double atmDensityASL,
+                double atmosphereGasMassLapseRate,
                 double atmosphereMolarMass,
                 double atmosphereAdiabaticIndex,
+                double radiusAtmoFactor,
+                bool atmosphereUsePressureCurve,
+                bool atmospherePressureCurveIsNormalized,
+                FloatCurve atmospherePressureCurve,
+                bool atmosphereUseTemperatureCurve,
+                bool atmosphereTemperatureCurveIsNormalized,
+                FloatCurve atmosphereTemperatureCurve,
+                FloatCurve atmosphereTemperatureSunMultCurve,
                 bool rotates,
                 double rotationPeriod,
                 double initialRotation,
@@ -64,9 +97,20 @@ namespace HyperEdit.Model
                 this.atmosphereContainsOxygen = atmosphereContainsOxygen;
                 this.atmosphereDepth = atmosphereDepth;
                 this.atmosphereTemperatureSeaLevel = atmosphereTemperatureSeaLevel;
+                this.atmosphereTemperatureLapseRate = atmosphereTemperatureLapseRate;
                 this.atmospherePressureSeaLevel = atmospherePressureSeaLevel;
+                this.atmDensityASL = atmDensityASL;
+                this.atmosphereGasMassLapseRate = atmosphereGasMassLapseRate;
                 this.atmosphereMolarMass = atmosphereMolarMass;
                 this.atmosphereAdiabaticIndex = atmosphereAdiabaticIndex;
+                this.radiusAtmoFactor = radiusAtmoFactor;
+                this.atmosphereUsePressureCurve = atmosphereUsePressureCurve;
+                this.atmospherePressureCurveIsNormalized = atmospherePressureCurveIsNormalized;
+                this.atmospherePressureCurve = atmospherePressureCurve;
+                this.atmosphereUseTemperatureCurve = atmosphereUseTemperatureCurve;
+                this.atmosphereTemperatureCurveIsNormalized = atmosphereTemperatureCurveIsNormalized;
+                this.atmosphereTemperatureCurve = atmosphereTemperatureCurve;
+                this.atmosphereTemperatureSunMultCurve = atmosphereTemperatureSunMultCurve;
                 this.rotates = rotates;
                 this.rotationPeriod = rotationPeriod;
                 this.initialRotation = initialRotation;
@@ -83,9 +127,20 @@ namespace HyperEdit.Model
                 atmosphereContainsOxygen = body.atmosphereContainsOxygen;
                 atmosphereDepth = body.atmosphereDepth;
                 atmosphereTemperatureSeaLevel = body.atmosphereTemperatureSeaLevel;
+                atmosphereTemperatureLapseRate = body.atmosphereTemperatureLapseRate;
                 atmospherePressureSeaLevel = body.atmospherePressureSeaLevel;
+                atmDensityASL = body.atmDensityASL;
+                atmosphereGasMassLapseRate = body.atmosphereGasMassLapseRate;
                 atmosphereMolarMass = body.atmosphereMolarMass;
                 atmosphereAdiabaticIndex = body.atmosphereAdiabaticIndex;
+                radiusAtmoFactor = body.radiusAtmoFactor;
+                atmosphereUsePressureCurve = body.atmosphereUsePressureCurve;
+                atmospherePressureCurveIsNormalized = body.atmospherePressureCurveIsNormalized;
+                atmospherePressureCurve = body.atmospherePressureCurve;
+                atmosphereUseTemperatureCurve = body.atmosphereUseTemperatureCurve;
+                atmosphereTemperatureCurveIsNormalized = body.atmosphereTemperatureCurveIsNormalized;
+                atmosphereTemperatureCurve = body.atmosphereTemperatureCurve;
+                atmosphereTemperatureSunMultCurve = body.atmosphereTemperatureSunMultCurve;
                 rotates = body.rotates;
                 rotationPeriod = body.rotationPeriod;
                 initialRotation = body.initialRotation;
@@ -106,9 +161,20 @@ namespace HyperEdit.Model
                 body.atmosphereContainsOxygen = atmosphereContainsOxygen;
                 body.atmosphereDepth = atmosphereDepth;
                 body.atmosphereTemperatureSeaLevel = atmosphereTemperatureSeaLevel;
+                body.atmosphereTemperatureLapseRate = atmosphereTemperatureLapseRate;
                 body.atmospherePressureSeaLevel = atmospherePressureSeaLevel;
+                body.atmDensityASL = atmDensityASL;
+                body.atmosphereGasMassLapseRate = atmosphereGasMassLapseRate;
                 body.atmosphereMolarMass = atmosphereMolarMass;
                 body.atmosphereAdiabaticIndex = atmosphereAdiabaticIndex;
+                body.radiusAtmoFactor = radiusAtmoFactor;
+                body.atmosphereUsePressureCurve = atmosphereUsePressureCurve;
+                body.atmospherePressureCurveIsNormalized = atmospherePressureCurveIsNormalized;
+                body.atmospherePressureCurve = atmospherePressureCurve;
+                body.atmosphereUseTemperatureCurve = atmosphereUseTemperatureCurve;
+                body.atmosphereTemperatureCurveIsNormalized = atmosphereTemperatureCurveIsNormalized;
+                body.atmosphereTemperatureCurve = atmosphereTemperatureCurve;
+                body.atmosphereTemperatureSunMultCurve = atmosphereTemperatureSunMultCurve;
                 body.rotates = rotates;
                 body.rotationPeriod = rotationPeriod;
                 body.initialRotation = initialRotation;
@@ -132,9 +198,32 @@ namespace HyperEdit.Model
                 node.AddValue("atmosphereContainsOxygen", body.atmosphereContainsOxygen);
                 node.AddValue("atmosphereDepth", body.atmosphereDepth);
                 node.AddValue("atmosphereTemperatureSeaLevel", body.atmosphereTemperatureSeaLevel);
+                node.AddValue("atmosphereTemperatureLapseRate", body.atmosphereTemperatureLapseRate);
                 node.AddValue("atmospherePressureSeaLevel", body.atmospherePressureSeaLevel);
+                node.AddValue("atmDensityASL", body.atmDensityASL);
+                node.AddValue("atmosphereGasMassLapseRate", body.atmosphereGasMassLapseRate);
                 node.AddValue("atmosphereMolarMass", body.atmosphereMolarMass);
                 node.AddValue("atmosphereAdiabaticIndex", body.atmosphereAdiabaticIndex);
+                node.AddValue("radiusAtmoFactor", body.radiusAtmoFactor);
+                node.AddValue("atmosphereUsePressureCurve", body.atmosphereUsePressureCurve);
+                node.AddValue("atmospherePressureCurveIsNormalized", body.atmospherePressureCurveIsNormalized);
+                if (body.atmospherePressureCurve != null)
+                {
+                    ConfigNode apc = node.AddNode("atmospherePressureCurve");
+                    body.atmospherePressureCurve.Save(apc);
+                }
+                node.AddValue("atmosphereUseTemperatureCurve", body.atmosphereUseTemperatureCurve);
+                node.AddValue("atmosphereTemperatureCurveIsNormalized", body.atmosphereTemperatureCurveIsNormalized);
+                if (body.atmosphereTemperatureCurve != null)
+                {
+                    ConfigNode tpc = node.AddNode("atmosphereTemperatureCurve");
+                    body.atmosphereTemperatureCurve.Save(tpc);
+                }
+                if (body.atmosphereTemperatureSunMultCurve != null)
+                {
+                    ConfigNode atsmc = node.AddNode("atmosphereTemperatureSunMultCurve");
+                    body.atmosphereTemperatureSunMultCurve.Save(atsmc);
+                }
                 node.AddValue("rotates", body.rotates);
                 node.AddValue("rotationPeriod", body.rotationPeriod);
                 node.AddValue("initialRotation", body.initialRotation);
@@ -162,9 +251,38 @@ namespace HyperEdit.Model
                 node.TryGetValue("atmosphereContainsOxygen", ref body.atmosphereContainsOxygen, bool.TryParse);
                 node.TryGetValue("atmosphereDepth", ref body.atmosphereDepth, double.TryParse);
                 node.TryGetValue("atmosphereTemperatureSeaLevel", ref body.atmosphereTemperatureSeaLevel, double.TryParse);
+                node.TryGetValue("atmosphereTemperatureLapseRate", ref body.atmosphereTemperatureLapseRate, double.TryParse);
                 node.TryGetValue("atmospherePressureSeaLevel", ref body.atmospherePressureSeaLevel, double.TryParse);
+                node.TryGetValue("atmDensityASL", ref body.atmDensityASL, double.TryParse);
+                node.TryGetValue("atmosphereGasMassLapseRate", ref body.atmosphereGasMassLapseRate, double.TryParse);
                 node.TryGetValue("atmosphereMolarMass", ref body.atmosphereMolarMass, double.TryParse);
                 node.TryGetValue("atmosphereAdiabaticIndex", ref body.atmosphereAdiabaticIndex, double.TryParse);
+                node.TryGetValue("radiusAtmoFactor", ref body.radiusAtmoFactor, double.TryParse);
+                node.TryGetValue("atmosphereUsePressureCurve", ref body.atmosphereUsePressureCurve, bool.TryParse);
+                node.TryGetValue("atmospherePressureCurveIsNormalized", ref body.atmospherePressureCurveIsNormalized, bool.TryParse);
+                ConfigNode apc = new ConfigNode();
+                if (node.TryGetNode("atmospherePressureCurve", ref apc))
+                {
+                    FloatCurve floatCurve = new FloatCurve();
+                    floatCurve.Load(apc);
+                    body.atmospherePressureCurve = floatCurve;
+                }
+                node.TryGetValue("atmosphereUseTemperatureCurve", ref body.atmosphereUseTemperatureCurve, bool.TryParse);
+                node.TryGetValue("atmosphereTemperatureCurveIsNormalized", ref body.atmosphereTemperatureCurveIsNormalized, bool.TryParse);
+                ConfigNode tpc = new ConfigNode();
+                if (node.TryGetNode("atmosphereTemperatureCurve", ref tpc))
+                {
+                    FloatCurve floatCurve = new FloatCurve();
+                    floatCurve.Load(tpc);
+                    body.atmosphereTemperatureCurve = floatCurve;
+                }
+                ConfigNode atsmc = new ConfigNode();
+                if (node.TryGetNode("atmosphereTemperatureSunMultCurve", ref atsmc))
+                {
+                    FloatCurve floatCurve = new FloatCurve();
+                    floatCurve.Load(atsmc);
+                    body.atmosphereTemperatureSunMultCurve = floatCurve;
+                }
                 node.TryGetValue("rotates", ref body.rotates, bool.TryParse);
                 node.TryGetValue("rotationPeriod", ref body.rotationPeriod, double.TryParse);
                 node.TryGetValue("initialRotation", ref body.initialRotation, double.TryParse);

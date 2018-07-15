@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using UnityEngine;
+
 namespace HyperEdit.Model
 {
     public static class SiSuffix
@@ -55,6 +57,28 @@ namespace HyperEdit.Model
                 return false;
             value *= multiplier;
             return true;
+        }
+
+        public static bool TryParse(string s, out FloatCurve value)
+        {
+            value = new FloatCurve();
+            try {
+                JsonUtility.FromJsonOverwrite(s, value);
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        }
+
+        public static bool TryParse(string s, out String value) {
+            value = s;
+            return true;
+        }
+
+        public static bool TryParseFloatCurve(string s, out string value) {
+            value = s;
+            FloatCurve floatCurve;
+            return TryParse(s, out floatCurve);
         }
 
         /*
