@@ -20,6 +20,11 @@
 -->
     <KspInstallDir Condition=" '$(KspInstallDir)' == '' ">..\..\..\Games\Kerbal Space Program\KSP_win64</KspInstallDir>
     <KspOutputPath>$(KspInstallDir)\GameData\Kerbaltek</KspOutputPath>
+<!-- // This is for Ezriilc's IDE, please leave this comment here, but change the next line (28) to your own KSP library directory.
+      <KspLibPath>$(KspInstallDir)\KSP_x64_Data\Managed</KspLibPath>
+      On a Mac this would be:
+      <KspLibPath>$(KspInstallDir)/KSP.app/Contents/Resources/Data/Managed</KspLibPath>
+-->
     <KspLibPath>$(KspInstallDir)\KSP_x64_Data\Managed</KspLibPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -45,6 +50,18 @@
     <Reference Include="System" />
     <Reference Include="UnityEngine">
       <HintPath>$(KspLibPath)\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AnimationModule">
+      <HintPath>$(KspLibPath)\UnityEngine.AnimationModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(KspLibPath)\UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>$(KspLibPath)\UnityEngine.IMGUIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>$(KspLibPath)\UnityEngine.PhysicsModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>$(KspLibPath)\UnityEngine.UI.dll</HintPath>
