@@ -324,6 +324,77 @@ namespace HyperEdit.View
         }
     }
 
+    public class TextAreaView<T> : IView
+    {
+        private readonly GUIContent _label;
+        private readonly TryParse<T> _parser;
+        private readonly Func<T, string> _toString;
+        private readonly Action<T> _onSet;
+        private string _value;
+        private T _obj;
+        private Vector2 scrollPosition;
+
+        public bool Valid { get; private set; }
+
+        public T Object
+        {
+            get { return _obj; }
+            set
+            {
+                _value = _toString(value);
+                _obj = value;
+            }
+        }
+
+        public TextAreaView(string label, string help, T start, TryParse<T> parser, Func<T, string> toString = null,
+            Action<T> onSet = null)
+        {
+            _label = label == null ? null : new GUIContent(label, help);
+            _toString = toString ?? (x => x.ToString());
+            _value = _toString(start);
+            _parser = parser;
+            _onSet = onSet;
+        }
+
+        public void Draw()
+        {
+            if (_label != null || _onSet != null)
+            {
+                GUILayout.BeginVertical();
+                if (_label != null)
+                    GUILayout.Label(_label);
+            }
+
+            T tempValue;
+            Valid = _parser(_value, out tempValue);
+
+
+            scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.MinWidth(100), GUILayout.MinHeight(100), GUILayout.MaxHeight(400));
+            if (Valid)
+            {
+                _value = GUILayout.TextArea(_value);
+                _obj = tempValue;
+            }
+            else
+            {
+                var color = GUI.color;
+                GUI.color = Color.red;
+                _value = GUILayout.TextArea(_value);
+                GUI.color = color;
+            }
+            GUILayout.EndScrollView();
+            if (_label != null || _onSet != null)
+            {
+                if (_onSet != null && Valid && GUILayout.Button("Set"))
+                {
+                    _onSet(Object);
+                    Extensions.ClearGuiFocus();
+                }
+                GUILayout.EndVertical();
+            }
+        }
+    }
+
     public class TabView : IView
     {
         private readonly List<KeyValuePair<string, IView>> _views;
@@ -355,6 +426,23 @@ namespace HyperEdit.View
             }
             GUILayout.EndHorizontal();
             _current.Value.Draw();
+        }
+    }
+
+    public class ScrollView : IView {
+        private readonly IView _view;
+        private readonly GUILayoutOption[] _options;
+        private Vector2 scrollPosition;
+
+        public ScrollView(IView view, params GUILayoutOption[] options) {
+            _view = view;
+            _options = options;
+        }
+
+        public void Draw() {
+            scrollPosition = GUILayout.BeginScrollView(scrollPosition, _options);
+            _view.Draw();
+            GUILayout.EndScrollView();
         }
     }
 }
