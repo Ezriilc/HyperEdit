@@ -3,7 +3,7 @@ HyperEdit
 
 A plugin for Kerbal Space Program, proudly maintained by Kerbaltek.
 
-All releases will be on our own site: http://www.Kerbaltek.com/hyperedit
+To use this mod, DO NOT DOWNLOAD FROM THIS REPO, as it only contains the source code and not the actual binary .dll file.  All releases will be on our own site: http://www.Kerbaltek.com/hyperedit
 
 Please talk to us at the KSP forum thread (you'll have to search for it), and on our site:
 http://www.Kerbaltek.com/contact
