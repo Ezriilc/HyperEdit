@@ -45,13 +45,38 @@ namespace HyperEdit.View {
         GUILayout.EndVertical();
 
       };
+      var setTimeButtonView = new TextBoxView<double>("Time", "Set time (aka UniversalTime)",
+          Model.MiscEditor.UniversalTime, Model.SiSuffix.TryParse, null,
+          v => Model.MiscEditor.UniversalTime = v);
+      var timeIncrementButtonView = new TextBoxView<double>("Increment", "Set time increment (used for + and - buttons)",
+          1, Model.SiSuffix.TryParse, null, null);
+      Action timeButtons = () =>
+      {
+          GUILayout.BeginHorizontal();
+          if (GUILayout.Button("-")) setTimeButtonView.Object = Model.MiscEditor.DecrementYear(timeIncrementButtonView.Object);
+          GUILayout.Label("Year");
+          if (GUILayout.Button("+")) setTimeButtonView.Object = Model.MiscEditor.IncrementYear(timeIncrementButtonView.Object);
+
+          GUILayout.Space(25);
+
+          if (GUILayout.Button("-")) setTimeButtonView.Object = Model.MiscEditor.DecrementDay(timeIncrementButtonView.Object);
+          GUILayout.Label("Day");
+          if (GUILayout.Button("+")) setTimeButtonView.Object = Model.MiscEditor.IncrementDay(timeIncrementButtonView.Object);
+
+          GUILayout.Space(25);
+
+          if (GUILayout.Button("-")) setTimeButtonView.Object = Model.MiscEditor.DecrementHour(timeIncrementButtonView.Object);
+          GUILayout.Label("Hour");
+          if (GUILayout.Button("+")) setTimeButtonView.Object = Model.MiscEditor.IncrementHour(timeIncrementButtonView.Object);
+          GUILayout.EndHorizontal();
+      };
       return new VerticalView(new IView[]
       {
                 new LabelView("Resources", "Set amounts of various resources contained on the active vessel"),
                 new CustomView(resources),
-                new TextBoxView<double>("Time", "Set time (aka UniversalTime)",
-                    Model.MiscEditor.UniversalTime, Model.SiSuffix.TryParse, null,
-                    v => Model.MiscEditor.UniversalTime = v),
+                setTimeButtonView,
+                new CustomView(timeButtons),
+                timeIncrementButtonView,
                 new ButtonView("Align SMAs", "Open the semi-major axis aligner window",
                     Model.MiscEditor.AlignSemiMajorAxis),
                 new ButtonView("Destroy a vessel", "Select a vessel to destroy", Model.MiscEditor.DestroyVessel),
