@@ -77,7 +77,10 @@ namespace HyperEdit.View
         return false;
       }
       //d = d1;
-      d = Extensions.DegreeFix(d1, 0); //checking for massive values
+      //Getting absolute latitude value
+      double absD1 = Math.Abs(d1);
+      //Passing absolute value to degreefix. Changing the sign of the return value back to the right one
+      d = Math.Sign(d1) * Extensions.DegreeFix(absD1, 0); //checking for massive values
       return true;
     }
     static bool altTryParse(string str, out double d)
