@@ -20,6 +20,18 @@ namespace HyperEdit.Model
             set { Planetarium.SetUniversalTime(value); Extensions.Log("Set Planetarium.UniversalTime to " + value); }
         }
 
+        // time intervals in seconds
+        static readonly int Hour = 3600;
+        static readonly int Day = 6 * Hour;
+        static readonly int Year = 426 * Day;
+
+        public static double IncrementYear(double multiplier) { UniversalTime += Year * multiplier; return UniversalTime; }
+        public static double DecrementYear(double multiplier) { UniversalTime -= Year * multiplier; return UniversalTime; }
+        public static double IncrementDay(double multiplier) { UniversalTime += Day * multiplier; return UniversalTime; }
+        public static double DecrementDay(double multiplier) { UniversalTime -= Day * multiplier; return UniversalTime; }
+        public static double IncrementHour(double multiplier) { UniversalTime += Hour * multiplier; return UniversalTime; }
+        public static double DecrementHour(double multiplier) { UniversalTime -= Hour * multiplier; return UniversalTime; }
+
         public static void AlignSemiMajorAxis()
         {
             View.SmaAlignerView.Create();
