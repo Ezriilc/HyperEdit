@@ -15,4 +15,4 @@ Please leave our .version file as it is.  That's only here for CKAN, and it will
 To build:
 Change the .csproj file where notated to suit your own setup, but please keep it out of your commits when pushing or making a pull request.
 
-VS2015+ is required, or other C#6 compliant C# compiler (khyperia uses mono 4.2.2, Ezriilc uses VS2017 Community)
+VS2015+ is required, or other C#6 compliant C# compiler (khyperia uses mono 4.2.2, Ezriilc uses VS2019 Community)
