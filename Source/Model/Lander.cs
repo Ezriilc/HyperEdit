@@ -22,6 +22,7 @@ namespace HyperEdit.Model {
       if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null || body == null) {
         return;
       }
+      //PrincipiaWrapper.PrincipiaHackGravity(); // the principia methods dont work here for some reason
 
       Extensions.Log("HyperEdit.Model.ToggleLanding");
       Extensions.Log("-----------------------------");
@@ -65,12 +66,15 @@ namespace HyperEdit.Model {
         Extensions.Log("Unity destroy lander");
         UnityEngine.Object.Destroy(lander);
       }
+
+      //PrincipiaWrapper.PrincipiaUnhackGravity();
     }
 
     public static void LandHere(Action<double, double, double, CelestialBody> onManualEdit) {
       if (FlightGlobals.fetch == null || FlightGlobals.ActiveVessel == null) {
         return;
       }
+      //PrincipiaWrapper.PrincipiaHackGravity(); // the principia methods dont work here for some reason
 
       var vessel = FlightGlobals.ActiveVessel;
       var lander = vessel.GetComponent<LanderAttachment>();
@@ -96,6 +100,8 @@ namespace HyperEdit.Model {
         Extensions.Log("-----------------------------");
 
       }
+
+      //PrincipiaWrapper.PrincipiaUnhackGravity();
     }
 
     private static IEnumerable<LandingCoordinates> DefaultSavedCoords {
@@ -173,7 +179,7 @@ namespace HyperEdit.Model {
     public static void LoadLast(Action<double, double, double, CelestialBody> onLoad) {
       var lastC = SavedCoords.Find(c => c.Name == RecentEntryName);
       //double-check coords are correct (so that we don't load invalid data!)
-      onLoad(Extensions.DegreeFix(lastC.Lat,0) , lastC.Lon, lastC.Alt, lastC.Body);
+      onLoad(Math.Sign(lastC.Lat) * Extensions.DegreeFix(Math.Abs(lastC.Lat), 0), lastC.Lon, lastC.Alt, lastC.Body);
     }
 
     public static void Load(Action<double, double, double, CelestialBody> onLoad) {

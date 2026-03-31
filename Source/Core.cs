@@ -12,7 +12,7 @@ using System.Diagnostics;
 [assembly: System.Reflection.AssemblyDescription("A plugin mod for Kerbal Space Program")]
 [assembly: System.Reflection.AssemblyCompany("Kerbaltek")]
 [assembly: System.Reflection.AssemblyCopyright("Erickson Swift")]
-[assembly: System.Reflection.AssemblyVersion("1.5.8.0")]
+[assembly: System.Reflection.AssemblyVersion("1.5.9.0")]
 
 [KSPAddon(KSPAddon.Startup.SpaceCentre, true)] // Determines when plugin starts.
 public class HyperEditModule : MonoBehaviour {
@@ -42,10 +42,10 @@ public class HyperEditModule : MonoBehaviour {
       if (Time.fixedTime - lasttimecheck > .1) {
         lasttimecheck = Time.fixedTime;
         // following fixes a stock bug
-        if (appListModHidden.Contains(HyperEdit.HyperEditBehaviour.appButton)) {
-          HyperEdit.HyperEditBehaviour.appButton.gameObject.SetActive(false);
-          if (HyperEdit.HyperEditBehaviour.appButton.enabled) {
-            HyperEdit.HyperEditBehaviour.appButton.onDisable();
+        if (appListModHidden.Contains(HyperEdit.HyperEditBehaviour.AppButton)) {
+          HyperEdit.HyperEditBehaviour.AppButton.gameObject.SetActive(false);
+          if (HyperEdit.HyperEditBehaviour.AppButton.enabled) {
+            HyperEdit.HyperEditBehaviour.AppButton.onDisable();
           }
         }
       }
@@ -77,7 +77,7 @@ namespace HyperEdit {
     private Action _createLanderView;
     private bool _autoOpenLanderValue;
 
-    public static ApplicationLauncherButton appButton {
+    public static ApplicationLauncherButton AppButton {
       get { return _appLauncherButton; }
     }
 
@@ -264,21 +264,33 @@ namespace HyperEdit {
   }
 
   public static class IoExt {
-    private static readonly string PluginDir = System.IO.Path.Combine(System.IO.Path.ChangeExtension(typeof(IoExt).Assembly.Location, null), "..");
-    private static readonly string PluginDataDir = System.IO.Path.Combine(PluginDir, "PluginData");
-
-    //private static readonly string RootDir = System.IO.Path.Combine(System.IO.Path.ChangeExtension(typeof(IoExt).Assembly.Location, null), "PluginData");
-    private static readonly string RootDir = PluginDataDir;
-
+    private static readonly string RootDir = System.IO.Path.Combine(KSPUtil.ApplicationRootPath, "GameData/Kerbaltek/HyperEdit/PluginData/");
+    
+    //static constructor executes when class is first accessed, before any methods
     static IoExt() {
       if (!System.IO.Directory.Exists(RootDir)) {
         System.IO.Directory.CreateDirectory(RootDir);
       }
 
       Extensions.Log("Using '" + RootDir + "' as root config directory");
+
+      string oldDir = System.IO.Path.Combine(KSPUtil.ApplicationRootPath, "GameData/Kerbaltek/HyperEdit/");
+      if (System.IO.Directory.Exists(oldDir))
+      {
+          foreach (string oldFilePath in System.IO.Directory.GetFiles(oldDir))
+          {
+              string fileName = System.IO.Path.GetFileName(oldFilePath);
+              string newFilePath = GetPath(fileName);
+  
+              if (System.IO.File.Exists(newFilePath))
+                  System.IO.File.Delete(oldFilePath);
+              else
+                  System.IO.File.Move(oldFilePath, newFilePath);
+          }
+      }
     }
 
-    public static string GetPath(string path) => path == null ? RootDir : System.IO.Path.Combine(RootDir, path);
+    public static string GetPath(string path) => string.IsNullOrEmpty(path) ? RootDir : System.IO.Path.Combine(RootDir, path);
 
     public static void Save(this ConfigNode config) => config.Save(GetPath(config.name + ".cfg"));
   }
@@ -575,33 +587,5 @@ namespace HyperEdit {
         outAngle += 360.0;
       return outAngle;
     }
-
-
-  }
-
-  public static class Utils {
-    ///   Borrowed from https://github.com/KSP-KOS/KOS.
-    /// <summary>
-    ///   Fix the strange too-large or too-small angle degrees that are sometimes
-    ///   returned by KSP, normalizing them into a constrained 360 degree range.
-    /// </summary>
-    /// <param name="inAngle">input angle in degrees</param>
-    /// <param name="rangeStart">
-    ///   Bottom of 360 degree range to normalize to.
-    ///   ( 0 means the range [0..360]), while -180 means [-180,180] )
-    /// </param>
-    /// <returns>the same angle, normalized to the range given.</returns>
-    public static double DegreeFix(double inAngle, double rangeStart) {
-      double rangeEnd = rangeStart + 360.0;
-      double outAngle = inAngle;
-      while (outAngle > rangeEnd)
-        outAngle -= 360.0;
-      while (outAngle < rangeStart)
-        outAngle += 360.0;
-      return outAngle;
-    }
-
-
-
   }
 }

@@ -152,6 +152,9 @@ namespace HyperEdit.View
                 winy = (Screen.height - height)/2;
             }
 
+            winx = Math.Max(0, winx);
+            winy = Math.Max(0, winy);
+
             var window = GameObject.AddComponent<Window>();
             window._isOpen = true;
             window._shrinkHeight = height == -1;

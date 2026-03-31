@@ -38,6 +38,11 @@
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+	<ItemDefinitionGroup>
+		<Reference>
+			<Private>False</Private>
+		</Reference>
+	</ItemDefinitionGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
       <HintPath>$(KspLibPath)\Assembly-CSharp.dll</HintPath>

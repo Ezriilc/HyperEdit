@@ -285,6 +285,8 @@ namespace HyperEdit.Model
                 var evnt = new GameEvents.HostedFromToAction<Vessel, CelestialBody>(vessel, oldBody, newBody);
                 GameEvents.onVesselSOIChanged.Fire(evnt);
             }
+
+            FloatingOrigin.ResetTerrainShaderOffset();
         }
 
         public static void SetOrbit(this CelestialBody body, Orbit newOrbit)
@@ -303,6 +305,8 @@ namespace HyperEdit.Model
 
         private static void HardsetOrbit(OrbitDriver orbitDriver, Orbit newOrbit)
         {
+            PrincipiaWrapper.PrincipiaHackGravity();
+            
             var orbit = orbitDriver.orbit;
             orbit.inclination = newOrbit.inclination;
             orbit.eccentricity = newOrbit.eccentricity;
@@ -318,6 +322,7 @@ namespace HyperEdit.Model
             {
                 orbitDriver.OnReferenceBodyChange?.Invoke(newOrbit.referenceBody);
             }
+            PrincipiaWrapper.PrincipiaUnhackGravity();
             RateLimitedLogger.Log(HardsetOrbitLogObject,
                 $"Orbit \"{orbitDriver.OrbitDriverToString()}\" changed to: inc={orbit.inclination} ecc={orbit.eccentricity} sma={orbit.semiMajorAxis} lan={orbit.LAN} argpe={orbit.argumentOfPeriapsis} mep={orbit.meanAnomalyAtEpoch} epoch={orbit.epoch} refbody={orbit.referenceBody.CbToString()}");
         }

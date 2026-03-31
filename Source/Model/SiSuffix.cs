@@ -65,7 +65,7 @@ namespace HyperEdit.Model
             try {
                 JsonUtility.FromJsonOverwrite(s, value);
                 return true;
-            } catch (Exception e) {
+            } catch (Exception) {
                 return false;
             }
         }
