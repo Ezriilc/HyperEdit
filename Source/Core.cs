@@ -277,7 +277,7 @@ namespace HyperEdit {
       string oldDir = System.IO.Path.Combine(KSPUtil.ApplicationRootPath, "GameData/Kerbaltek/HyperEdit/");
       if (System.IO.Directory.Exists(oldDir))
       {
-          foreach (string oldFilePath in System.IO.Directory.GetFiles(oldDir))
+          foreach (string oldFilePath in System.IO.Directory.GetFiles(oldDir, "*.cfg"))
           {
               string fileName = System.IO.Path.GetFileName(oldFilePath);
               string newFilePath = GetPath(fileName);

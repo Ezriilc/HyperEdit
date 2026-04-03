@@ -108,7 +108,9 @@ namespace HyperEdit.Model {
       get {
         var kerbin = Planetarium.fetch?.Home;
         var minmus = FlightGlobals.fetch?.bodies?.FirstOrDefault(b => b.bodyName == "Minmus");
+        var moho = FlightGlobals.fetch?.bodies?.FirstOrDefault(b => b.bodyName == "Moho");
         if (kerbin == null) {
+          Extensions.Log("Kerbin does not exist!");
           return new List<LandingCoordinates>();
         }
         var list = new List<LandingCoordinates>
@@ -121,6 +123,9 @@ namespace HyperEdit.Model {
                 };
         if (minmus != null) {
           list.Add(new LandingCoordinates("Minmus Flats", 0.562859, 175.968846, 20, minmus));
+        }
+        if (moho != null) {
+         list.Add(new LandingCoordinates("Mohole", 89.9, 1, 200, moho)); 
         }
         return list;
       }
@@ -456,7 +461,7 @@ namespace HyperEdit.Model {
           return;
         }
 
-        var alt = pqs.GetSurfaceHeight(Body.GetRelSurfaceNVector(Latitude, Longitude)) - Body.Radius;
+        var alt = pqs.GetSurfaceHeight(Body.GetRelSurfaceNVector(Latitude, Longitude)) - Body.Radius + 8; //7.11351912914242311985185 is the MINIMUM safe distance from the ground that will prevent the vessel crashing into the terrain.
         var tmpAlt = Body.TerrainAltitude(Latitude, Longitude);
 
         double landHeight = FlightGlobals.ActiveVessel.altitude - FlightGlobals.ActiveVessel.pqsAltitude;
